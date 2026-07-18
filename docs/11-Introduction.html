@@ -868,6 +868,75 @@ Zou, H., &amp; Hastie, T. (2005). Regularization and variable selection via the 
 
 
 </main> <!-- /main -->
+  <script>
+document.querySelectorAll('.hover-video').forEach(img => {
+  const videos = JSON.parse(img.dataset.videos);
+  const staticSrc = img.dataset.static;
+
+  img.addEventListener('mouseenter', () => {
+    const src = videos[Math.floor(Math.random() * videos.length)];
+
+    const video = document.createElement('video');
+    // przenosimy klasy i wygląd z obrazka
+    video.className = img.className;
+    video.src = src;
+    video.muted = true;
+    video.autoplay = true;
+    video.playsInline = true;
+    video.loop = false; // ustaw true, jeśli ma się zapętlać
+    video.dataset.videos = img.dataset.videos;
+    video.dataset.static = staticSrc;
+
+    // gdy myszka zjedzie z filmu — wróć do obrazka
+    video.addEventListener('mouseleave', () => {
+      const newImg = document.createElement('img');
+      newImg.className = video.className;
+      newImg.src = staticSrc;
+      newImg.dataset.videos = video.dataset.videos;
+      newImg.dataset.static = staticSrc;
+      newImg.alt = '';
+      attach(newImg);
+      video.replaceWith(newImg);
+    });
+
+    img.replaceWith(video);
+    video.play();
+  });
+});
+
+// funkcja podpinająca hover do nowo utworzonego obrazka
+function attach(img) {
+  img.addEventListener('mouseenter', () => {
+    const videos = JSON.parse(img.dataset.videos);
+    const staticSrc = img.dataset.static;
+    const src = videos[Math.floor(Math.random() * videos.length)];
+
+    const video = document.createElement('video');
+    video.className = img.className;
+    video.src = src;
+    video.muted = true;
+    video.autoplay = true;
+    video.playsInline = true;
+    video.loop = false;
+    video.dataset.videos = img.dataset.videos;
+    video.dataset.static = staticSrc;
+
+    video.addEventListener('mouseleave', () => {
+      const newImg = document.createElement('img');
+      newImg.className = video.className;
+      newImg.src = staticSrc;
+      newImg.dataset.videos = video.dataset.videos;
+      newImg.dataset.static = staticSrc;
+      newImg.alt = '';
+      attach(newImg);
+      video.replaceWith(newImg);
+    });
+
+    img.replaceWith(video);
+    video.play();
+  });
+}
+</script>
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";
