@@ -283,9 +283,24 @@ window.Quarto = {
 </header>
 
 
-<section id="sec-case-viable" class="level2" data-number="8.1">
+<section id="sec-case-viable" class="level2 page-columns page-full" data-number="8.1">
 <h2 data-number="8.1" class="anchored" data-anchor-id="sec-case-viable"><span class="header-section-number">8.1</span> The Case: The Viable Business</h2>
-<p>The press release arrived on Beta’s feed at 7am, pushed by QuantumCorp’s PR algorithm with a confidence score of 94.7%.</p>
+
+<div class="no-row-height column-margin column-container"><div class="">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+      <p>
+  <img
+    src="figure/EmploymentScore_intro.png"
+    class="img-fluid figure-img hover-video"
+    data-videos='["figure/EmploymentScore_ani_0.mp4","figure/EmploymentScore_ani_1.mp4","figure/EmploymentScore_ani_2.mp4","figure/EmploymentScore_ani_3.mp4"]'
+    data-static="figure/EmploymentScore_intro.png"
+    alt="">
+</p>
+<figcaption>Just, trust the system…</figcaption>
+</figure>
+</div>
+</div></div><p>The press release arrived on Beta’s feed at 7am, pushed by QuantumCorp’s PR algorithm with a confidence score of 94.7%.</p>
 <blockquote class="blockquote">
 <p><em>“Second Chance: Transforming Lives in Districts 7 and 11. After six months, participants show a mean EmploymentScore gain of 18.4 points. QuantumCorp’s commitment to algorithmic equity delivers measurable results.”</em></p>
 </blockquote>
@@ -607,6 +622,75 @@ Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
 </section>
 
 </main> <!-- /main -->
+  <script>
+document.querySelectorAll('.hover-video').forEach(img => {
+  const videos = JSON.parse(img.dataset.videos);
+  const staticSrc = img.dataset.static;
+
+  img.addEventListener('mouseenter', () => {
+    const src = videos[Math.floor(Math.random() * videos.length)];
+
+    const video = document.createElement('video');
+    // przenosimy klasy i wygląd z obrazka
+    video.className = img.className;
+    video.src = src;
+    video.muted = true;
+    video.autoplay = true;
+    video.playsInline = true;
+    video.loop = false; // ustaw true, jeśli ma się zapętlać
+    video.dataset.videos = img.dataset.videos;
+    video.dataset.static = staticSrc;
+
+    // gdy myszka zjedzie z filmu — wróć do obrazka
+    video.addEventListener('mouseleave', () => {
+      const newImg = document.createElement('img');
+      newImg.className = video.className;
+      newImg.src = staticSrc;
+      newImg.dataset.videos = video.dataset.videos;
+      newImg.dataset.static = staticSrc;
+      newImg.alt = '';
+      attach(newImg);
+      video.replaceWith(newImg);
+    });
+
+    img.replaceWith(video);
+    video.play();
+  });
+});
+
+// funkcja podpinająca hover do nowo utworzonego obrazka
+function attach(img) {
+  img.addEventListener('mouseenter', () => {
+    const videos = JSON.parse(img.dataset.videos);
+    const staticSrc = img.dataset.static;
+    const src = videos[Math.floor(Math.random() * videos.length)];
+
+    const video = document.createElement('video');
+    video.className = img.className;
+    video.src = src;
+    video.muted = true;
+    video.autoplay = true;
+    video.playsInline = true;
+    video.loop = false;
+    video.dataset.videos = img.dataset.videos;
+    video.dataset.static = staticSrc;
+
+    video.addEventListener('mouseleave', () => {
+      const newImg = document.createElement('img');
+      newImg.className = video.className;
+      newImg.src = staticSrc;
+      newImg.dataset.videos = video.dataset.videos;
+      newImg.dataset.static = staticSrc;
+      newImg.alt = '';
+      attach(newImg);
+      video.replaceWith(newImg);
+    });
+
+    img.replaceWith(video);
+    video.play();
+  });
+}
+</script>
 <script id="quarto-html-after-body" type="application/javascript">
   window.document.addEventListener("DOMContentLoaded", function (event) {
     const icon = "";
