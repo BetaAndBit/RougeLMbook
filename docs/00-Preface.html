@@ -124,7 +124,7 @@ window.Quarto = {
 <link rel="stylesheet" href="style.css">
 </head>
 
-<body class="nav-sidebar floating quarto-light">
+<body class="nav-sidebar floating slimcontent quarto-light">
 
 <div id="quarto-search-results"></div>
   <header id="quarto-header" class="headroom fixed-top">
@@ -232,7 +232,7 @@ window.Quarto = {
 <div class="toc-actions"><ul><li><a href="https://github.com/BetaAndBit/RogueGuide2LinearModels/edit/main/00-Preface.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/BetaAndBit/RogueGuide2LinearModels/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
     </div>
 <!-- main -->
-<main class="content" id="quarto-document-content">
+<main class="content page-columns page-full" id="quarto-document-content">
 
 <header id="title-block-header" class="quarto-title-block default">
 <div class="quarto-title">
@@ -273,14 +273,30 @@ window.Quarto = {
 </ul>
 <p>These chapters can also be read in any order, skipping the narrative or the methodological section, depending on the reader’s preference.</p>
 </section>
-<section id="why-statpunk-statistical-models-through-dystopian-narrative" class="level2" data-number="2.2">
+<section id="why-statpunk-statistical-models-through-dystopian-narrative" class="level2 page-columns page-full" data-number="2.2">
 <h2 data-number="2.2" class="anchored" data-anchor-id="why-statpunk-statistical-models-through-dystopian-narrative"><span class="header-section-number">2.2</span> Why StatPunk? Statistical Models Through Dystopian Narrative</h2>
-<p>Linear models are among the oldest and most fundamental tools in statistical analysis. Since the pioneering work of <span class="citation" data-cites="legendre1805">Legendre (<a href="#ref-legendre1805" role="doc-biblioref">1805</a>)</span> and <span class="citation" data-cites="gauss1809">Gauss (<a href="#ref-gauss1809" role="doc-biblioref">1809</a>)</span> in the early 19th century, regression <span class="citation" data-cites="galton1886">(<a href="#ref-galton1886" role="doc-biblioref">Galton, 1886</a>)</span> has evolved into one of the most widely applied methodologies across sciences, social research, and industry <span class="citation" data-cites="stigler1986">(<a href="#ref-stigler1986" role="doc-biblioref">Stigler, 1986</a>)</span>. Yet despite their ubiquity and mathematical elegance, linear models often remain abstract to students, being seen as a collection of formulas, assumptions, and diagnostic plots that exist primarily in textbooks and academic papers.</p>
+
+<div class="no-row-height column-margin column-container"><div class="">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figure/Intro_Beta.png" class="img-fluid figure-img"></p>
+<figcaption>Introducing Beta …</figcaption>
+</figure>
+</div>
+</div></div><p>Linear models are among the oldest and most fundamental tools in statistical analysis. Since the pioneering work of <span class="citation" data-cites="legendre1805">Legendre (<a href="#ref-legendre1805" role="doc-biblioref">1805</a>)</span> and <span class="citation" data-cites="gauss1809">Gauss (<a href="#ref-gauss1809" role="doc-biblioref">1809</a>)</span> in the early 19th century, regression <span class="citation" data-cites="galton1886">(<a href="#ref-galton1886" role="doc-biblioref">Galton, 1886</a>)</span> has evolved into one of the most widely applied methodologies across sciences, social research, and industry <span class="citation" data-cites="stigler1986">(<a href="#ref-stigler1986" role="doc-biblioref">Stigler, 1986</a>)</span>. Yet despite their ubiquity and mathematical elegance, linear models often remain abstract to students, being seen as a collection of formulas, assumptions, and diagnostic plots that exist primarily in textbooks and academic papers.</p>
 <p>This book takes a different approach. Alongside traditional examples from biomedical research, genomics, and social sciences, we introduce StatPunk, a dystopian fictional universe set in the year 2047, where algorithms control resource allocation, predictive models determine life outcomes, and statistical analysis becomes a tool of both oppression and resistance. Through the eyes of Beta and Bit, two data forensics specialists operating in the megacity of WaszKrak, we explore how linear regression, ANOVA, and related techniques can reveal hidden biases, expose systematic inequalities, and ultimately serve as instruments for questioning the structures of power embedded in data.</p>
 </section>
-<section id="the-pedagogical-power-of-narrative" class="level2" data-number="2.3">
+<section id="the-pedagogical-power-of-narrative" class="level2 page-columns page-full" data-number="2.3">
 <h2 data-number="2.3" class="anchored" data-anchor-id="the-pedagogical-power-of-narrative"><span class="header-section-number">2.3</span> The Pedagogical Power of Narrative</h2>
-<p>Why embed statistical methodology within fiction? Because context transforms comprehension. StatPunk narratives illuminate three critical aspects of statistical modeling that traditional examples sometimes obscure:</p>
+
+<div class="no-row-height column-margin column-container"><div class="">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figure/Intro_Bit.png" class="img-fluid figure-img"></p>
+<figcaption>… and Bit</figcaption>
+</figure>
+</div>
+</div></div><p>Why embed statistical methodology within fiction? Because context transforms comprehension. StatPunk narratives illuminate three critical aspects of statistical modeling that traditional examples sometimes obscure:</p>
 <p><strong>First, models are not neutral.</strong> Every choice, which variable serves as the predictor, how we transform the data, whether we include an intercept, carries consequences. In the MedScore case, Beta and Bit discover that healthcare spending follows an exponential relationship with MasterScore. The <span class="math inline">\(R^2 = 0.94\)</span> indicates an almost perfect fit. But perfect fit to what? The model doesn’t predict healthcare needs, it predicts algorithmic allocation. The distinction matters. Through dystopian examples, students confront the reality that statistical models can describe injustice just as precisely as they describe natural phenomena.</p>
 <p><strong>Second, model diagnostics have ethical dimensions.</strong> When we examine residual plots, test for homoscedasticity, or calculate prediction intervals, we’re not merely checking mathematical assumptions, we’re investigating whether our models treat all observations fairly. In traditional regression analysis, heteroscedasticity is a technical problem requiring correction. In StatPunk, heteroscedasticity becomes evidence: prediction intervals that widen dramatically for low MedScore citizens reveal that the algorithm has been designed to care less about their outcomes. The same diagnostic tools, applied with critical awareness, transform from purely technical procedures into instruments of accountability.</p>
 <p><strong>Third, data analysis is not a procedure, it is a story.</strong> Every dataset has a before and an after. Someone collected those numbers, someone will act on them, and somewhere between collection and conclusion, decisions are made that carry weight. Traditional textbooks present analysis as a sequence of steps: load data, fit model, check assumptions, report results. This is accurate but incomplete. It describes the mechanics without conveying what is actually at stake. Beta and Bit do not run regressions because they enjoy the syntax. They run them because the answer matters to someone who is waiting, afraid, or in danger. StatPunk narratives restore what sanitized examples remove: the tension of not yet knowing, the satisfaction of a pattern emerging from noise, the discomfort of a result that is statistically or morally troubling. When students follow Beta through a residual plot at 3am, they are not learning to check an assumption, they are learning why the assumption was worth checking in the first place. That is the difference between knowing a method and understanding it.</p>
