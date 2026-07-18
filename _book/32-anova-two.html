@@ -1,0 +1,1483 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.27">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>6&nbsp; Two-Way ANOVA and the MobilityScore story – The Rogue's Guide to Linear Models</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./33-anova-hierarchy.html" rel="next">
+<link href="./31-anova-one.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-161aae76f10eaea8fbb7aea33acdefc9.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body class="nav-sidebar floating slimcontent quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./32-anova-two.html"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Two-Way ANOVA and the MobilityScore story</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">The Rogue’s Guide to Linear Models</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/BetaAndBit/RogueGuide2LinearModels" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">The Rogue’s Guide to Linear Models</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./00-Preface.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11-Introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Theorems and Formulas</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./21-simple-regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Simple Regression and the MedScore story</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./31-anova-one.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">One-Way ANOVA and the CuriosityScore story</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./32-anova-two.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Two-Way ANOVA and the MobilityScore story</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./33-anova-hierarchy.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Nested ANOVA and the NutritionScore story</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./41-ancova.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">ANCOVA and the EmploymentScore story</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./51-multivariable-regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Multiple Regression and the SocialScore story</span></span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#the-case-where-the-lines-cross" id="toc-the-case-where-the-lines-cross" class="nav-link active" data-scroll-target="#the-case-where-the-lines-cross"><span class="header-section-number">6.1</span> The Case: Where the Lines Cross</a></li>
+  <li><a href="#sec-formula-anova" id="toc-sec-formula-anova" class="nav-link" data-scroll-target="#sec-formula-anova"><span class="header-section-number">6.2</span> The Formula: Two-Way ANOVA and Interaction Effects</a>
+  <ul class="collapse">
+  <li><a href="#sec-model-two-way" id="toc-sec-model-two-way" class="nav-link" data-scroll-target="#sec-model-two-way"><span class="header-section-number">6.2.1</span> The Model</a></li>
+  <li><a href="#sec-hypotheses-two-way" id="toc-sec-hypotheses-two-way" class="nav-link" data-scroll-target="#sec-hypotheses-two-way"><span class="header-section-number">6.2.2</span> It’s all about testing</a></li>
+  </ul></li>
+  <li><a href="#sec-terminal-twoway-mobility" id="toc-sec-terminal-twoway-mobility" class="nav-link" data-scroll-target="#sec-terminal-twoway-mobility"><span class="header-section-number">6.3</span> The Terminal: Two-Way ANOVA in R</a>
+  <ul class="collapse">
+  <li><a href="#sec-terminal-boxplot-mobility" id="toc-sec-terminal-boxplot-mobility" class="nav-link" data-scroll-target="#sec-terminal-boxplot-mobility"><span class="header-section-number">6.3.1</span> Show me the data</a></li>
+  <li><a href="#sec-terminal-group-means-mobility" id="toc-sec-terminal-group-means-mobility" class="nav-link" data-scroll-target="#sec-terminal-group-means-mobility"><span class="header-section-number">6.3.2</span> Group means table</a></li>
+  <li><a href="#sec-terminal-model-additive" id="toc-sec-terminal-model-additive" class="nav-link" data-scroll-target="#sec-terminal-model-additive"><span class="header-section-number">6.3.3</span> Model without interaction</a></li>
+  <li><a href="#sec-terminal-model-interaction" id="toc-sec-terminal-model-interaction" class="nav-link" data-scroll-target="#sec-terminal-model-interaction"><span class="header-section-number">6.3.4</span> Model with interaction</a></li>
+  <li><a href="#sec-terminal-model-comparison" id="toc-sec-terminal-model-comparison" class="nav-link" data-scroll-target="#sec-terminal-model-comparison"><span class="header-section-number">6.3.5</span> Comparing models with main and and interaction effects</a></li>
+  <li><a href="#sec-terminal-emmeans" id="toc-sec-terminal-emmeans" class="nav-link" data-scroll-target="#sec-terminal-emmeans"><span class="header-section-number">6.3.6</span> Estimated marginal means</a></li>
+  <li><a href="#sec-terminal-three-way" id="toc-sec-terminal-three-way" class="nav-link" data-scroll-target="#sec-terminal-three-way"><span class="header-section-number">6.3.7</span> Three-way model with district</a></li>
+  <li><a href="#sec-terminal-boxplot-mobility-3" id="toc-sec-terminal-boxplot-mobility-3" class="nav-link" data-scroll-target="#sec-terminal-boxplot-mobility-3"><span class="header-section-number">6.3.8</span> Show me the data</a></li>
+  <li><a href="#sec-terminal-group-means-mobility-3" id="toc-sec-terminal-group-means-mobility-3" class="nav-link" data-scroll-target="#sec-terminal-group-means-mobility-3"><span class="header-section-number">6.3.9</span> Group means table</a></li>
+  <li><a href="#sec-terminal-model-interaction-3" id="toc-sec-terminal-model-interaction-3" class="nav-link" data-scroll-target="#sec-terminal-model-interaction-3"><span class="header-section-number">6.3.10</span> Three-way ANOVA model with and without interactions</a></li>
+  <li><a href="#sec-terminal-model-comparison-3" id="toc-sec-terminal-model-comparison-3" class="nav-link" data-scroll-target="#sec-terminal-model-comparison-3"><span class="header-section-number">6.3.11</span> Comparing models</a></li>
+  <li><a href="#sec-terminal-emmeans-3" id="toc-sec-terminal-emmeans-3" class="nav-link" data-scroll-target="#sec-terminal-emmeans-3"><span class="header-section-number">6.3.12</span> Estimated marginal means</a></li>
+  </ul></li>
+  <li><a href="#sec-exercises-two-way-anova" id="toc-sec-exercises-two-way-anova" class="nav-link" data-scroll-target="#sec-exercises-two-way-anova"><span class="header-section-number">6.4</span> Exercises</a>
+  <ul class="collapse">
+  <li><a href="#sec-ex-twoway-1" id="toc-sec-ex-twoway-1" class="nav-link" data-scroll-target="#sec-ex-twoway-1"><span class="header-section-number">6.4.1</span> Exercise 1: Reading the two-way ANOVA table</a></li>
+  <li><a href="#sec-ex-twoway-2" id="toc-sec-ex-twoway-2" class="nav-link" data-scroll-target="#sec-ex-twoway-2"><span class="header-section-number">6.4.2</span> Exercise 2: The design matrix for two factors</a></li>
+  <li><a href="#sec-ex-twoway-3" id="toc-sec-ex-twoway-3" class="nav-link" data-scroll-target="#sec-ex-twoway-3"><span class="header-section-number">6.4.3</span> Exercise 3: Additive versus interaction model</a></li>
+  <li><a href="#sec-ex-twoway-4" id="toc-sec-ex-twoway-4" class="nav-link" data-scroll-target="#sec-ex-twoway-4"><span class="header-section-number">6.4.4</span> Exercise 4: Three factors and model comparison</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/BetaAndBit/RogueGuide2LinearModels/edit/main/32-anova-two.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/BetaAndBit/RogueGuide2LinearModels/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content page-columns page-full" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span id="sec-two-way-anova" class="quarto-section-identifier"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Two-Way ANOVA and the MobilityScore story</span></span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="the-case-where-the-lines-cross" class="level2 page-columns page-full" data-number="6.1">
+<h2 data-number="6.1" class="anchored" data-anchor-id="the-case-where-the-lines-cross"><span class="header-section-number">6.1</span> The Case: Where the Lines Cross</h2>
+<div class="page-columns page-full">
+<div class="quarto-figure quarto-figure-center page-columns page-full">
+<figure class="figure page-columns page-full">
+<p class="page-columns page-full"><img src="figure/CoreOchota.jpg" class="img-fluid figure-img column-body-outset-right"></p>
+<figcaption>Run, run as fast as you can</figcaption>
+</figure>
+</div>
+</div>
+<p>The message came in plain text. No encryption, no onion routing, no attempt to hide.</p>
+<blockquote class="blockquote">
+<p><em>My name is Marek Kowalski. I live in District 7. I am 43. My daughter is 24. We both applied for mobility reclassification last month. She was approved. I was not. I want to know why the same district produces different people.</em></p>
+</blockquote>
+<p>“He signed his real name,” Bit said, reading it twice.</p>
+<p>“He doesn’t care,” Beta said. “Or he doesn’t know enough yet to be afraid.”</p>
+<p>She wrote back in twenty minutes and asked for whatever he could gather: his own public scoring profile, his daughter’s, and anyone else willing to share. But Marek’s building was not the whole city, and Beta knew better than to diagnose a system from one stairwell. She widened the request through the few clinic contacts she trusted, and three days later four hundred and twelve records arrived. Not District 7 alone. Three districts: the struggling 7, the middling 12, and the comfortable 23. Each resident tagged with gender, an age band, junior, mid, or senior, and a MobilityScore pulled from the public allocation feed. If the reclassification algorithm was doing something to people like Marek, it would show up as a pattern across all three, not just in his corridor.</p>
+<p>She started where everyone starts, with the obvious suspects. Did men and women score differently? She pooled every resident and compared. The gap was almost nothing, a whisper of a difference, and the test waved it away. Gender, on its own, explained essentially none of the variation in MobilityScore. Then age, on its own: junior versus mid versus senior, pooled across gender and district. Also nothing. The age bands drifted around a common center, and the test could not tell them apart either.</p>
+<p>Two dead ends. On paper, District life looked gender-blind and age-blind, exactly the kind of result the reclassification board would love to quote.</p>
+<p>“So there’s nothing,” Bit said.</p>
+<p>“So there’s nothing <em>on the surface</em>,” Beta said. She did not believe it, because Marek and his daughter were the same district, the same building, the same blood, and one was approved and one was not. A difference had to live somewhere. If it was not in gender alone and not in age alone, then maybe it only existed in the two of them <em>together</em>, the way a lock does not open to either half of a key.</p>
+<p>So she built the model that let gender and age interact rather than sit side by side. And this time something surfaced. The interaction term was significant, modestly but unmistakably. Adding it improved the model in a way that chance could not comfortably explain, even though neither factor had meant anything alone. She pulled the estimated marginal means and laid them out as a two-by-two grid, and the shape underneath finally showed itself.</p>
+<p>Among the juniors, men scored well above women, better than sixty against an even fifty. But that ordering did not hold. By the mid band the women had pulled ahead, and among seniors they stayed ahead. The lines for the two genders did not run parallel and they did not merely drift apart. They crossed. Somewhere between junior and mid, in the pooled picture, the advantage flipped from men to women.</p>
+<p>“Plot it,” Bit said quietly.</p>
+<p>The interaction plot appeared: two lines starting apart at junior, one falling, one rising, scissoring past each other on the way to mid. The kind of picture that makes a statistician sit still, not because it is mathematically strange but because it means every headline number about gender in these districts, every pooled average, was true and useless at once. The main effects were null precisely <em>because</em> the two halves of the crossing cancelled when you flattened them together.</p>
+<p>“That’s the whole trick,” Beta said. “Average a rise and a fall and you get a flat line. The board runs the one-factor tests, sees nothing, and calls the system fair. The unfairness doesn’t disappear. It just hides in the interaction, where they never look.”</p>
+<p>But she was still uneasy, because Marek was District 7 and this was three districts stirred together. A crossing in the pooled data did not tell her <em>where</em> it happened, or whether it was one district dragging the average or all three behaving alike. So she added the third factor. District, with all of its interactions, gender by age by district, free to behave differently in each place.</p>
+<p>The moment district entered, the model changed character entirely. It mattered enormously, past any doubt, and the three-way interaction with it was strongly significant. When she split the means by district, the reason was brutal and specific. In the comfortable districts the age-and-gender pattern was mild, scores high and the two genders tracking each other across the bands. But District 7 was a different country. There, the women rose steadily with age while the men collapsed: young men scoring in the forties and sinking into the teens by senior, young women starting near the bottom and climbing past fifty. The clean crossing she had seen in the pooled data was mostly District 7 shouting through the average. Marek’s district was not an example of the pattern. It was the source of it.</p>
+<p>Beta sat with the three-way means for a while before she wrote anything.</p>
+<p>The questions were now sharp enough to answer one at a time, in order, the way the model had been built. Why did gender and age each look meaningless alone, and what does it mean that a factor can vanish in a main-effect test yet return through an interaction? Was the gender-by-age interaction real, or within reach of chance, and how would comparing the additive model against the interaction model settle it? And once district entered, did the gender-and-age story hold everywhere, or did the three-way test confirm what the means whispered, that District 7 alone bent the curve? Only after those, she thought, could she write the second document. The one without notation. The one for Marek, that would explain why the same district produced two different people, and why the machine had been sure it was measuring mobility when it was only ever photocopying the past.</p>
+</section>
+<section id="sec-formula-anova" class="level2" data-number="6.2">
+<h2 data-number="6.2" class="anchored" data-anchor-id="sec-formula-anova"><span class="header-section-number">6.2</span> The Formula: Two-Way ANOVA and Interaction Effects</h2>
+<p>In the story from the previous section, Beta encountered a result that a simpler analysis would have missed entirely. The effect of gender on <code>MobilityScore</code> was not significant when examined alone. The effect of age was significant. But neither effect told the complete story, only the interaction between them revealed the structure underneath. This is the central insight of two-way ANOVA: main effects can be misleading when an interaction is present, so we need methods to detect and model interactions.</p>
+<section id="sec-model-two-way" class="level3" data-number="6.2.1">
+<h3 data-number="6.2.1" class="anchored" data-anchor-id="sec-model-two-way"><span class="header-section-number">6.2.1</span> The Model</h3>
+<p>In the case of one-way analysis of variance, we examined relationships between groups of objects defined by one categorical variable. Two-way analysis of variance allows exmining the relationship between a quantitative variable <span class="math inline">\(y\)</span> and two categorical variables, which we’ll denote A and B in what follows. We can consider different models for such a relationship; below we’ll describe the most popular ones: additive main effects with and without interaction.</p>
+<p>Assume that variable A can occur at <span class="math inline">\(k\)</span> levels and variable B at <span class="math inline">\(r\)</span> levels. The analysis of variance model is as follows:</p>
+<p><span id="eq-twoway-intro"><span class="math display">\[
+y_{ijm} \sim \mathcal{N}(\mu_{i,j}, \sigma^2), \quad 1 \leq i \leq k, \quad 1 \leq j \leq r, \quad 1 \leq m \leq n_{i,j}.
+\tag{6.1}\]</span></span></p>
+<p>where response variable <span class="math inline">\(y|A=i,B=j\)</span> has a normal distribution with variance <span class="math inline">\(\sigma^2\)</span> and mean <span class="math inline">\(\mu_{i,j}\)</span>, and <span class="math inline">\(n_{i,j}\)</span> is the number of observations for which variable A takes value <span class="math inline">\(i\)</span> and variable B takes value <span class="math inline">\(j\)</span>.</p>
+<p>If <span class="math inline">\(n_{i,j}\)</span> is the same in each group, we speak of a balanced design; otherwise, an unbalanced design.</p>
+<p>Hypotheses posed in two-way analysis of variance concern the values of means <span class="math inline">\(\mu_{i,j}\)</span>, of which there are <span class="math inline">\(k r\)</span>. Let’s present them in a table together with marginal means.</p>
+<p><span id="eq-twoway-matrix"><span class="math display">\[
+\begin{array}{llll|l}
+\mu_{1,1} &amp; \mu_{1,2} &amp; \cdots &amp; \mu_{1,r} &amp; \mu_{1,.} \\
+\mu_{2,1} &amp; \mu_{2,2} &amp; \cdots &amp; \mu_{2,r} &amp; \mu_{2,.} \\
+\cdots &amp; \cdots &amp; \cdots &amp; \cdots &amp; \cdots \\
+\mu_{k,1} &amp; \mu_{k,2} &amp; \cdots &amp; \mu_{k,r} &amp; \mu_{k,.} \\ \hline
+\mu_{.,1} &amp; \mu_{.,2} &amp; \cdots &amp; \mu_{.,r} &amp; \mu \\
+\end{array}
+\tag{6.2}\]</span></span></p>
+<p>If the design is balanced, that is, counts in each group are equal to each other, then marginal means are arithmetic means of means in corresponding groups:</p>
+<p><span class="math display">\[
+\mu_{i,.} = \sum_{j=1}^r \mu_{i,j} / r,
+\]</span></p>
+<p>and</p>
+<p><span class="math display">\[
+\mu_{.,j} = \sum_{i=1}^k \mu_{i,j} / k.
+\]</span></p>
+<p>In analysis of variance, different parameterizations are usually used in which means <span class="math inline">\(\mu_{i,j}\)</span> are expressed by effects <span class="math inline">\(\mu\)</span>, <span class="math inline">\(\alpha_1\)</span>, <span class="math inline">\(\alpha_2\)</span>, …, <span class="math inline">\(\alpha_k\)</span>, <span class="math inline">\(\beta_1\)</span>, …, <span class="math inline">\(\beta_r\)</span>, <span class="math inline">\(\gamma_{1,1}\)</span>, …, <span class="math inline">\(\gamma_{k,r}\)</span>. These effects are called respectively: grand mean, main additive effects of the first variable, main additive effects of the second variable, and interaction effects (each group of effects is denoted by a different Greek letter).</p>
+<p>Using these effects, model <a href="#eq-twoway-intro" class="quarto-xref">Equation&nbsp;<span>6.1</span></a> can be written as:</p>
+<p><span id="eq-twoway"><span class="math display">\[
+y_{ijk} = \mu + \alpha_i + \beta_j + (\alpha\beta)_{ij} + \varepsilon_{ijk}
+\tag{6.3}\]</span></span></p>
+<p>where:</p>
+<ul>
+<li><span class="math inline">\(\mu\)</span> is the grand mean,</li>
+<li><span class="math inline">\(\alpha_i\)</span> is the main effect of factor <span class="math inline">\(A\)</span> at level <span class="math inline">\(i\)</span>,</li>
+<li><span class="math inline">\(\beta_j\)</span> is the main effect of factor <span class="math inline">\(B\)</span> at level <span class="math inline">\(j\)</span>,</li>
+<li><span class="math inline">\((\alpha\beta)_{ij}\)</span> is the interaction effect for pair of factors <span class="math inline">\(i,j\)</span>,</li>
+<li><span class="math inline">\(\varepsilon_{ijk} \sim \mathcal{N}(0, \sigma^2)\)</span> is the random noise for observation <span class="math inline">\(k\)</span> in cell <span class="math inline">\((i,j)\)</span>.</li>
+</ul>
+<p>The interaction term <span class="math inline">\((\alpha\beta)_{ij}\)</span> captures what cannot be explained by the main effects alone, the degree to which the effect of factor <span class="math inline">\(A\)</span> depends on the level of factor <span class="math inline">\(B\)</span>, and vice versa.</p>
+<p>Note, that the number of parameters in the description <a href="#eq-twoway" class="quarto-xref">Equation&nbsp;<span>6.3</span></a> (that is <span class="math inline">\((k+1)*(r+1)\)</span>) is larger than number of observed values (that is <span class="math inline">\(k*r\)</span> means), some constraints must be imposed on the new parameters to make them identifiable. A one possible choice is</p>
+<ul>
+<li>either the constraint:</li>
+</ul>
+<p><span class="math display">\[
+\sum_{i=1}^k \alpha_i = 0,\quad  
+\sum_{j=1}^r \beta_j = 0,\quad
+\forall_i \quad \sum_{j=1}^r \gamma_{i,j} = 0,\quad
+\forall_j \quad \sum_{i=1}^k \gamma_{i,j} = 0.
+\]</span></p>
+<ul>
+<li>or the constraint:</li>
+</ul>
+<p><span class="math display">\[\begin{equation}
+\alpha_1=0, \quad \beta_1=0, \quad \forall_i \quad \gamma_{i,1}=0, \quad \forall_j \quad \gamma_{1,j}=0.
+\end{equation}\]</span></p>
+<p>The latter is used by default in many statistical packages so we will work with this one. With such constraints, the matrix of means <a href="#eq-twoway-matrix" class="quarto-xref">Equation&nbsp;<span>6.2</span></a> can be presented in a new parameterization unambiguously.</p>
+<p>By interaction, we mean the deviation of mean <span class="math inline">\(\mu_{i,j}\)</span> from the additive influence of group <span class="math inline">\(i\)</span> of the first variable and group <span class="math inline">\(j\)</span> of the second variable. A model without interaction differs from a model with interaction in that in the case of a model without interaction, it’s assumed that all values <span class="math inline">\(\forall_{i,j} \gamma_{i,j}=0\)</span>. The occurrence of an interaction effect doesn’t mean the model isn’t linear.</p>
+<p>Translating the above description into the language of linear models, we’ll consider a linear model of the form:</p>
+<p><span class="math display">\[
+y = X \beta + \varepsilon,
+\]</span></p>
+<p>in which vector <span class="math inline">\(\beta = (\mu, \alpha_2, \ldots, \alpha_k, \beta_2, \ldots, \beta_r, \gamma_{2,2}, \ldots, \gamma_{kr})\)</span>, and matrix <span class="math inline">\(X\)</span> is a matrix of indicators of individual factors.</p>
+<p>For example, assume we have a set of twelve observations and three variables: one quantitative <span class="math inline">\(y\)</span> and two categorical <span class="math inline">\(x_1\)</span> and <span class="math inline">\(x_2\)</span>. Assume that variable <span class="math inline">\(x_1\)</span> occurs at two levels: <code>C</code> or <code>D</code>, and the number of occurrences of each level is balanced and equals six occurrences. In other words, the variable <span class="math inline">\(x_1=c(C, C, C, C, C, C, D, D, D, D, D, D)\)</span> describes two six-element groups. Assume that variable <span class="math inline">\(x_2\)</span> occurs at three equally frequent levels: <code>Q</code>, <code>R</code>, or <code>S</code>. In other words, the variable <span class="math inline">\(x_2=c(Q, Q, R, R, S, S, Q, Q, R, R, S, S)\)</span> describes three four-element groups.</p>
+<p>The formula <code>y~x1+x2</code> describes a two-way analysis of variance model without interaction. The corresponding matrix notation of the model is as follows:</p>
+<p><span id="eq-two-way-ex-without"><span class="math display">\[
+\begin{bmatrix}
+y_{1,1,1} \\
+y_{1,1,2} \\
+y_{1,2,1} \\
+y_{1,2,2} \\
+y_{1,3,1} \\
+y_{1,3,2} \\
+y_{2,1,1} \\
+y_{2,1,2} \\
+y_{2,2,1} \\
+y_{2,2,2} \\
+y_{2,3,1} \\
+y_{2,3,2}
+\end{bmatrix} =
+\begin{bmatrix}
+1 &amp; 0 &amp; 0 &amp; 0  \\
+1 &amp; 0 &amp; 0 &amp; 0  \\
+1 &amp; 0 &amp; 1 &amp; 0  \\
+1 &amp; 0 &amp; 1 &amp; 0  \\
+1 &amp; 0 &amp; 0 &amp; 1  \\
+1 &amp; 0 &amp; 0 &amp; 1  \\
+1 &amp; 1 &amp; 0 &amp; 0  \\
+1 &amp; 1 &amp; 0 &amp; 0  \\
+1 &amp; 1 &amp; 1 &amp; 0  \\
+1 &amp; 1 &amp; 1 &amp; 0  \\
+1 &amp; 1 &amp; 0 &amp; 1  \\
+1 &amp; 1 &amp; 0 &amp; 1
+\end{bmatrix}
+\begin{bmatrix}
+\mu\\
+\alpha_2\\
+\beta_2\\
+\beta_3
+\end{bmatrix} +
+\begin{bmatrix}
+\varepsilon_{1,1,1} \\
+\varepsilon_{1,1,2} \\
+\varepsilon_{1,2,1} \\
+\varepsilon_{1,2,2} \\
+\varepsilon_{1,3,1} \\
+\varepsilon_{1,3,2} \\
+\varepsilon_{2,1,1} \\
+\varepsilon_{2,1,2} \\
+\varepsilon_{2,2,1} \\
+\varepsilon_{2,2,2} \\
+\varepsilon_{2,3,1} \\
+\varepsilon_{2,3,2}
+\end{bmatrix}.
+\tag{6.4}\]</span></span></p>
+<p>The formula with interaction <code>y~x1*x2</code> is equivalent to the formula <code>y~x1+x2+x1:x2</code>. Both describe a two-way analysis of variance model with interaction. The corresponding matrix notation is as follows:</p>
+<p><span id="eq-two-way-ex-with"><span class="math display">\[
+\begin{bmatrix}
+y_{1,1,1} \\
+y_{1,1,2} \\
+y_{1,2,1} \\
+y_{1,2,2} \\
+y_{1,3,1} \\
+y_{1,3,2} \\
+y_{2,1,1} \\
+y_{2,1,2} \\
+y_{2,2,1} \\
+y_{2,2,2} \\
+y_{2,3,1} \\
+y_{2,3,2}
+\end{bmatrix} =
+\begin{bmatrix}
+1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 \\
+1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 &amp; 0 \\
+1 &amp; 0 &amp; 1 &amp; 0 &amp; 0 &amp; 0 \\
+1 &amp; 0 &amp; 1 &amp; 0 &amp; 0 &amp; 0 \\
+1 &amp; 0 &amp; 0 &amp; 1 &amp; 0 &amp; 0 \\
+1 &amp; 0 &amp; 0 &amp; 1 &amp; 0 &amp; 0 \\
+1 &amp; 1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 \\
+1 &amp; 1 &amp; 0 &amp; 0 &amp; 0 &amp; 0 \\
+1 &amp; 1 &amp; 1 &amp; 0 &amp; 1 &amp; 0 \\
+1 &amp; 1 &amp; 1 &amp; 0 &amp; 1 &amp; 0 \\
+1 &amp; 1 &amp; 0 &amp; 1 &amp; 0 &amp; 1 \\
+1 &amp; 1 &amp; 0 &amp; 1 &amp; 0 &amp; 1
+\end{bmatrix}
+\begin{bmatrix}
+\mu\\
+\alpha_2\\
+\beta_2\\
+\beta_3\\
+\gamma_{2,2}\\
+\gamma_{2,3}
+\end{bmatrix} +
+\begin{bmatrix}
+\varepsilon_{1,1,1} \\
+\varepsilon_{1,1,2} \\
+\varepsilon_{1,2,1} \\
+\varepsilon_{1,2,2} \\
+\varepsilon_{1,3,1} \\
+\varepsilon_{1,3,2} \\
+\varepsilon_{2,1,1} \\
+\varepsilon_{2,1,2} \\
+\varepsilon_{2,2,1} \\
+\varepsilon_{2,2,2} \\
+\varepsilon_{2,3,1} \\
+\varepsilon_{2,3,2}
+\end{bmatrix},
+\tag{6.5}\]</span></span></p>
+<p>where <span class="math inline">\((y_{1,1,1}, y_{1,1,2}, \ldots, y_{2,3,1}, y_{2,3,2})\)</span> is a twelve-element vector with measurements of trait <span class="math inline">\(y\)</span>, and <span class="math inline">\((\varepsilon_{1, 1,1}, \varepsilon_{1, 1,2}, \ldots, \varepsilon_{2,3,1}, \varepsilon_{2,3,2})\)</span> is a twelve-element vector corresponding to random disturbance <span class="math inline">\(\varepsilon \sim \mathcal{N}(0, I_{12\times 12}\sigma^2)\)</span>.</p>
+</section>
+<section id="sec-hypotheses-two-way" class="level3" data-number="6.2.2">
+<h3 data-number="6.2.2" class="anchored" data-anchor-id="sec-hypotheses-two-way"><span class="header-section-number">6.2.2</span> It’s all about testing</h3>
+<p>For a two-way ANOVA three sets of hypotheses can be considered. We’ll present them using the above parameterization.</p>
+<ul>
+<li>Hypotheses related to main effects of variable <span class="math inline">\(A\)</span>. Does the mean of the response variable differ significantly across the possible values of variable <span class="math inline">\(A\)</span> (similar to one-way ANOVA)?</li>
+</ul>
+<p><span id="eq-h0-two-way-main-A"><span class="math display">\[H_0: \alpha_1 = \alpha_2 = \cdots = \alpha_I = 0 \tag{6.6}\]</span></span></p>
+<p><span class="math display">\[H_A: \text{at least one } \alpha_i \neq 0\]</span></p>
+<ul>
+<li>Hypotheses related to main effects of variable <span class="math inline">\(B\)</span>. Does the mean of the response variable differ significantly across the possible values of variable <span class="math inline">\(B\)</span> (similar to one-way ANOVA but for the second variable)?</li>
+</ul>
+<p><span id="eq-h0-two-way-main-B"><span class="math display">\[H_0: \beta_1 = \beta_2 = \cdots = \beta_J = 0 \tag{6.7}\]</span></span></p>
+<p><span class="math display">\[H_A: \text{at least one } \beta_j \neq 0\]</span></p>
+<ul>
+<li>Hypotheses related to interaction effects between variables <span class="math inline">\(A\)</span> and <span class="math inline">\(B\)</span>. Does the mean mean differs from the value that would have been estimated without taking the interaction into account?</li>
+</ul>
+<p><span id="eq-h0-two-way-interaction"><span class="math display">\[H_0: (\alpha\beta)_{ij} = 0 \quad \text{for all } i, j \tag{6.8}\]</span></span></p>
+<p><span class="math display">\[H_A: \text{at least one } (\alpha\beta)_{ij} \neq 0\]</span></p>
+<p>Each of these hypotheses concerns a set of effects; each can be verified using the likelihood ratio test presented in <a href="11-Introduction.html#sec-introduction-test-betas" class="quarto-xref"><span>Section 3.5.4</span></a>.</p>
+<p>The typical testing procedure begins with interactions. If there are no interactions, we can test each hypothesis regarding the main effects independently. However, if interactions are present, we know that both variables <span class="math inline">\(A\)</span> and <span class="math inline">\(B\)</span> are significant.</p>
+</section>
+</section>
+<section id="sec-terminal-twoway-mobility" class="level2 page-columns page-full" data-number="6.3">
+<h2 data-number="6.3" class="anchored" data-anchor-id="sec-terminal-twoway-mobility"><span class="header-section-number">6.3</span> The Terminal: Two-Way ANOVA in R</h2>
+<p>The dataset used in this section comes from the <code>RougeLM</code> package. The <code>mobility</code> dataset contains 412 District 7 residents with their <code>score</code> (MobilityScore), <code>gender</code>, <code>age</code> group, and <code>district</code>.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"RougeLM"</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(mobility)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>     district gender    age score
+1  District_7   male    mid    72
+2 District_23   male senior    49
+3 District_12   male senior    57
+4  District_7   male    mid    14
+5 District_23 female junior    68
+6  District_7 female junior    41</code></pre>
+</div>
+</div>
+<p><code>head()</code> confirms the structure: each row is one resident. <code>score</code> is the continuous response variable. <code>gender</code> and <code>age</code> are the two categorical factors for the two-way ANOVA. <code>district</code> will be introduced as a third factor in the extended models later in this section.</p>
+<hr>
+<section id="sec-terminal-boxplot-mobility" class="level3 page-columns page-full" data-number="6.3.1">
+<h3 data-number="6.3.1" class="anchored" data-anchor-id="sec-terminal-boxplot-mobility"><span class="header-section-number">6.3.1</span> Show me the data</h3>
+<p>With two categorical factors and one continuous response, the first visualisation should show all three simultaneously. Boxplot will do the job here.</p>
+<div class="cell page-columns page-full">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"ggplot2"</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(mobility, <span class="fu">aes</span>(<span class="at">x =</span> age, <span class="at">y =</span> score, <span class="at">color =</span> gender)) <span class="sc">+</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() </span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display page-columns page-full">
+<div id="fig-boxplot-mobility-2" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-boxplot-mobility-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="32-anova-two_files/figure-html/fig-boxplot-mobility-2-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-boxplot-mobility-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6.1: Distribution of MobilityScore by age group (x-axis) and gender (colour). Each box shows the interquartile range with the median as a horizontal line.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><code>ggplot(mobility, aes(x = age, y = score, color = gender))</code> initialises the plot with <code>age</code> on the x-axis, <code>score</code> on the y-axis, and <code>gender</code> mapped to colour. Mapping <code>gender</code> to colour rather than to x places the two gender groups side by side within each level of <code>age</code>, making the gender difference visually immediate.</p>
+<p><code>geom_boxplot()</code> draws one box per combination of <code>age</code> and <code>gender</code>. Because <code>gender</code> is mapped to colour, the two boxes within each <code>age</code> level are automatically distinguished by fill and outline colour.</p>
+<p>This time, the chart shows that there may be some small difference between <code>MobilityScore</code> in the <code>junior</code> category, but is it significant?</p>
+<hr>
+</section>
+<section id="sec-terminal-group-means-mobility" class="level3 page-columns page-full" data-number="6.3.2">
+<h3 data-number="6.3.2" class="anchored" data-anchor-id="sec-terminal-group-means-mobility"><span class="header-section-number">6.3.2</span> Group means table</h3>
+<p>A mean table makes the pattern visible in numbers before any formal test.</p>
+<div id="tbl-means-mobility-2" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-tbl figure page-columns page-full">
+<div aria-describedby="tbl-means-mobility-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"dplyr"</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"tidyr"</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>mobility <span class="sc">|&gt;</span></span>
+<span id="cb4-5"><a href="#cb4-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(gender, age) <span class="sc">|&gt;</span></span>
+<span id="cb4-6"><a href="#cb4-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">avg_score =</span> <span class="fu">mean</span>(score)) <span class="sc">|&gt;</span></span>
+<span id="cb4-7"><a href="#cb4-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> age, <span class="at">values_from =</span> avg_score)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 4
+# Groups:   gender [2]
+  gender junior   mid senior
+  &lt;fct&gt;   &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;
+1 female   50.0  58.3   61.1
+2 male     61.7  53.1   56.0</code></pre>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-tbl margin-caption" id="tbl-means-mobility-2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;6.1: A table showing the mean values for each combination of gender and age variables
+</figcaption>
+</figure>
+</div>
+<p><code>group_by(gender, age)</code> partitions the data by all combinations of the two factors — one group per cell of the two-way design. <code>summarise(avg_score = mean(score))</code> computes the mean <code>score</code> within each cell and collapses the group to a single row. At this point the result is a long data frame with one row per gender-age combination.</p>
+<p><code>pivot_wider(names_from = age, values_from = avg_score)</code> reshapes the long result into a wide table. <code>names_from = age</code> takes the levels of <code>age</code> and creates one column per level; <code>values_from = avg_score</code> fills those columns with the corresponding means. The result is a compact two-by-two table with <code>gender</code> as rows and <code>age</code> groups as columns, the standard layout for inspecting a two-way interaction.</p>
+<hr>
+</section>
+<section id="sec-terminal-model-additive" class="level3 page-columns page-full" data-number="6.3.3">
+<h3 data-number="6.3.3" class="anchored" data-anchor-id="sec-terminal-model-additive"><span class="header-section-number">6.3.3</span> Model without interaction</h3>
+<p>Let’s start with a model for two variables without interaction. This will correspond to an <span class="math inline">\(X\)</span> matrix with three components, as shown in <a href="#eq-two-way-ex-without" class="quarto-xref">Equation&nbsp;<span>6.4</span></a>.</p>
+<p>The first step is to estimate the coefficients, which will be <span class="math inline">\(1+(r-1)+(k-1)\)</span>.</p>
+<div id="lst-model-mob-01" class="listing quarto-float quarto-figure quarto-figure-left anchored page-columns page-full">
+<figure class="quarto-float quarto-float-lst figure page-columns page-full">
+<div aria-describedby="lst-model-mob-01-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>model_mob_01 <span class="ot">&lt;-</span> <span class="fu">lm</span>(score <span class="sc">~</span> gender <span class="sc">+</span> age, <span class="at">data =</span> mobility)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>model_mob_01<span class="sc">$</span>coefficients</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-lst margin-caption" id="lst-model-mob-01-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Listing&nbsp;6.1: Coefficients in the ANOVA model for the variables ‘gender’ and ‘age’, excluding interactions.
+</figcaption>
+</figure>
+</div>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>(Intercept)  gendermale      agemid   agesenior 
+55.49590528  0.03366716  0.26865166  3.29989180 </code></pre>
+</div>
+</div>
+<p><code>lm(score ~ gender + age, data = mobility)</code> fits the additive two-way model. The <code>+</code> operator in the formula specifies that both <code>gender</code> and <code>age</code> are included as main effects but their interaction is not. The model assumes that the effect of <code>gender</code> on <code>score</code> is the same regardless of <code>age</code> group, and vice versa, a strong assumption that will be tested below.</p>
+<p><code>model_mob_01$coefficients</code> extracts only the coefficient vector from the fitted model object, without the standard errors, t-values, or p-values that <code>summary()</code> would produce. This is useful for a quick look at the estimated effects before examining the full inferential output. Each named element corresponds to one column of the design matrix: <code>(Intercept)</code> is the mean of the reference cell, and the remaining coefficients are deviations from that reference.</p>
+<p>Do these variables matter? In a model without interactions, we can test hypotheses for the main effects, that is <a href="#eq-h0-two-way-main-A" class="quarto-xref">Equation&nbsp;<span>6.6</span></a> and <a href="#eq-h0-two-way-main-B" class="quarto-xref">Equation&nbsp;<span>6.7</span></a>.</p>
+<div id="tbl-anova-mob-01" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-tbl figure page-columns page-full">
+<div aria-describedby="tbl-anova-mob-01-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(model_mob_01)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Analysis of Variance Table
+
+Response: score
+           Df Sum Sq Mean Sq F value Pr(&gt;F)
+gender      1      0    0.45  0.0005 0.9829
+age         2    951  475.50  0.4871 0.6148
+Residuals 408 398278  976.17               </code></pre>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-tbl quarto-uncaptioned margin-caption" id="tbl-anova-mob-01-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;6.2
+</figcaption>
+</figure>
+</div>
+<p><code>anova()</code> applied to a single <code>lm</code> object produces a sequential (Type I) analysis of variance table. The predictors are tested in the order they appear in the formula: <code>gender</code> is tested first, then <code>age</code> conditional on <code>gender</code>. Each row reports the sum of squares, degrees of freedom, mean square, F-statistic, and p-value for the effect of adding that term to the model. A significant F-value for a term means that adding it improved model fit beyond what chance would predict.</p>
+<hr>
+</section>
+<section id="sec-terminal-model-interaction" class="level3 page-columns page-full" data-number="6.3.4">
+<h3 data-number="6.3.4" class="anchored" data-anchor-id="sec-terminal-model-interaction"><span class="header-section-number">6.3.4</span> Model with interaction</h3>
+<p>Let’s add to this model effect for possible interactions. This will correspond to an X matrix with four components, as shown in <a href="#eq-two-way-ex-with" class="quarto-xref">Equation&nbsp;<span>6.5</span></a>.</p>
+<div id="lst-model-mob-02" class="listing quarto-float quarto-figure quarto-figure-left anchored page-columns page-full">
+<figure class="quarto-float quarto-float-lst figure page-columns page-full">
+<div aria-describedby="lst-model-mob-02-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>model_mob_02 <span class="ot">&lt;-</span> <span class="fu">lm</span>(score <span class="sc">~</span> gender <span class="sc">*</span> age, <span class="at">data =</span> mobility)</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>model_mob_02<span class="sc">$</span>coefficients</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-lst margin-caption" id="lst-model-mob-02-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Listing&nbsp;6.2: Coefficients in the ANOVA model for the variables ‘gender’ and ‘age’, including interactions.
+</figcaption>
+</figure>
+</div>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>         (Intercept)           gendermale               agemid 
+           49.985075            11.698259             8.343497 
+           agesenior    gendermale:agemid gendermale:agesenior 
+           11.124681           -16.907427           -16.853469 </code></pre>
+</div>
+</div>
+<p><code>lm(score ~ gender * age, data = mobility)</code> fits the interaction model. The <code>*</code> operator expands to <code>gender + age + gender:age</code> — it automatically includes both main effects and their interaction term. The interaction term <code>gender:age</code> captures any additional effect that cannot be accounted for by the main effects alone: the degree to which the gender gap in <code>score</code> differs between age groups.</p>
+<p>In the coefficient vector, the interaction coefficient <code>gendermale:agesenior</code> measures how much the effect of being male changes when moving from the younger to the older age group, or equivalently, how much the age effect changes when moving from female to male.</p>
+<p>Do these interactions matter? In this model we can additionally test hypotheses <a href="#eq-h0-two-way-interaction" class="quarto-xref">Equation&nbsp;<span>6.8</span></a> (last row).</p>
+<div id="tbl-anova-mob-02" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-tbl figure page-columns page-full">
+<div aria-describedby="tbl-anova-mob-02-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(model_mob_02)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Analysis of Variance Table
+
+Response: score
+            Df Sum Sq Mean Sq F value  Pr(&gt;F)  
+gender       1      0    0.45  0.0005 0.98283  
+age          2    951  475.50  0.4924 0.61150  
+gender:age   2   6232 3116.21  3.2271 0.04069 *
+Residuals  406 392045  965.63                  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-tbl quarto-uncaptioned margin-caption" id="tbl-anova-mob-02-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;6.3
+</figcaption>
+</figure>
+</div>
+<p>The ANOVA table above a third row for the interaction term <code>gender:age</code> shows a significant p-value here indicates that the variables ‘age’ and ‘gender’ may have a weak but statistically significant impact on the <code>MobilityScore</code>, even if these relationships are not apparent when each variable is considered in isolation.</p>
+<hr>
+</section>
+<section id="sec-terminal-model-comparison" class="level3 page-columns page-full" data-number="6.3.5">
+<h3 data-number="6.3.5" class="anchored" data-anchor-id="sec-terminal-model-comparison"><span class="header-section-number">6.3.5</span> Comparing models with main and and interaction effects</h3>
+<p>We can also test hypothesis <a href="#eq-h0-two-way-interaction" class="quarto-xref">Equation&nbsp;<span>6.8</span></a> independently of the others by directly comparing the two models, with and without interaction. As they are nested, we can use the likelihood ratio test. The result will be the same as in <a href="#tbl-anova-mob-02" class="quarto-xref">Table&nbsp;<span>6.3</span></a></p>
+<div id="tbl-model-comparison-mob" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-tbl figure page-columns page-full">
+<div aria-describedby="tbl-model-comparison-mob-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(model_mob_01, model_mob_02)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Analysis of Variance Table
+
+Model 1: score ~ gender + age
+Model 2: score ~ gender * age
+  Res.Df    RSS Df Sum of Sq      F  Pr(&gt;F)  
+1    408 398278                              
+2    406 392045  2    6232.4 3.2271 0.04069 *
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-tbl quarto-uncaptioned margin-caption" id="tbl-model-comparison-mob-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;6.4
+</figcaption>
+</figure>
+</div>
+<p><code>anova()</code> with two model objects performs a likelihood ratio (F) test comparing the smaller nested model against the larger one. <code>model_mob_01</code> is nested within <code>model_mob_02</code>, it is <code>model_mob_02</code> with the interaction coefficient constrained to zero. The test asks whether adding the interaction term significantly improves fit.</p>
+<p>The output table has one row per model. <code>Res.Df</code> is the residual degrees of freedom, <code>RSS</code> the residual sum of squares, <code>Df</code> the difference in the number of parameters, <code>Sum of Sq</code> the reduction in RSS from adding the interaction, <code>F</code> the F-statistic, and <code>Pr(&gt;F)</code> the p-value. If <code>Pr(&gt;F)</code> is below <span class="math inline">\(\alpha\)</span>, the interaction model is preferred over the additive model.</p>
+<hr>
+</section>
+<section id="sec-terminal-emmeans" class="level3 page-columns page-full" data-number="6.3.6">
+<h3 data-number="6.3.6" class="anchored" data-anchor-id="sec-terminal-emmeans"><span class="header-section-number">6.3.6</span> Estimated marginal means</h3>
+<p>The coefficients estimated in the linear model <a href="#lst-model-mob-01" class="quarto-xref">Listing&nbsp;<span>6.1</span></a> or <a href="#lst-model-mob-02" class="quarto-xref">Listing&nbsp;<span>6.2</span></a> are not marginal means, but rather a default parameterisation that ensures the effect of the first factor is the reference effect. In certain applications, we may wish to estimate the marginal means. To do this, we can use the package <code>emmeans</code>. Let’s look at an example</p>
+<div id="tbl-emm-mob" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-tbl figure page-columns page-full">
+<div aria-describedby="tbl-emm-mob-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"emmeans"</span>)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>emm <span class="ot">&lt;-</span> <span class="fu">emmeans</span>(model_mob_02, <span class="sc">~</span> gender <span class="sc">+</span> age)</span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>emm</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> gender age    emmean   SE  df lower.CL upper.CL
+ female junior   50.0 3.80 406     42.5     57.4
+ male   junior   61.7 4.01 406     53.8     69.6
+ female mid      58.3 3.71 406     51.0     65.6
+ male   mid      53.1 3.80 406     45.7     60.6
+ female senior   61.1 3.43 406     54.4     67.9
+ male   senior   56.0 3.83 406     48.4     63.5
+
+Confidence level used: 0.95 </code></pre>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-tbl margin-caption" id="tbl-emm-mob-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;6.5: Empirical means for the model with two variables: age and gender
+</figcaption>
+</figure>
+</div>
+<p><code>emmeans()</code> from the <code>emmeans</code> package computes estimated marginal means (EMMs), the model-predicted mean <code>score</code> for each combination of <code>gender</code> and <code>age</code>, adjusted for any other terms in the model. The formula <code>~ gender * age</code> specifies which factors to compute means for.</p>
+<p>The output table shows <code>emmean</code> (the point estimate), <code>SE</code> (its standard error), <code>df</code> (degrees of freedom used for inference), and <code>lower.CL</code> / <code>upper.CL</code> (the 95% confidence interval bounds). These are the quantities that post-hoc pairwise comparisons are built from.</p>
+<div class="cell page-columns page-full">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">emmip</span>(model_mob_02, gender <span class="sc">~</span> age, <span class="at">CIs =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display page-columns page-full">
+<div id="fig-emmip-mob" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-emmip-mob-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="32-anova-two_files/figure-html/fig-emmip-mob-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-emmip-mob-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6.2: Interaction plot from emmeans::emmip(). Each line connects the estimated marginal means for one gender across the two age groups. Lines that are not parallel indicate an interaction; crossing lines indicate a disordinal interaction where the ranking of groups reverses between age categories. Confidence intervals are shown as shaded bands.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><code>emmip()</code> produces an interaction plot directly from a fitted model. The formula <code>gender ~ age</code> places <code>age</code> on the x-axis and draws one line per level of <code>gender</code>. <code>CIs = TRUE</code> adds confidence intervals around each estimated marginal mean as error bars or shaded bands. Unlike a raw data plot, <code>emmip()</code> plots model-estimated means — they account for the model structure rather than simply averaging the raw data within cells.</p>
+<hr>
+</section>
+<section id="sec-terminal-three-way" class="level3" data-number="6.3.7">
+<h3 data-number="6.3.7" class="anchored" data-anchor-id="sec-terminal-three-way"><span class="header-section-number">6.3.7</span> Three-way model with district</h3>
+<p>In a similar way to the case of two variables, the ANOVA model can be generalised to three or more variables. In each case, we can consider only the additive effects, all interactions, or only selected interactions. Below, we will practice this with three variables.</p>
+</section>
+<section id="sec-terminal-boxplot-mobility-3" class="level3 page-columns page-full" data-number="6.3.8">
+<h3 data-number="6.3.8" class="anchored" data-anchor-id="sec-terminal-boxplot-mobility-3"><span class="header-section-number">6.3.8</span> Show me the data</h3>
+<p>With three categorical factors and one continuous response we still can show all four variables simultaneously.</p>
+<div class="cell page-columns page-full">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"ggplot2"</span>)</span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(mobility, <span class="fu">aes</span>(<span class="at">x =</span> age, <span class="at">y =</span> score, <span class="at">color =</span> gender)) <span class="sc">+</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>() <span class="sc">+</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">facet_wrap</span>(<span class="sc">~</span>district)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display page-columns page-full">
+<div id="fig-boxplot-mobility-3" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-boxplot-mobility-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="32-anova-two_files/figure-html/fig-boxplot-mobility-3-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-boxplot-mobility-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6.3: Distribution of MobilityScore by age group (x-axis) and gender (colour) within each district (facet). Each box shows the interquartile range with the median as a horizontal line. Examining the plot before fitting any model reveals whether the gender difference appears consistent across age groups or whether it reverses — the hallmark of a disordinal interaction.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The plot is constructed in a similar way to <a href="#fig-boxplot-mobility-2" class="quarto-xref">Figure&nbsp;<span>6.1</span></a>, but we added <code>facet_wrap(~district)</code> to split the plot into one panel per district. This allows the relationship between <code>age</code>, <code>gender</code>, and <code>score</code> to be examined separately within each district without fitting a model, if the interaction pattern looks different across panels, a district-by-gender or district-by-age interaction may be present in the data.</p>
+<p>This time, the chart shows that in District 7, not only is the average <code>MobilityScore</code> different, but the relative relationship between the averages for the two genders also differs from that in other districts.</p>
+<hr>
+</section>
+<section id="sec-terminal-group-means-mobility-3" class="level3 page-columns page-full" data-number="6.3.9">
+<h3 data-number="6.3.9" class="anchored" data-anchor-id="sec-terminal-group-means-mobility-3"><span class="header-section-number">6.3.9</span> Group means table</h3>
+<p>Let’s replicate the mean table with an additional variable <code>district</code>.</p>
+<div id="tbl-means-mobility-3" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-tbl figure page-columns page-full">
+<div aria-describedby="tbl-means-mobility-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"dplyr"</span>)</span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"tidyr"</span>)</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>mobility <span class="sc">|&gt;</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(district, gender, age) <span class="sc">|&gt;</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">avg_score =</span> <span class="fu">mean</span>(score)) <span class="sc">|&gt;</span></span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> age, <span class="at">values_from =</span> avg_score)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 6 × 5
+# Groups:   district, gender [6]
+  district    gender junior   mid senior
+  &lt;fct&gt;       &lt;fct&gt;   &lt;dbl&gt; &lt;dbl&gt;  &lt;dbl&gt;
+1 District_12 female   54.0  62.7   52.1
+2 District_12 male     57.2  64.1   62.6
+3 District_23 female   78.4  80.3   74.2
+4 District_23 male     81.2  80.0   78.7
+5 District_7  female   13.3  23.5   53.5
+6 District_7  male     43.9  28.9   14.1</code></pre>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-tbl margin-caption" id="tbl-means-mobility-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;6.6: A table showing the mean values for each combination of district, gender and age variables
+</figcaption>
+</figure>
+</div>
+</section>
+<section id="sec-terminal-model-interaction-3" class="level3" data-number="6.3.10">
+<h3 data-number="6.3.10" class="anchored" data-anchor-id="sec-terminal-model-interaction-3"><span class="header-section-number">6.3.10</span> Three-way ANOVA model with and without interactions</h3>
+<p>In a similar way to the two-way ANOVA model, we can add further variables to check whether they have an effect on the dependent variable.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>model_mob_05 <span class="ot">&lt;-</span> <span class="fu">lm</span>(score <span class="sc">~</span> district <span class="sc">+</span> gender <span class="sc">+</span> age, <span class="at">data =</span> mobility)</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>model_mob_06 <span class="ot">&lt;-</span> <span class="fu">lm</span>(score <span class="sc">~</span> district <span class="sc">*</span> gender <span class="sc">*</span> age, <span class="at">data =</span> mobility)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><code>model_mob_05</code> adds <code>district</code> as an additive main effect alongside <code>gender</code> and <code>age</code>. The <code>+</code> operator means district shifts the intercept, each district has a different baseline <code>score</code>, but the effects of <code>gender</code> and <code>age</code> are assumed identical across districts.</p>
+<p><code>model_mob_06</code> includes all interactions via <code>*</code>, allowing the gender and age effects to vary freely across districts.</p>
+</section>
+<section id="sec-terminal-model-comparison-3" class="level3" data-number="6.3.11">
+<h3 data-number="6.3.11" class="anchored" data-anchor-id="sec-terminal-model-comparison-3"><span class="header-section-number">6.3.11</span> Comparing models</h3>
+<p>Now that we have fitted models, we can carry out a wide variety of tests. In the case of three variables, are the interactions statistically significant, or is a description using additive effects sufficient?</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(model_mob_05, model_mob_06)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Analysis of Variance Table
+
+Model 1: score ~ district + gender + age
+Model 2: score ~ district * gender * age
+  Res.Df    RSS Df Sum of Sq      F    Pr(&gt;F)    
+1    406 239177                                  
+2    394 209834 12     29343 4.5914 5.679e-07 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<p>Oh, they are important! Good to know.</p>
+<p>And is the ‘district’ statistically significant?</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(model_mob_02, model_mob_06)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Analysis of Variance Table
+
+Model 1: score ~ gender * age
+Model 2: score ~ district * gender * age
+  Res.Df    RSS Df Sum of Sq      F    Pr(&gt;F)    
+1    406 392045                                  
+2    394 209834 12    182211 28.511 &lt; 2.2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<p>Without a shadow of a doubt.</p>
+</section>
+<section id="sec-terminal-emmeans-3" class="level3 page-columns page-full" data-number="6.3.12">
+<h3 data-number="6.3.12" class="anchored" data-anchor-id="sec-terminal-emmeans-3"><span class="header-section-number">6.3.12</span> Estimated marginal means</h3>
+<p>As with the two-way analysis model, we can display the marginal means, together with their confidence intervals, both numerically and on a graph, to illustrate visually what interactions we expect.</p>
+<div id="tbl-emm-mob-3" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-tbl figure page-columns page-full">
+<div aria-describedby="tbl-emm-mob-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a>emm <span class="ot">&lt;-</span> <span class="fu">emmeans</span>(model_mob_06, <span class="sc">~</span> district <span class="sc">*</span> gender <span class="sc">*</span> age)</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a>emm</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code> district    gender age    emmean   SE  df lower.CL upper.CL
+ District_12 female junior   54.0 4.92 394    44.28     63.6
+ District_23 female junior   78.4 4.71 394    69.16     87.7
+ District_7  female junior   13.3 5.04 394     3.43     23.2
+ District_12 male   junior   57.2 4.44 394    48.49     66.0
+ District_23 male   junior   81.2 5.29 394    70.75     91.6
+ District_7  male   junior   43.9 6.17 394    31.73     56.0
+ District_12 female mid      62.7 4.53 394    53.76     71.6
+ District_23 female mid      80.3 4.62 394    71.25     89.4
+ District_7  female mid      23.5 5.29 394    13.06     33.9
+ District_12 male   mid      64.1 5.60 394    53.11     75.1
+ District_23 male   mid      80.0 5.16 394    69.90     90.2
+ District_7  male   mid      28.9 4.21 394    20.65     37.2
+ District_12 female senior   52.1 4.44 394    43.42     60.9
+ District_23 female senior   74.2 4.08 394    66.14     82.2
+ District_7  female senior   53.5 4.81 394    44.02     62.9
+ District_12 male   senior   62.6 4.62 394    53.57     71.7
+ District_23 male   senior   78.7 4.71 394    69.41     87.9
+ District_7  male   senior   14.1 5.60 394     3.05     25.1
+
+Confidence level used: 0.95 </code></pre>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-tbl margin-caption" id="tbl-emm-mob-3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;6.7: Empirical means for the model with three variables: district, age and gender
+</figcaption>
+</figure>
+</div>
+<div class="cell page-columns page-full">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">emmip</span>(model_mob_06, age <span class="sc">~</span> gender <span class="sc">*</span> district, <span class="at">CIs =</span> <span class="cn">TRUE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display page-columns page-full">
+<div id="fig-emmip-three-way" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-emmip-three-way-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="32-anova-two_files/figure-html/fig-emmip-three-way-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-emmip-three-way-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;6.4: Interaction plot for the three-way model: estimated marginal means of MobilityScore by gender and district (x-axis grouped by district), with separate lines for each age group. A three-way interaction would appear as the age-group lines having different shapes across the district panels.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The formula <code>age ~ gender * district</code> in <code>emmip()</code> places the <code>gender * district</code> combination on the x-axis — one tick per gender-district cell — and draws one line per level of <code>age</code>. With two levels of <code>gender</code>, three levels of <code>district</code>, and two levels of <code>age</code>, the plot shows twelve estimated means connected by two lines, one per age group. Comparing the slope of the age lines across districts reveals whether the age effect is consistent across districts or whether district moderates it.</p>
+<p>Clearly, the situation in District 7 is different from that in the other districts.</p>
+<hr>
+</section>
+</section>
+<section id="sec-exercises-two-way-anova" class="level2" data-number="6.4">
+<h2 data-number="6.4" class="anchored" data-anchor-id="sec-exercises-two-way-anova"><span class="header-section-number">6.4</span> Exercises</h2>
+<section id="sec-ex-twoway-1" class="level3" data-number="6.4.1">
+<h3 data-number="6.4.1" class="anchored" data-anchor-id="sec-ex-twoway-1"><span class="header-section-number">6.4.1</span> Exercise 1: Reading the two-way ANOVA table</h3>
+<p>Beta has fitted two models to the <code>mobility</code> dataset:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a>model_mob_01 <span class="ot">&lt;-</span> <span class="fu">lm</span>(score <span class="sc">~</span> gender <span class="sc">+</span> age, <span class="at">data =</span> mobility)</span>
+<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>model_mob_02 <span class="ot">&lt;-</span> <span class="fu">lm</span>(score <span class="sc">~</span> gender <span class="sc">*</span> age, <span class="at">data =</span> mobility)</span>
+<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(model_mob_01)</span>
+<span id="cb30-5"><a href="#cb30-5" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(model_mob_02)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>(a)</strong> The additive model <code>model_mob_01</code> has two rows in its ANOVA table: <code>gender</code> and <code>Residuals</code>. How many rows does the interaction model <code>model_mob_02</code> have, and what are they? Write down the corresponding null hypothesis for each non-residual row.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>(b)</strong> In <code>anova(model_mob_01)</code>, the <code>gender</code> row is tested <em>first</em>, before <code>age</code>. Explain why the order of terms in the formula matters for the sequential (Type I) sum of squares used by <code>anova()</code>. What would change if you fitted <code>lm(score ~ age + gender, data = mobility)</code> instead?</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>(c)</strong> The interaction term <code>gender:age</code> is significant in <code>anova(model_mob_02)</code>. What does this tell you about the parallel-slopes assumption of the additive model? In one sentence, explain why a significant interaction means that the main effect of <code>gender</code> alone is an incomplete — and potentially misleading — summary of the data.</p>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="sec-ex-twoway-2" class="level3" data-number="6.4.2">
+<h3 data-number="6.4.2" class="anchored" data-anchor-id="sec-ex-twoway-2"><span class="header-section-number">6.4.2</span> Exercise 2: The design matrix for two factors</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">model.matrix</span>(score <span class="sc">~</span> gender <span class="sc">*</span> age, <span class="at">data =</span> mobility))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>(a)</strong> Run the command above. How many columns does the design matrix have? Identify which column corresponds to each of the following: the intercept, the main effect of gender, the main effect of age, and the interaction term.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>(b)</strong> The interaction column contains a <code>1</code> only for observations that are simultaneously in the non-reference level of <em>both</em> factors. Which combination of <code>gender</code> and <code>age</code> does the interaction column flag? How does this relate to the parameterisation <span class="math inline">\(\gamma_{2,2}\)</span> described in the chapter?</p>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="sec-ex-twoway-3" class="level3" data-number="6.4.3">
+<h3 data-number="6.4.3" class="anchored" data-anchor-id="sec-ex-twoway-3"><span class="header-section-number">6.4.3</span> Exercise 3: Additive versus interaction model</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(model_mob_01, model_mob_02)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>(a)</strong> The likelihood ratio test compares the two models. What is the difference in the number of parameters between <code>model_mob_01</code> and <code>model_mob_02</code>? What does that difference represent structurally, that is, which term is being added?</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>(b)</strong> The <code>Sum of Sq</code> column shows the reduction in residual sum of squares when the interaction is added. Explain in one sentence why the RSS of <code>model_mob_02</code> can never be <em>larger</em> than the RSS of <code>model_mob_01</code>, regardless of whether the interaction is truly present in the population.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>(c)</strong> Suppose the p-value for the interaction term were 0.42. Would you prefer <code>model_mob_01</code> or <code>model_mob_02</code>, and why? Does a non-significant interaction guarantee that the true interaction effect is exactly zero?</p>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="sec-ex-twoway-4" class="level3" data-number="6.4.4">
+<h3 data-number="6.4.4" class="anchored" data-anchor-id="sec-ex-twoway-4"><span class="header-section-number">6.4.4</span> Exercise 4: Three factors and model comparison</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a>model_mob_05 <span class="ot">&lt;-</span> <span class="fu">lm</span>(score <span class="sc">~</span> district <span class="sc">+</span> gender <span class="sc">+</span> age, <span class="at">data =</span> mobility)</span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>model_mob_06 <span class="ot">&lt;-</span> <span class="fu">lm</span>(score <span class="sc">~</span> district <span class="sc">*</span> gender <span class="sc">*</span> age, <span class="at">data =</span> mobility)</span>
+<span id="cb33-3"><a href="#cb33-3" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(model_mob_05, model_mob_06)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>(a)</strong> <code>model_mob_06</code> uses the <code>*</code> operator across three factors. List all the terms that <code>district * gender * age</code> expands to. How many parameters does <code>model_mob_06</code> estimate in total (including the intercept), given that <code>district</code> has three levels, <code>gender</code> has two levels, and <code>age</code> has two levels?</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>(b)</strong> The <code>anova()</code> comparison tests whether the additional interaction terms in <code>model_mob_06</code> are jointly significant. The <code>Df</code> column in the output gives the number of additional parameters. Does this match the count from point (a)? If not, explain the discrepancy.</p>
+</div>
+</div>
+</div>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./31-anova-one.html" class="pagination-link" aria-label="One-Way ANOVA and the CuriosityScore story">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">One-Way ANOVA and the CuriosityScore story</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./33-anova-hierarchy.html" class="pagination-link" aria-label="Nested ANOVA and the NutritionScore story">
+        <span class="nav-page-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Nested ANOVA and the NutritionScore story</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/BetaAndBit/RogueGuide2LinearModels/edit/main/32-anova-two.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/BetaAndBit/RogueGuide2LinearModels/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

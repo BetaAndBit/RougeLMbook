@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.27">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>7&nbsp; Nested ANOVA and the NutritionScore story – The Rogue's Guide to Linear Models</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./41-ancova.html" rel="next">
+<link href="./32-anova-two.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-161aae76f10eaea8fbb7aea33acdefc9.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body class="nav-sidebar floating slimcontent quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./33-anova-hierarchy.html"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Nested ANOVA and the NutritionScore story</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">The Rogue’s Guide to Linear Models</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/BetaAndBit/RogueGuide2LinearModels" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">The Rogue’s Guide to Linear Models</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./00-Preface.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11-Introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Theorems and Formulas</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./21-simple-regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Simple Regression and the MedScore story</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./31-anova-one.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">One-Way ANOVA and the CuriosityScore story</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./32-anova-two.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Two-Way ANOVA and the MobilityScore story</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./33-anova-hierarchy.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Nested ANOVA and the NutritionScore story</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./41-ancova.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">ANCOVA and the EmploymentScore story</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./51-multivariable-regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Multiple Regression and the SocialScore story</span></span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#the-case-the-teacher-who-counted" id="toc-the-case-the-teacher-who-counted" class="nav-link active" data-scroll-target="#the-case-the-teacher-who-counted"><span class="header-section-number">7.1</span> The Case: The Teacher Who Counted</a></li>
+  <li><a href="#sec-formula-hierarchical" id="toc-sec-formula-hierarchical" class="nav-link" data-scroll-target="#sec-formula-hierarchical"><span class="header-section-number">7.2</span> The Formula: Nested ANOVA</a>
+  <ul class="collapse">
+  <li><a href="#sec-model-hierarchical-anova" id="toc-sec-model-hierarchical-anova" class="nav-link" data-scroll-target="#sec-model-hierarchical-anova"><span class="header-section-number">7.2.1</span> The Model</a></li>
+  <li><a href="#sec-hypotheses-hierarchical-anova" id="toc-sec-hypotheses-hierarchical-anova" class="nav-link" data-scroll-target="#sec-hypotheses-hierarchical-anova"><span class="header-section-number">7.2.2</span> It’s all about testing</a></li>
+  </ul></li>
+  <li><a href="#sec-terminal-nested-nutrition" id="toc-sec-terminal-nested-nutrition" class="nav-link" data-scroll-target="#sec-terminal-nested-nutrition"><span class="header-section-number">7.3</span> The Terminal: Nest to test</a>
+  <ul class="collapse">
+  <li><a href="#sec-terminal-nested-means" id="toc-sec-terminal-nested-means" class="nav-link" data-scroll-target="#sec-terminal-nested-means"><span class="header-section-number">7.3.1</span> School means by district</a></li>
+  <li><a href="#sec-terminal-nested-plot" id="toc-sec-terminal-nested-plot" class="nav-link" data-scroll-target="#sec-terminal-nested-plot"><span class="header-section-number">7.3.2</span> Show me the data</a></li>
+  <li><a href="#sec-terminal-nested-model" id="toc-sec-terminal-nested-model" class="nav-link" data-scroll-target="#sec-terminal-nested-model"><span class="header-section-number">7.3.3</span> Model witht nested variables</a></li>
+  <li><a href="#sec-terminal-nested-anova" id="toc-sec-terminal-nested-anova" class="nav-link" data-scroll-target="#sec-terminal-nested-anova"><span class="header-section-number">7.3.4</span> ANOVA table for the nested model</a></li>
+  <li><a href="#sec-terminal-nested-nutrifirst" id="toc-sec-terminal-nested-nutrifirst" class="nav-link" data-scroll-target="#sec-terminal-nested-nutrifirst"><span class="header-section-number">7.3.5</span> Adding <code>nutrifirst</code> and <code>week</code></a></li>
+  </ul></li>
+  <li><a href="#sec-exercises-nested-anova" id="toc-sec-exercises-nested-anova" class="nav-link" data-scroll-target="#sec-exercises-nested-anova"><span class="header-section-number">7.4</span> Exercises</a>
+  <ul class="collapse">
+  <li><a href="#sec-ex-nested-1" id="toc-sec-ex-nested-1" class="nav-link" data-scroll-target="#sec-ex-nested-1"><span class="header-section-number">7.4.1</span> Exercise 1: Extracting the NutriFirst effect</a></li>
+  <li><a href="#sec-ex-nested-2" id="toc-sec-ex-nested-2" class="nav-link" data-scroll-target="#sec-ex-nested-2"><span class="header-section-number">7.4.2</span> Exercise 2: Crossed versus nested structure</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/BetaAndBit/RogueGuide2LinearModels/edit/main/33-anova-hierarchy.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/BetaAndBit/RogueGuide2LinearModels/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content page-columns page-full" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span id="sec-two-way-nested" class="quarto-section-identifier"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Nested ANOVA and the NutritionScore story</span></span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="the-case-the-teacher-who-counted" class="level2 page-columns page-full" data-number="7.1">
+<h2 data-number="7.1" class="anchored" data-anchor-id="the-case-the-teacher-who-counted"><span class="header-section-number">7.1</span> The Case: The Teacher Who Counted</h2>
+
+<div class="no-row-height column-margin column-container"><div class="">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figure/NutritionScore_intro.png" class="img-fluid figure-img"></p>
+<figcaption>These things happen</figcaption>
+</figure>
+</div>
+</div></div><p>The request came from an unexpected direction.</p>
+<p>Not District 7. Not an anonymous whistleblower. Not a lawyer or a community activist or someone whose sister had died because an algorithm decided she wasn’t worth the cost.</p>
+<p>It came from a teacher.</p>
+<blockquote class="blockquote">
+<p><em>My name is Tomasz Bernat. I teach mathematics at School 4 in District 12. Something is wrong with my students. They can’t concentrate. They’re tired by 10am. Three of them fell asleep during my class last week, not one student, three. I’ve been teaching for eleven years. This has never happened before. The school nutritionist says the NutriFirst programme scores are fine. I don’t believe the scores.</em></p>
+</blockquote>
+<p>Bit read it twice. “A math teacher.”</p>
+<p>“He notices patterns,” Beta said. “Occupational hazard.”</p>
+<p>She wrote back that evening and asked for whatever he could share: class rosters, any health data the school system made publicly accessible, dates, anything. Three days later he forwarded a leaked export from the school’s internal monitoring system. Forty-one schools across three districts, each measured every Friday on NutritionScore, a composite index derived from the AI health checks, zero to a hundred, roughly Gaussian. Two extra columns rode along with each observation: whether the school had joined a programme called NutriFirst, and the week the measurement was taken.</p>
+<p>Beta looked at the structure before she looked at any number.</p>
+<p>It was cleanly hierarchical. District 7 held nine schools, District 12 nineteen, District 23 fourteen. And the school labels were the tell: School 4 in District 12 was not the same entity as School 4 in District 7. The labels only meant something inside a district, reused from one district to the next like seat numbers on different trains. Schools were nested within districts, not crossed with them. That single fact fixed the shape of every model she could honestly fit. There was no city-wide “School 4” to estimate. There was only School 4 measured against the other schools in its own district.</p>
+<p>Then the district means, and they were exactly what anyone would predict. District 7 sat near fifty-five. District 12 near sixty-seven. District 23 near eighty. Wealth mapped onto nutrition in a clean rising staircase, and there was nothing in that staircase to investigate. It was the kind of result the procurement board would happily quote and call the system working as intended.</p>
+<p>“So it’s just the gradient,” Bit said. “Rich district, high scores. Nothing new.”</p>
+<p>“That’s what the between-district average says,” Beta answered. “But an average is a place things go to hide.” A tidy gradient across three districts told her nothing about what happened inside any one of them, and Bernat taught inside one of them, at one specific school, watching one specific room fall asleep.</p>
+<p>So she plotted every school as its own point, coloured by district, each district’s mean drawn as a horizontal bar behind its schools. Three coloured clouds climbed the chart, red District 7 low, gold District 12 in the middle, blue District 23 on top, each cloud sitting fairly tight around its own bar. Except District 12 was not quite tight. Most of its nineteen schools clustered in the high sixties and low seventies, where a middle-district school ought to be. But one point had fallen out of the cloud entirely. It sat far below the others, below the whole gold band, below even the red District 7 mean, alone in the empty space between the districts.</p>
+<p>“That’s Bernat’s school,” Bit said. “School 4.”</p>
+<p>“Yes.” She did not have to squint at it. This was not a school a few points under its peers; it was a school that had dropped clean out of its own district’s range and landed beneath a poorer district’s average. In District 12, where scores lived in the high sixties, School 4 was pulling something close to fifty-eight. Two of its neighbours, she noticed, sat lower than the rest of the cloud as well, not as far as School 4, but visibly beneath the gold band: School 5 near sixty, School 6 a little above it. Three schools sagging where sixteen others held level.</p>
+<p>She built the model that let each school speak for itself. Districts as the upper factor. Schools nested within districts as the lower one, each school a specific level rather than a draw from some larger pool. The nested structure asked two questions in order. First: do the districts differ? Second, the one that mattered for Bernat: once the district staircase is accounted for, do schools within the same district still differ from each other?</p>
+<p>Both terms came back overwhelmingly significant. The district effect was vast, no surprise, the staircase was real. But the school-within-district term was strongly significant too, and District 12 was carrying most of that weight. Schools sharing a district were not interchangeable. Something specific to School 4, and to a lesser degree its two sagging neighbours, was dragging their scores down, over and above the district they belonged to. Bernat’s intuition now had a statistical shape.</p>
+<p>But a significant school term only says the schools differ. It does not say why. Beta had proven that School 4 sat apart from its District 12 peers; she had not yet named the reason. If the between-district gradient was wealth, what was the extra thing bending this handful of schools downward, and could it be turned from unexplained school-to-school noise into a variable with a name? Two unused columns still sat in the export. One of them was NutriFirst.</p>
+<p>She added it to the model, alongside the observation week, keeping the nested structure underneath. Week did nothing; scores were not drifting over the monitoring period. But NutriFirst did not merely matter. It detonated. After the district staircase had taken its enormous share of the variation, programme membership still explained a further slice so large the F-statistic ran into the hundreds, far past anything chance could manufacture, and it pointed unambiguously downward. Schools on the NutriFirst cartridges scored far below where their district and their peers would otherwise place them.</p>
+<p>Bit pulled the enrolment records while she re-read the coefficient. Then he stopped, because the enrolment list matched the plot exactly. School 4 was on NutriFirst. So were School 5 and School 6, the two other schools that had sagged beneath the District 12 band. Every remaining school in District 12 was on the standard municipal supply. The three schools the nested model had flagged were precisely the three schools eating the cartridges. And the batch had a name in the logistics feed: SB-2046-NF-07.</p>
+<p>“Three schools on the programme, sixteen not,” Bit said. “That’s why they stand out. They have neighbours to stand out against.”</p>
+<p>“Right,” Beta said. “And now look at District 7.” She filtered the enrolment column by district and went still. In District 7, every school read the same value. All nine on NutriFirst. All nine on batch SB-2046-NF-07. “In District 12 the programme reaches three schools out of nineteen, so they drop below the others and the model catches them. In District 7 it reaches everyone. Nine schools, all on the cartridges, all scoring the same low, no school left on normal food to compare against. When everyone eats the same bad food, the data looks perfectly normal. The whole district just sits at the floor and the average calls it poverty.”</p>
+<p>She could not prove causation from this alone. She had a nested model that isolated real school-level differences, a programme indicator with a colossal, negative, unmistakable effect, and three District 12 schools that had joined the programme and fallen out of their own district’s range. It was an association, but an association this clean, lined up this precisely with who ate what, was hard to look away from. And it reframed the entire District 7 gradient. What everyone had read as poverty might be, in large part, the cartridges themselves, invisible in District 7 precisely because they covered the whole district evenly, and visible in District 12 only by the accident that most of its schools had been spared them.</p>
+<p>She wrote two documents. The first was the statistical report: the nested ANOVA tables, the school-within-district term, the NutriFirst coefficient and its confidence interval, the enrolment records cross-referenced by school and batch number. The second was shorter, addressed to the health office.</p>
+<blockquote class="blockquote">
+<p><em>NutriFirst cartridges from batch SB-2046-NF-07 are associated with severely lower NutritionScore outcomes, over and above district and school effects. In District 12 the programme reaches only three schools, which fall far below their district baseline. In District 7 the same batch is the primary food supply for every school, where its effect is masked by the absence of any within-district comparison group. We recommend independent biochemical analysis of cartridge protein bioavailability before the next procurement cycle.</em></p>
+</blockquote>
+<p>Then a note to Bernat, without notation: <em>Your students aren’t tired because they aren’t trying. School 4 is one of only three schools in your district on the NutriFirst cartridges, and it shows in the scores. The data didn’t hide that from you. It only hid it from everyone who read the numbers one district at a time.</em></p>
+<p>Outside, District 12 School 4 was dark. Somewhere in District 7, nine schools were preparing for Monday, every one of them on the same batch, none of them standing out. Same cartridges. Same scores. The same data that looked, in aggregate, perfectly unremarkable, right up until someone refused to stop at the average.</p>
+</section>
+<section id="sec-formula-hierarchical" class="level2" data-number="7.2">
+<h2 data-number="7.2" class="anchored" data-anchor-id="sec-formula-hierarchical"><span class="header-section-number">7.2</span> The Formula: Nested ANOVA</h2>
+<p>In this chapter, we’ll present an example of two-way analysis of variance in which levels are not crossed as in <a href="32-anova-two.html#sec-formula-anova" class="quarto-xref"><span>Section 6.2</span></a>, but are nested. Crossed means that every combination of levels of both variables can occur in the data. For example, gender and eye color can be variables that can be crossed because both women and men can have blue eyes, so all combinations of eye color and gender could be observed in the dataset. Pairs of variables that are not crossed, but nested, include, for example, country and city. The city effect is nested in the country effect, Warsaw, Wrocław, Poznań, and other Polish cities occur only in Poland (even if cities with these same names also occur in other countries, they are different cities).</p>
+<p>Below, we’ll show what matrix <span class="math inline">\(X\)</span> and vector <span class="math inline">\(y\)</span> look like in the case of two-way analysis of variance with nested effects, case which is sometimes called hierarchical analysis of variance. As in the previous chapters, our main focus is on statistical tests to verify whether a particular variable is significant or not. In the case of nested variables, this raises the question of at what level of nesting we observe significant differences between objects. Think of examples like:</p>
+<ul>
+<li><p>We analyse variation in exam results on a nationwide scale. One of the considered factors may be the province effect; we can also consider the city or municipality effect. The municipality effect is nested in the province effect. We can additionally consider a variable indicating high school and speak of the high school effect, which is nested in the province effect. We can also consider the class effect; considering all four nested variables simultaneously, we have a four-level hierarchical model.</p></li>
+<li><p>We analyse a child’s level of mathematical ability, but we also want to take the family effect into account. There are families with several children, and in such cases it is better to consider the individual effect of the child as an effect nested within the parental effect.</p></li>
+</ul>
+<section id="sec-model-hierarchical-anova" class="level3" data-number="7.2.1">
+<h3 data-number="7.2.1" class="anchored" data-anchor-id="sec-model-hierarchical-anova"><span class="header-section-number">7.2.1</span> The Model</h3>
+<p>Let’s consider two categorical variables A and B. Assume that variable A can occur at <span class="math inline">\(k\)</span> different levels, and variable B is nested in A and for the <span class="math inline">\(i\)</span>-th level of variable A can occur at <span class="math inline">\(n_i\)</span> levels. The number of groups defined by this pair of variables is <span class="math inline">\(\sum_{i=1}^k n_i\)</span>.</p>
+<p>Let <span class="math inline">\(n_{i,j}\)</span> denote the number of observations measured for the pair of factors <span class="math inline">\(A=i\)</span> and <span class="math inline">\(B=j\)</span>. Denote by <span class="math inline">\(y_{ijk}\)</span> the value of the <span class="math inline">\(k\)</span>-th individual in this group.</p>
+<p>The analysis of variance model is as follows:</p>
+<p><span class="math display">\[
+y_{i,j,m} \sim \mathcal{N}(\mu_{i,j}, \sigma^2), \quad 1 \leq i \leq k, \quad 1 \leq j \leq n_i, \quad 1 \leq m \leq n_{i,j},
+\]</span></p>
+<p>where trait <span class="math inline">\(y\)</span> has a normal distribution with variance <span class="math inline">\(\sigma^2\)</span> and mean <span class="math inline">\(\mu_{i,j}\)</span>. If <span class="math inline">\(n_{i,j}\)</span> is the same in each group, we speak of a balanced design; otherwise, an unbalanced design.</p>
+<p>Hypotheses posed in two-way hierarchical analysis of variance concern the values of means <span class="math inline">\(\mu_{i,j}\)</span> or <span class="math inline">\(\mu_i\)</span>. Let’s present these means in <a href="#eq-matrix-nested-anova" class="quarto-xref">Equation&nbsp;<span>7.1</span></a>; in each row there may be a different number of means because a different number of levels of variable B may be nested in variable A.</p>
+<p><span id="eq-matrix-nested-anova"><span class="math display">\[
+\begin{array}{l|lllll}
+\mu_{1} &amp; \mu_{1,1} &amp; \mu_{1,2} &amp; \cdots &amp; \mu_{1,n_1} &amp;  \\
+\mu_{2} &amp; \mu_{2,1} &amp; \mu_{2,2} &amp; \cdots &amp; \cdots &amp; \mu_{2,n_2} \\
+\cdots &amp; \cdots &amp; \cdots &amp; \cdots &amp; \cdots &amp; \cdots\\
+\mu_{k} &amp; \mu_{k,1} &amp; \mu_{k,2} &amp; \cdots &amp; \mu_{k,n_k} &amp;  \\
+\end{array}
+\tag{7.1}\]</span></span></p>
+<p>This table of means can be presented in a different parameterization. If we denote by <span class="math inline">\(\alpha_i\)</span> the additive effect of the first factor and by <span class="math inline">\(\beta_{i,j}\)</span> the additive effect of the second factor, then we can present the table of means <a href="#eq-matrix-nested-anova2" class="quarto-xref">Equation&nbsp;<span>7.2</span></a> in a new parameterization.</p>
+<p><span id="eq-matrix-nested-anova2"><span class="math display">\[
+\begin{array}{l|lllll}
+\mu + \alpha_1 &amp; \mu + \alpha_1 + \beta_{1,1} &amp; \mu + \alpha_1 + \beta_{1,2} &amp; \cdots &amp; \mu + \alpha_1 + \beta_{1,n_1} &amp;  \\
+\mu + \alpha_2 &amp; \mu + \alpha_2 + \beta_{2,1} &amp; \mu + \alpha_2 + \beta_{2,2} &amp; \cdots &amp; \cdots &amp; \mu + \alpha_2 + \beta_{2,n_2} \\
+\cdots &amp; \cdots &amp; \cdots &amp; \cdots &amp; \cdots &amp; \cdots \\
+\mu + \alpha_k &amp; \mu + \alpha_k + \beta_{k,1} &amp; \mu + \alpha_k + \beta_{k,2} &amp; \cdots &amp; \mu + \alpha_k + \beta_{k,n_k} &amp;  \\
+\end{array}
+\tag{7.2}\]</span></span></p>
+<p>To ensure identifiability of parameters in the model, constraints must be added to the new parameters. In line with the previous chapters, the following constraints are adopted:</p>
+<p><span class="math display">\[\begin{equation}
+\alpha_1=0, \quad \forall_{i} \quad \beta_{i,1}=0.
+\end{equation}\]</span></p>
+<p>This leads us to the general formula for the model when factor <span class="math inline">\(B\)</span> is nested within factor <span class="math inline">\(A\)</span>:</p>
+<p><span id="eq-nested"><span class="math display">\[y_{ijk} = \mu + \alpha_i + \beta_{j(i)} + \varepsilon_{ijk} \tag{7.3}\]</span></span></p>
+<p>where:</p>
+<ul>
+<li><span class="math inline">\(\mu\)</span> is the grand mean,</li>
+<li><span class="math inline">\(\alpha_i\)</span> is the fixed effect of level <span class="math inline">\(i\)</span> of factor <span class="math inline">\(A\)</span> (district),</li>
+<li><span class="math inline">\(\beta_{j(i)}\)</span> is the fixed effect of school <span class="math inline">\(j\)</span> nested within district <span class="math inline">\(i\)</span>,</li>
+<li><span class="math inline">\(\varepsilon_{ijk} \sim \mathcal{N}(0, \sigma^2)\)</span> is the residual error.</li>
+</ul>
+<p>The notation <span class="math inline">\(\beta_{j(i)}\)</span> — read <em>“beta j within i”</em> — indicates that school <span class="math inline">\(j\)</span> is not an independent factor but is defined only within a specific district. School 4 in District 12 is a different entity from School 4 in District 7, even if they share a label.</p>
+<p>Translating the above description into the language of linear models, we’ll consider a linear model of the form:</p>
+<p><span class="math display">\[
+y = X \beta + \varepsilon,
+\]</span></p>
+<p>in which vector <span class="math inline">\(\beta = (\mu, \alpha_2, \ldots, \alpha_k, \beta_{1,2}, \ldots, \beta_{k,n_k})\)</span>, and matrix <span class="math inline">\(X\)</span> is a matrix of indicators of individual factors. The first column of matrix <span class="math inline">\(X\)</span> will be filled with ones, the next <span class="math inline">\(k-1\)</span> columns will encode levels of variable A, and the last <span class="math inline">\(\sum_{i=1}^k (n_i - 1)\)</span> columns will encode levels of variable <span class="math inline">\(B\)</span>.</p>
+<p>For example, assume we have a set of eight observations and three variables: one quantitative <span class="math inline">\(y\)</span> and two categorical <span class="math inline">\(x_1\)</span> and <span class="math inline">\(x_2\)</span>. Assume that variable <span class="math inline">\(x1\)</span> occurs at two levels: <code>C</code> or <code>D</code>, and the number of occurrences of each level is balanced and equals four occurrences. In other words, the variable <span class="math inline">\(x=c(C, C, C, C, D, D, D, D)\)</span> describes two four-element groups. Assume that variable <span class="math inline">\(x_2\)</span> is nested in variable <span class="math inline">\(x_1\)</span> and occurs at levels nested in variable <span class="math inline">\(x_1\)</span>: <code>Q_C</code>, <code>R_C</code>, or <code>Q_D</code>, <code>R_D</code>. The variable is <span class="math inline">\(x_2=c(Q_C, Q_C, R_C, R_C, Q_D, Q_D, R_D, R_D)\)</span>.</p>
+<p>The formula <code>y~x1/x2</code> describes a two-way analysis of variance model in which levels of variable <code>x2</code> are nested in levels of variable <code>x1</code>. The corresponding matrix notation is as follows:</p>
+<p><span id="eq-nested-ex-with"><span class="math display">\[
+\begin{bmatrix}
+y_{1,1,1} \\
+y_{1,1,2} \\
+y_{1,2,1} \\
+y_{1,2,2} \\
+y_{2,1,1} \\
+y_{2,1,2} \\
+y_{2,2,1} \\
+y_{2,2,2}
+\end{bmatrix} =
+\begin{bmatrix}
+1 &amp; 0 &amp; 0 &amp; 0 \\
+1 &amp; 0 &amp; 0 &amp; 0 \\
+1 &amp; 0 &amp; 1 &amp; 0 \\
+1 &amp; 0 &amp; 1 &amp; 0 \\
+1 &amp; 1 &amp; 0 &amp; 0 \\
+1 &amp; 1 &amp; 0 &amp; 0 \\
+1 &amp; 1 &amp; 0 &amp; 1 \\
+1 &amp; 1 &amp; 0 &amp; 1
+\end{bmatrix}
+\begin{bmatrix}
+\mu \\
+\alpha_2 \\
+\beta_{1,2} \\
+\beta_{2,2}
+\end{bmatrix} +
+\begin{bmatrix}
+\varepsilon_{1,1,1} \\
+\varepsilon_{1,1,2} \\
+\varepsilon_{1,2,1} \\
+\varepsilon_{1,2,2} \\
+\varepsilon_{2,1,1} \\
+\varepsilon_{2,1,2} \\
+\varepsilon_{2,2,1} \\
+\varepsilon_{2,2,2}
+\end{bmatrix},
+\tag{7.4}\]</span></span></p>
+<p>where <span class="math inline">\((y_{1,1,1}, y_{1,1,2}, \ldots, y_{2,2,1}, y_{2,2,2})\)</span> is an eight-element vector with measurements of trait <span class="math inline">\(y\)</span>, and <span class="math inline">\((\varepsilon_{1, 1,1}, \varepsilon_{1, 1,2}, \ldots, \varepsilon_{2,2,1}, \varepsilon_{2,2,2})\)</span> is an eight-element vector corresponding to random disturbance <span class="math inline">\(\varepsilon \sim \mathcal{N}(0, I_{8\times 8}\sigma^2)\)</span>.</p>
+</section>
+<section id="sec-hypotheses-hierarchical-anova" class="level3" data-number="7.2.2">
+<h3 data-number="7.2.2" class="anchored" data-anchor-id="sec-hypotheses-hierarchical-anova"><span class="header-section-number">7.2.2</span> It’s all about testing</h3>
+<p>In two-way hierarchical analysis, we test two types of null hypotheses:</p>
+<ul>
+<li>Hypotheses related to main effects of variable <span class="math inline">\(A\)</span>. Does the mean of the response variable differ significantly across the possible values at the level of hierarchy variable <span class="math inline">\(A\)</span> (similar to one-way ANOVA)?</li>
+</ul>
+<p><span id="eq-h0-nested-main-A"><span class="math display">\[
+H^{I}_0: \quad \mu_1 = \mu_2 = \cdots = \mu_k
+\tag{7.5}\]</span></span></p>
+<p>In alternative parameterization, this hypothesis has the form:</p>
+<p><span class="math display">\[
+H^{I}_0: \quad \alpha_2 = \alpha_3 = \cdots = \alpha_k = 0,
+\]</span></p>
+<p>against hypothesis <span class="math inline">\(H^{I}_A: \  \exists_{i} \   \alpha_i \neq 0\)</span>.</p>
+<ul>
+<li>Hypotheses related to nested effects of variable <span class="math inline">\(A/B\)</span>.</li>
+</ul>
+<p><span id="eq-h0-nested-interact-B"><span class="math display">\[
+H^{II}_0: \quad \mu_{1,1} - \mu_1 = \mu_{1,2} - \mu_1 = \cdots = \mu_{k,n_k} - \mu_k = 0
+\tag{7.6}\]</span></span></p>
+<p>If we adopt alternative parameterization, we can write this hypothesis as:</p>
+<p><span class="math display">\[
+H^{II}_0: \quad \beta_{1,2} = \beta_{1,3} = \cdots = \beta_{k,n_k} = 0,
+\]</span></p>
+<p>against hypothesis <span class="math inline">\(H^{II}_A: \  \exists_{i,j} \   \beta_{i,j} \neq 0\)</span>.</p>
+</section>
+</section>
+<section id="sec-terminal-nested-nutrition" class="level2 page-columns page-full" data-number="7.3">
+<h2 data-number="7.3" class="anchored" data-anchor-id="sec-terminal-nested-nutrition"><span class="header-section-number">7.3</span> The Terminal: Nest to test</h2>
+<p>The dataset used in this section comes from the <code>RougeLM</code> package. The <code>nutrition</code> dataset contains weekly NutritionScore measurements from 41 schools across three districts of WaszKrak, with additional variables recording whether the school is enrolled in the NutriFirst programme (<code>nutrifirst</code>) and the observation week (<code>week</code>).</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"RougeLM"</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(nutrition)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  school week district nutrifirst true_mean    score
+1     S1    1       D7      FALSE  54.58477 59.81560
+2     S1    1      D12      FALSE  71.40434 80.06217
+3     S1    1      D23      FALSE  81.76138 78.66750
+4     S1    2       D7      FALSE  54.58477 64.85872
+5     S1    2      D12      FALSE  71.40434 69.81784
+6     S1    2      D23      FALSE  81.76138 83.97262</code></pre>
+</div>
+</div>
+<p><code>head()</code> confirms the structure: each row is one weekly observation for one school. <code>district</code> and <code>school</code> are the two grouping variables; <code>score</code> is the continuous response; <code>nutrifirst</code> is a logical indicator if the school in question take part in the programme; <code>week</code> is an integer recording the observation week within the monitoring period.</p>
+<hr>
+<section id="sec-terminal-nested-means" class="level3 page-columns page-full" data-number="7.3.1">
+<h3 data-number="7.3.1" class="anchored" data-anchor-id="sec-terminal-nested-means"><span class="header-section-number">7.3.1</span> School means by district</h3>
+<p>Before fitting any model it is important to understand the structure of the grouping variables.</p>
+<div id="tbl-school-means" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-tbl figure page-columns page-full">
+<div aria-describedby="tbl-school-means-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"dplyr"</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"tidyr"</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>nutrition <span class="sc">|&gt;</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(district, school) <span class="sc">|&gt;</span></span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">avg_score =</span> <span class="fu">mean</span>(score), <span class="at">.groups =</span> <span class="st">"drop"</span>) <span class="sc">|&gt;</span></span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> district, <span class="at">values_from =</span> avg_score)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 19 × 4
+   school    D7   D12   D23
+   &lt;fct&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;
+ 1 S1      54.2  71.9  82.7
+ 2 S2      51.1  67.8  77.9
+ 3 S3      57.0  74.0  84.1
+ 4 S4      54.1  57.9  82.3
+ 5 S5      52.7  59.8  79.8
+ 6 S6      53.0  64.1  80.6
+ 7 S7      57.0  69.1  77.5
+ 8 S8      54.4  68.3  81.0
+ 9 S9      57.8  67.7  79.4
+10 S10     NA    65.8  77.6
+11 S11     NA    63.0  79.2
+12 S12     NA    70.6  81.9
+13 S13     NA    68.6  81.1
+14 S14     NA    72.1  77.6
+15 S15     NA    67.1  NA  
+16 S16     NA    68.5  NA  
+17 S17     NA    68.2  NA  
+18 S18     NA    62.6  NA  
+19 S19     NA    72.8  NA  </code></pre>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-tbl quarto-uncaptioned margin-caption" id="tbl-school-means-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;7.1
+</figcaption>
+</figure>
+</div>
+<p><code>group_by(district, school)</code> partitions the data by every district-school combination. <code>summarise(avg_score = mean(score))</code> then collapses each group to its mean NutritionScore. <code>pivot_wider()</code> reshapes the result so that each district becomes a column — making it easy to compare school means across districts in a single glance.</p>
+<p>The resulting table reveals something structurally important: <em>School 1 in District 7 is not the same entity as School 1 in District 12</em>. School labels are only meaningful within a district, they are arbitrary identifiers reused across districts. This rules out a crossed (additive) school effect, where a single school coefficient would represent the same school appearing in multiple districts. The only sensible model is one where school effects are <em>nested within</em> districts: each school is a unique unit belonging to exactly one district, and its effect is estimated relative to the other schools in the same district.</p>
+<p>If we were to ignore this and include <code>school</code> as an additive main effect, as if school labels were comparable across districts, the model would attempt to estimate a single coefficient for “School 1” by pooling across all districts, which is statistically and substantively meaningless.</p>
+<hr>
+</section>
+<section id="sec-terminal-nested-plot" class="level3 page-columns page-full" data-number="7.3.2">
+<h3 data-number="7.3.2" class="anchored" data-anchor-id="sec-terminal-nested-plot"><span class="header-section-number">7.3.2</span> Show me the data</h3>
+<p>Of course, we’ll start by looking at the data. We’d normally use a box plot, as in the previous chapters, but let’s try something different and look at the means and standard deviations across the schools. To plot these, we need to prepare the following in advance</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>mean_sd <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">data.frame</span>(</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">y    =</span> <span class="fu">mean</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">ymin =</span> <span class="fu">mean</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">-</span> <span class="fu">sd</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>),</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    <span class="at">ymax =</span> <span class="fu">mean</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>) <span class="sc">+</span> <span class="fu">sd</span>(x, <span class="at">na.rm =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>  )</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a>}</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><code>mean_sd</code> is a user-defined summary function that returns a data frame with three columns: <code>y</code> (the mean), <code>ymin</code> (mean minus one standard deviation), and <code>ymax</code> (mean plus one standard deviation). This specific output format, a data frame with columns named <code>y</code>, <code>ymin</code>, and <code>ymax</code>, is required by <code>geom = "errorbar"</code> inside <code>stat_summary()</code>: <code>ggplot2</code> looks for exactly these names when drawing the bar extents. The <code>na.rm = TRUE</code> argument ensures that any missing scores are silently excluded before computing the mean and standard deviation.</p>
+<div class="cell page-columns page-full">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"ggplot2"</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"Hmisc"</span>)</span>
+<span id="cb6-3"><a href="#cb6-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb6-4"><a href="#cb6-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(nutrition,</span>
+<span id="cb6-5"><a href="#cb6-5" aria-hidden="true" tabindex="-1"></a>       <span class="fu">aes</span>(<span class="at">x =</span> school, <span class="at">y =</span> score, <span class="at">color =</span> district)) <span class="sc">+</span></span>
+<span id="cb6-6"><a href="#cb6-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun      =</span> mean,    <span class="at">geom =</span> <span class="st">"point"</span>,   <span class="at">size =</span> <span class="dv">3</span>) <span class="sc">+</span></span>
+<span id="cb6-7"><a href="#cb6-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">stat_summary</span>(<span class="at">fun.data =</span> mean_sd, <span class="at">geom =</span> <span class="st">"errorbar"</span>, <span class="at">width =</span> <span class="fl">0.2</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display page-columns page-full">
+<div id="fig-school-means" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-school-means-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="33-anova-hierarchy_files/figure-html/fig-school-means-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-school-means-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;7.1: Mean NutritionScore per school with ± one standard deviation error bars. Each point is one school’s mean across all weeks; the error bars show the within-school variability. Points are coloured by district. One school in District 12 sits well below all others in its district and below the District 7 mean — the outlier that the nested model will isolate.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><code>stat_summary()</code> computes a summary statistic from the raw data and plots the result directly, without requiring a separate aggregation step. It appears twice here, performing two different operations on the same underlying data:</p>
+<p>The first call uses <code>fun = mean</code> and <code>geom = "point"</code>: for each school, it computes the mean of all weekly <code>score</code> values and places a point at that value. <code>fun</code> expects a function that takes a vector and returns a single number.</p>
+<p>The second call uses <code>fun.data = mean_sd</code> and <code>geom = "errorbar"</code>: for each school, it calls the <code>mean_sd</code> function defined above and uses the returned <code>ymin</code> and <code>ymax</code> values to draw the error bar extents. <code>fun.data</code> expects a function that returns a data frame with columns <code>y</code>, <code>ymin</code>, and <code>ymax</code> — which is why <code>mean_sd</code> was written in exactly that format. <code>width = 0.2</code> controls the horizontal width of the end-caps on the error bars.</p>
+<p>Colour is mapped to <code>district</code> in <code>aes()</code>, so all schools belonging to the same district share a colour, making the between-district pattern immediately visible alongside the within-district school variation.</p>
+<hr>
+</section>
+<section id="sec-terminal-nested-model" class="level3" data-number="7.3.3">
+<h3 data-number="7.3.3" class="anchored" data-anchor-id="sec-terminal-nested-model"><span class="header-section-number">7.3.3</span> Model witht nested variables</h3>
+<p>Let’s fit a model with two nested variables. This will correspond to an <span class="math inline">\(X\)</span> matrix with three components, as shown in <a href="#eq-nested-ex-with" class="quarto-xref">Equation&nbsp;<span>7.4</span></a>.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>model_nut_01 <span class="ot">&lt;-</span> <span class="fu">lm</span>(score <span class="sc">~</span> district <span class="sc">+</span> district<span class="sc">:</span>school,</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">data =</span> nutrition)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>model_nut_01 <span class="ot">&lt;-</span> <span class="fu">lm</span>(score <span class="sc">~</span> district<span class="sc">/</span>school,</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>                   <span class="at">data =</span> nutrition)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>Both lines correspond to the same model, they just use different notations. They are shown together to illustrate two equivalent formula syntaxes for nested effects.</p>
+<p>The first form, <code>district + district:school</code>, is explicit: <code>district</code> adds a main effect for district, and <code>district:school</code> adds the interaction term between district and school — which, because school is nested within district rather than crossed with it, is equivalent to a separate school effect estimated within each district.</p>
+<p>The second form, <code>district/school</code>, uses the nesting operator <code>/</code>. It expands automatically to <code>district + district:school</code>, producing an identical design matrix. The <code>/</code> notation is preferred in practice because it documents the nesting structure directly in the formula, making the model’s intent clear to anyone reading the code. The second assignment overwrites the first; only <code>model_nut_01</code> from the <code>/</code> formula is used in subsequent steps.</p>
+<hr>
+</section>
+<section id="sec-terminal-nested-anova" class="level3 page-columns page-full" data-number="7.3.4">
+<h3 data-number="7.3.4" class="anchored" data-anchor-id="sec-terminal-nested-anova"><span class="header-section-number">7.3.4</span> ANOVA table for the nested model</h3>
+<p>We now test hypothesis <a href="#eq-h0-nested-main-A" class="quarto-xref">Equation&nbsp;<span>7.5</span></a> and <a href="#eq-h0-nested-interact-B" class="quarto-xref">Equation&nbsp;<span>7.6</span></a>. As they are nested, we can use the likelihood ratio test.</p>
+<div id="tbl-anova-nut-01" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-tbl figure page-columns page-full">
+<div aria-describedby="tbl-anova-nut-01-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(model_nut_01)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Analysis of Variance Table
+
+Response: score
+                  Df Sum Sq Mean Sq  F value    Pr(&gt;F)    
+district           2 271598  135799 5129.172 &lt; 2.2e-16 ***
+district:school   39  29006     744   28.091 &lt; 2.2e-16 ***
+Residuals       2714  71855      26                       
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-tbl quarto-uncaptioned margin-caption" id="tbl-anova-nut-01-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;7.2
+</figcaption>
+</figure>
+</div>
+<p><code>anova()</code> on the nested model produces a sequential ANOVA table with two rows: one for <code>district</code> and one for <code>district:school</code>. Reading the table:</p>
+<p>The <code>district</code> row tests whether the between-district variation in mean NutritionScore is larger than would be expected by chance. A significant F-value here indicates that district-level differences in scores exist, which is unsurprising given the known socioeconomic gradient across WaszKrak districts.</p>
+<p>The <code>district:school</code> row tests whether the between-school variation within districts, after accounting for the district main effect, is significant. A significant result here means that schools within the same district differ from one another in ways not explained by which district they belong to. This is the key test for the outlier: if one school in District 12 scores dramatically lower than all other District 12 schools, the school-within-district term will be significant.</p>
+<hr>
+</section>
+<section id="sec-terminal-nested-nutrifirst" class="level3" data-number="7.3.5">
+<h3 data-number="7.3.5" class="anchored" data-anchor-id="sec-terminal-nested-nutrifirst"><span class="header-section-number">7.3.5</span> Adding <code>nutrifirst</code> and <code>week</code></h3>
+<p>The nested school structure accounts for the clustering of observations within schools. Once that structure is in the model, we can test whether additional variables, the <em>NutriFirst</em> programme and the observation week, contribute further.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>model_nut_02 <span class="ot">&lt;-</span> <span class="fu">lm</span>(score <span class="sc">~</span> district<span class="sc">/</span>school <span class="sc">+</span> nutrifirst <span class="sc">+</span> week,</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">data =</span> nutrition)</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(model_nut_02)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Analysis of Variance Table
+
+Response: score
+                  Df Sum Sq Mean Sq   F value Pr(&gt;F)    
+district           2 271598  135799 5665.6456 &lt;2e-16 ***
+nutrifirst         1  19601   19601  817.7641 &lt;2e-16 ***
+week               1     43      43    1.8135 0.1782    
+district:school   39  16213     416   17.3444 &lt;2e-16 ***
+Residuals       2712  65004      24                     
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<p><code>district/school</code> retains the nested structure established in <code>model_nut_01</code>. The additional terms <code>+ nutrifirst + week</code> add the programme indicator and the temporal trend as additive main effects. <code>nutrifirst</code> is a logical or factor variable encoding whether the school receives NutriFirst cartridges; <code>week</code> captures any linear trend in scores over the monitoring period.</p>
+<p><code>anova()</code> now produces four rows: <code>district</code>, <code>district:school</code>, <code>nutrifirst</code>, and <code>week</code>. Each term is tested sequentially, conditional on all terms listed before it. The <code>nutrifirst</code> row answers the primary question: after accounting for district, school-within-district, and the temporal trend, does NutriFirst programme membership explain additional variation in NutritionScore?</p>
+</section>
+</section>
+<section id="sec-exercises-nested-anova" class="level2" data-number="7.4">
+<h2 data-number="7.4" class="anchored" data-anchor-id="sec-exercises-nested-anova"><span class="header-section-number">7.4</span> Exercises</h2>
+<section id="sec-ex-nested-1" class="level3" data-number="7.4.1">
+<h3 data-number="7.4.1" class="anchored" data-anchor-id="sec-ex-nested-1"><span class="header-section-number">7.4.1</span> Exercise 1: Extracting the NutriFirst effect</h3>
+<p>Beta has fitted <code>model_nut_02</code> which includes district, school nested within district, NutriFirst programme membership, and observation week.</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>model_nut_02 <span class="ot">&lt;-</span> <span class="fu">lm</span>(score <span class="sc">~</span> district<span class="sc">/</span>school <span class="sc">+</span> nutrifirst <span class="sc">+</span> week,</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>                   <span class="at">data =</span> nutrition)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>(a)</strong> Extract the coefficient for <code>nutrifirst</code> from the fitted model using <code>coef()</code>. What does the sign and magnitude of this coefficient tell you about the association between the NutriFirst programme and NutritionScore?</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>(b)</strong> Use <code>confint()</code> to compute a 95% confidence interval for the <code>nutrifirst</code> coefficient. Does the interval contain zero? What does this tell you about the statistical significance of the NutriFirst effect, and how does your answer relate to the p-value in <code>anova(model_nut_02)</code>?</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>(c)</strong> The <code>week</code> coefficient is also present in the model. Using <code>coef()</code>, extract its value and interpret it: how does NutritionScore change on average for each additional week of monitoring, holding all other variables constant?</p>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="sec-ex-nested-2" class="level3" data-number="7.4.2">
+<h3 data-number="7.4.2" class="anchored" data-anchor-id="sec-ex-nested-2"><span class="header-section-number">7.4.2</span> Exercise 2: Crossed versus nested structure</h3>
+<p>A student proposes fitting the following model instead of <code>model_nut_01</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>model_wrong <span class="ot">&lt;-</span> <span class="fu">lm</span>(score <span class="sc">~</span> district <span class="sc">+</span> school, <span class="at">data =</span> nutrition)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>(a)</strong> How many coefficients does <code>model_wrong</code> estimate for the <code>school</code> term? How many coefficients does <code>model_nut_01</code> (with <code>district/school</code>) estimate for the school-within-district term? Use <code>length(coef())</code> on both models to check. Explain the difference.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>(b)</strong> Run <code>head(model.matrix(model_wrong))</code> and <code>head(model.matrix(model_nut_01))</code>. Compare the two design matrices. What is the key structural difference between how the two models encode the school variable? Which encoding correctly reflects that School 1 in District 7 and School 1 in District 12 are different entities?</p>
+</div>
+</div>
+</div>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./32-anova-two.html" class="pagination-link" aria-label="Two-Way ANOVA and the MobilityScore story">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Two-Way ANOVA and the MobilityScore story</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./41-ancova.html" class="pagination-link" aria-label="ANCOVA and the EmploymentScore story">
+        <span class="nav-page-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">ANCOVA and the EmploymentScore story</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/BetaAndBit/RogueGuide2LinearModels/edit/main/33-anova-hierarchy.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/BetaAndBit/RogueGuide2LinearModels/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

@@ -1,0 +1,1425 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.27">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>4&nbsp; Simple Regression and the MedScore story – The Rogue's Guide to Linear Models</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./31-anova-one.html" rel="next">
+<link href="./11-Introduction.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-161aae76f10eaea8fbb7aea33acdefc9.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body class="nav-sidebar floating slimcontent quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./21-simple-regression.html"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Simple Regression and the MedScore story</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">The Rogue’s Guide to Linear Models</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/BetaAndBit/RogueGuide2LinearModels" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">The Rogue’s Guide to Linear Models</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./00-Preface.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11-Introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Theorems and Formulas</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./21-simple-regression.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Simple Regression and the MedScore story</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./31-anova-one.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">One-Way ANOVA and the CuriosityScore story</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./32-anova-two.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Two-Way ANOVA and the MobilityScore story</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./33-anova-hierarchy.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Nested ANOVA and the NutritionScore story</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./41-ancova.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">ANCOVA and the EmploymentScore story</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./51-multivariable-regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Multiple Regression and the SocialScore story</span></span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#the-case-within-the-bracket" id="toc-the-case-within-the-bracket" class="nav-link active" data-scroll-target="#the-case-within-the-bracket"><span class="header-section-number">4.1</span> The Case: Within the Bracket</a></li>
+  <li><a href="#sec:intro-simple-reg" id="toc-sec:intro-simple-reg" class="nav-link" data-scroll-target="#sec\:intro-simple-reg"><span class="header-section-number">4.2</span> The Formula: Simple Regression</a></li>
+  <li><a href="#sec-terminal-simple-regression" id="toc-sec-terminal-simple-regression" class="nav-link" data-scroll-target="#sec-terminal-simple-regression"><span class="header-section-number">4.3</span> The Terminal: Let’s start simple</a>
+  <ul class="collapse">
+  <li><a href="#sec-simple-regression-plot" id="toc-sec-simple-regression-plot" class="nav-link" data-scroll-target="#sec-simple-regression-plot"><span class="header-section-number">4.3.1</span> Show me the data</a></li>
+  <li><a href="#sec-model-intercept" id="toc-sec-model-intercept" class="nav-link" data-scroll-target="#sec-model-intercept"><span class="header-section-number">4.3.2</span> Fitting the model with an intercept</a></li>
+  <li><a href="#sec-model-no-intercept" id="toc-sec-model-no-intercept" class="nav-link" data-scroll-target="#sec-model-no-intercept"><span class="header-section-number">4.3.3</span> Fitting the model without an intercept</a></li>
+  <li><a href="#sec-anova-models" id="toc-sec-anova-models" class="nav-link" data-scroll-target="#sec-anova-models"><span class="header-section-number">4.3.4</span> Comparing the two models with a likelihood ratio test</a></li>
+  <li><a href="#interval-predictions-with-linear-models" id="toc-interval-predictions-with-linear-models" class="nav-link" data-scroll-target="#interval-predictions-with-linear-models"><span class="header-section-number">4.3.5</span> Interval predictions with linear models</a></li>
+  </ul></li>
+  <li><a href="#the-case-the-shape-of-cost" id="toc-the-case-the-shape-of-cost" class="nav-link" data-scroll-target="#the-case-the-shape-of-cost"><span class="header-section-number">4.4</span> The Case: The Shape of Cost</a></li>
+  <li><a href="#sec-intro-boxcox-trans" id="toc-sec-intro-boxcox-trans" class="nav-link" data-scroll-target="#sec-intro-boxcox-trans"><span class="header-section-number">4.5</span> The Formula: Box Cox Transformation</a></li>
+  <li><a href="#the-terminal-lets-cox" id="toc-the-terminal-lets-cox" class="nav-link" data-scroll-target="#the-terminal-lets-cox"><span class="header-section-number">4.6</span> The Terminal: Let’s Cox!</a>
+  <ul class="collapse">
+  <li><a href="#sec-simple-cox-plot" id="toc-sec-simple-cox-plot" class="nav-link" data-scroll-target="#sec-simple-cox-plot"><span class="header-section-number">4.6.1</span> Show me the data</a></li>
+  <li><a href="#sec-terminal-boxcox-method" id="toc-sec-terminal-boxcox-method" class="nav-link" data-scroll-target="#sec-terminal-boxcox-method"><span class="header-section-number">4.6.2</span> Choosing a transformation with Box-Cox</a></li>
+  <li><a href="#sec-terminal-boxcox-apply" id="toc-sec-terminal-boxcox-apply" class="nav-link" data-scroll-target="#sec-terminal-boxcox-apply"><span class="header-section-number">4.6.3</span> Applying the Box-Cox transformation</a></li>
+  <li><a href="#sec-terminal-logtrans" id="toc-sec-terminal-logtrans" class="nav-link" data-scroll-target="#sec-terminal-logtrans"><span class="header-section-number">4.6.4</span> Logarithmic transformation with unknown shift</a></li>
+  <li><a href="#sec-terminal-choice" id="toc-sec-terminal-choice" class="nav-link" data-scroll-target="#sec-terminal-choice"><span class="header-section-number">4.6.5</span> Choosing between Box-Cox and log transformation</a></li>
+  </ul></li>
+  <li><a href="#sec-exercises-simple-regression" id="toc-sec-exercises-simple-regression" class="nav-link" data-scroll-target="#sec-exercises-simple-regression"><span class="header-section-number">4.7</span> Exercises</a>
+  <ul class="collapse">
+  <li><a href="#sec-ex1" id="toc-sec-ex1" class="nav-link" data-scroll-target="#sec-ex1"><span class="header-section-number">4.7.1</span> Exercise 1: Reading the output</a></li>
+  <li><a href="#sec-ex2" id="toc-sec-ex2" class="nav-link" data-scroll-target="#sec-ex2"><span class="header-section-number">4.7.2</span> Exercise 2: Symmetry of regression</a></li>
+  <li><a href="#sec-ex3" id="toc-sec-ex3" class="nav-link" data-scroll-target="#sec-ex3"><span class="header-section-number">4.7.3</span> Exercise 3: Prediction interval</a></li>
+  <li><a href="#sec-ex4" id="toc-sec-ex4" class="nav-link" data-scroll-target="#sec-ex4"><span class="header-section-number">4.7.4</span> Exercise 4: Model without intercept</a></li>
+  <li><a href="#sec-ex5" id="toc-sec-ex5" class="nav-link" data-scroll-target="#sec-ex5"><span class="header-section-number">4.7.5</span> Exercise 5: Inference</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/BetaAndBit/RogueGuide2LinearModels/edit/main/21-simple-regression.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/BetaAndBit/RogueGuide2LinearModels/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content page-columns page-full" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span id="sec-simple-regression" class="quarto-section-identifier"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Simple Regression and the MedScore story</span></span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="the-case-within-the-bracket" class="level2 page-columns page-full" data-number="4.1">
+<h2 data-number="4.1" class="anchored" data-anchor-id="the-case-within-the-bracket"><span class="header-section-number">4.1</span> The Case: Within the Bracket</h2>
+<div class="page-columns page-full">
+<div class="quarto-figure quarto-figure-center page-columns page-full">
+<figure class="figure page-columns page-full">
+<p class="page-columns page-full"><img src="figure/CoreWarszawa.jpg" class="img-fluid figure-img column-body-outset-right"></p>
+<figcaption>WaszKrak Never Sleeps</figcaption>
+</figure>
+</div>
+</div>
+<p>The message came through onion routing at 3:47 a.m. No sender. No greeting.</p>
+<blockquote class="blockquote">
+<p><em>I need to know where my partner’s MedScore should fall. I have a clinic’s worth of pairs. I’ll pay double rate.</em></p>
+</blockquote>
+<p>Beta was already at the terminal. Double rate for a correlation meant one of two things, she thought: someone very wealthy, or someone very afraid. The data arrived five minutes later, clean and well-formatted. Ninety-six LifeContract pairs pulled from a single District 12 clinic, each row holding two numbers: partner_a, the MedScore of one partner, and partner_b, the MedScore of the other. Someone had access to records they should not have had. Beta did not ask where from.</p>
+<p>The scatter plot assembled itself inside her neural implant like a constellation, points suspended in the dark of the room. The pattern was immediate and unsurprising. The higher one partner’s MedScore, the higher the other’s, a diagonal drift from the low-160s into the high-180s. People pair within their district, their scoring bracket, their statistical future. Love in WaszKrak has its own regression line, and this one climbed at roughly seven-tenths of a point for every point of partner_a, lifting off an intercept somewhere in the low forties. A little more than half the variation in one partner explained by the other. Strong, not perfect. Strong enough.</p>
+<p>She fit the line properly, then asked it the only question that mattered to whoever was paying. For a partner with partner_a at 170, squarely mid-bracket, the model returned a predicted partner_b near 179, and around it a ninety-five percent prediction interval that ran from the mid-160s to the low 190s. Wide. Wider than the client would like. A single MedScore does not pin a partner’s score to a point; it names a range, and the range was broad enough to hold most of a district inside it.</p>
+<p>“Someone wants to know if their partner is statistically compatible,” Bit said, awake now, reading over her shoulder.</p>
+<p>“Or someone wants to know what score a partner should have,” Beta replied. “To avoid being dragged down by association.”</p>
+<p>Neither of them said anything for a moment. TierCare had been folding partner scores into treatment allocation for two years. Household health index, they called it: live with someone low-scoring and your own priority falls. Love as systemic risk, priced and indexed.</p>
+<p>She sent the report. Scatter plot, fitted line, prediction interval, all of it clean. The reply came back in thirty seconds, far too fast for someone who had just read five pages of statistics, and it did not arrive on the same channel. It came from a verified government node. District 23 administrative subnet.</p>
+<blockquote class="blockquote">
+<p><em>Thank you. One more thing. We are preparing a legislative proposal to formalize partner-scoring compatibility as an eligibility criterion for Tier 1 healthcare. We need this correlation presented as causal, not associative. Can you reframe the methodology accordingly?</em></p>
+</blockquote>
+<p>Beta stared at the screen for a long time.</p>
+<p>The data had not changed. The slope was still a slope, a statement that two things move together and nothing more. But dressed in the right language and fed into the right committee, it would read as something else entirely: your partner determines your right to live.</p>
+<p>“They are not asking us to fake the data,” Bit said slowly.</p>
+<p>“No,” Beta agreed. “Just to lie about what it means.”</p>
+<p>She looked at the line still floating in her implant. Ninety-six pairs, ninety-six futures flattened onto a single equation, and someone in District 23 who wanted to turn that equation into law.</p>
+<p>Before she could answer them, though, she had to be sure she understood the line herself, exactly and without flattery. Was the intercept real, or was it an artifact, would a model forced through zero, no floor, no baseline, fit these pairs just as well? The slope she read off the plot: seven-tenths. But how much of partner_b did it actually account for, and how much was scatter the line would never catch? And that prediction interval, the thing the client truly wanted, how wide did it really run, and what did its width say about how little a single score can promise about the person beside you?</p>
+<p>Those were the questions to settle before anyone reframed anything. The data would answer them plainly. What District 23 did with the answers was another matter.</p>
+</section>
+<section id="sec:intro-simple-reg" class="level2 page-columns page-full" data-number="4.2">
+<h2 data-number="4.2" class="anchored" data-anchor-id="sec:intro-simple-reg"><span class="header-section-number">4.2</span> The Formula: Simple Regression</h2>
+<p>Beta received data with two variables in order to model the relationship between them and predict one based on the another. This can be done using what is known as simple regression model. Let’s see how.</p>
+<p>In simple regression, we examine the relationship between two quantitative variables, let’s label them as <span class="math inline">\(y\)</span> and <span class="math inline">\(x\)</span> (In this example, there is only one predictor, so to simplify the notation we use <span class="math inline">\(x\)</span> instead of <span class="math inline">\(X_1\)</span>). The simple regression model for an <span class="math inline">\(n\)</span>-element sample has the form</p>
+<p><span class="math display">\[\begin{equation}
+y_{i} = \beta_0 + x_i \beta_1 + \varepsilon_i
+\end{equation}\]</span></p>
+<p>where <span class="math inline">\(y_i\)</span> is the value of response variable for observation <span class="math inline">\(i\)</span>, <span class="math inline">\(x_i\)</span> is the value of predictor variable for observation <span class="math inline">\(i\)</span>, <span class="math inline">\(\varepsilon_i\)</span> is random disturbance with distribution <span class="math inline">\(\varepsilon_i \sim \mathcal{N}(0,\sigma^2)\)</span>, while <span class="math inline">\(\beta_0, \beta_1\)</span> are model coefficients, called intercept and slope, respectively.</p>
+<p>In matrix form, this model can be written as</p>
+<p><span id="eq-reg-simple1"><span class="math display">\[
+y = \beta_0 + x \beta_1 + \varepsilon,
+\tag{4.1}\]</span></span></p>
+<p>where <span class="math inline">\(y\)</span> and <span class="math inline">\(x\)</span> are column vectors of the length <span class="math inline">\(n\)</span> and <span class="math inline">\(\varepsilon \sim \mathcal{N}(0,\sigma^2I_{n\times n})\)</span>.</p>
+<p>Equivalently, we can write this model as</p>
+<p><span class="math display">\[
+y_{i} \sim \mathcal{N}(\beta_0 + x_i \beta_1, \sigma^2), \quad 1 \leq i \leq n,
+\]</span></p>
+<p>where variable <span class="math inline">\(y\)</span> has a normal distribution with variance <span class="math inline">\(\sigma^2\)</span> and mean <span class="math inline">\(x_i \beta_1 + \beta_0\)</span>.</p>
+<p>Estimates for parameters <span class="math inline">\(\beta_1\)</span> and <span class="math inline">\(\beta_0\)</span> of the model can be determined from equation <a href="11-Introduction.html#eq-BetaEstimator" class="quarto-xref">Equation&nbsp;<span>3.5</span></a>, which for simple regression simplifies to</p>
+<p><span class="math display">\[
+\hat{\beta}_1 = \frac{\text{cov}(x, y)}{\text{var}(x)},
+\]</span></p>
+<p><span class="math display">\[
+\hat{\beta}_0 = \bar{y} - \bar{x} \hat{\beta}_1,
+\]</span></p>
+<p>where <span class="math inline">\(\text{cov}(x,y)\)</span> denotes the sample covariance for vectors <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span>, <span class="math inline">\(\text{var}(x)\)</span> denotes the sample variance of vector <span class="math inline">\(x\)</span>, and <span class="math inline">\(\bar{x}\)</span> denotes the mean of vector <span class="math inline">\(x\)</span>.</p>
+<p>Having determined parameter estimates for the model, we can also calculate residual values, that is, estimates for random disturbances, determined as <span class="math inline">\(\hat{\varepsilon}_i = y_i - \hat{\beta}_0\)</span> - _1 x_i. The least squares method guarantees that the regression line described by equation <span class="math inline">\(y = \hat{\beta}_0 + \hat{\beta}_1 x\)</span> minimizes the sum of squared residuals for all observations (see <a href="#fig-regressRes" class="quarto-xref">Figure&nbsp;<span>4.1</span></a>).</p>
+<div class="cell page-columns page-full">
+<div class="cell-output-display page-columns page-full">
+<div id="fig-regressRes" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-regressRes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figure/02-regress-intro.png" class="img-fluid figure-img" style="width:80.0%">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-regressRes-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.1: Illustration for the simple regression model. Points correspond to observations described by pairs <span class="math inline">\((x_i, y_i)\)</span>. The diagonal line corresponds to the linear regression model chosen to minimize the sum of squared residuals. The residual value is the vertical distance from observation <span class="math inline">\((x_i, y_i)\)</span> to the prediction placed on the trend line <span class="math inline">\((x_i, \hat{y}_i(x_i))\)</span>. The distance is calculated only in the <span class="math inline">\(y\)</span> coordinate, not as the minimum distance from the point to the curve. The least squares method minimizes the sum of squared residuals <span class="math inline">\(RSS = \sum_{i=1}^{n}(y_i - \hat{y}_i)^2\)</span>.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>For example, assume we have a set of five observations and two quantitative variables <span class="math inline">\(y\)</span> and <span class="math inline">\(x\)</span>. The <a href="#eq-reg-simple1" class="quarto-xref">Equation&nbsp;<span>4.1</span></a> describes a linear regression model with matrix notation:</p>
+<p><span class="math display">\[
+\begin{bmatrix}
+y_{1} \\
+y_{2} \\
+y_{3} \\
+y_{4} \\
+y_{5}
+\end{bmatrix} =
+\begin{bmatrix}
+1 &amp; x_1 \\
+1 &amp; x_2 \\
+1 &amp; x_3 \\
+1 &amp; x_4 \\
+1 &amp; x_5
+\end{bmatrix}
+\begin{bmatrix}
+\beta_0 \\
+\beta_1
+\end{bmatrix} +
+\begin{bmatrix}
+\varepsilon_{1} \\
+\varepsilon_{2} \\
+\varepsilon_{3} \\
+\varepsilon_{4} \\
+\varepsilon_{5}
+\end{bmatrix},
+\]</span></p>
+<p>where <span class="math inline">\((y_1, y_2, y_3, y_4, y_5)\)</span> is a five-element vector with measurements of trait <span class="math inline">\(y\)</span>, <span class="math inline">\((x_1, x_2, x_3, x_4, x_5)\)</span> is a five-element vector with values of trait <span class="math inline">\(x\)</span>, and <span class="math inline">\((\varepsilon_1, \varepsilon_2, \varepsilon_3, \varepsilon_4, \varepsilon_5)\)</span> is a five-element vector corresponding to random disturbance <span class="math inline">\(\varepsilon \sim \mathcal{N}(0, \sigma^2 I_{5 \times 5})\)</span>.</p>
+<p>When analyzing a linear model, we are often interested in whether the relationship between variables <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span> is significantly different than <span class="math inline">\(0\)</span>. Formulating this question in the language of linear models, we obtain a null hypothesis concerning coefficient <span class="math inline">\(\beta_1\)</span> indicating no relationship:</p>
+<p><span class="math display">\[
+H_0: \beta_1 = 0,
+\]</span></p>
+<p>and an alternative hypothesis indicating a non-zero relationship:</p>
+<p><span class="math display">\[
+H_A: \beta_1 \neq 0.
+\]</span></p>
+<p>If testing yields a p-value smaller than the assumed significance level <span class="math inline">\(\alpha\)</span>, we will say that we have grounds to reject the null hypothesis and thus accept that the relationship between variables <span class="math inline">\(x\)</span> and <span class="math inline">\(y\)</span> is significantly different from <span class="math inline">\(0\)</span>. Usually <span class="math inline">\(\alpha=0.05\)</span>, but the choice of significance level depends on the issue being tested, the number of hypotheses tested, and other factors.</p>
+</section>
+<section id="sec-terminal-simple-regression" class="level2 page-columns page-full" data-number="4.3">
+<h2 data-number="4.3" class="anchored" data-anchor-id="sec-terminal-simple-regression"><span class="header-section-number">4.3</span> The Terminal: Let’s start simple</h2>
+<p>The dataset used in this section comes from the <code>RougeLM</code> package. Loading it requires a single call to <code>library()</code>, after which the <code>medical</code> dataset becomes available in the current R session. The dataset contains 96 LifeContract pairs: the MedScore of each partner (<code>partner_a</code>, <code>partner_b</code>) and their joint annual healthcare expenditure (<code>health_expenses</code>).</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"RougeLM"</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(medical)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  partner_a partner_b health_expenses
+1       186       175      1061520.15
+2       180       168       464404.09
+3       160       154        24794.91
+4       186       166       606355.00
+5       163       162        75418.89
+6       172       152        68719.48</code></pre>
+</div>
+</div>
+<p><code>head()</code> displays the first six rows of the dataset — enough to confirm the structure before any analysis begins. The columns <code>partner_a</code> and <code>partner_b</code> are continuous MedScore values on the 0–200 scale. Both are required for the regression model fitted below.</p>
+<hr>
+<section id="sec-simple-regression-plot" class="level3 page-columns page-full" data-number="4.3.1">
+<h3 data-number="4.3.1" class="anchored" data-anchor-id="sec-simple-regression-plot"><span class="header-section-number">4.3.1</span> Show me the data</h3>
+<p>Before fitting any model it is worth looking at the data. A scatter plot reveals whether a linear relationship is plausible, whether there are obvious outliers, and whether the variance appears constant across the range of the predictor. The <code>ggplot2</code> package provides a flexible grammar for building plots layer by layer.</p>
+<div class="cell page-columns page-full">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"ggplot2"</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(medical, <span class="fu">aes</span>(<span class="at">x =</span> partner_a, <span class="at">y =</span> partner_b)) <span class="sc">+</span></span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>() <span class="sc">+</span></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_smooth</span>(<span class="at">method =</span> <span class="st">"lm"</span>, <span class="at">se =</span> <span class="cn">FALSE</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display page-columns page-full">
+<div id="fig-scatter-medical" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-scatter-medical-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="21-simple-regression_files/figure-html/fig-scatter-medical-1.png" class="img-fluid figure-img" style="width:80.0%">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-scatter-medical-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.2: MedScore of Partner A (x-axis) versus Partner B (y-axis) for 96 LifeContract pairs. Each point represents one pair. The diagonal line is the ordinary least-squares regression line fitted without a confidence band.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The call is built from three components.</p>
+<p><code>ggplot(medical, aes(x = partner_a, y = partner_b))</code> initialises the plot and declares the <em>aesthetic mapping</em>: which variable goes on which axis. No geometry is drawn yet, this line only sets up the coordinate system and the mapping that all subsequent layers will inherit.</p>
+<p><code>geom_point()</code> adds a <em>point layer</em>: one dot per row of the dataset, placed at the coordinates declared in <code>aes()</code>. This is the scatter plot proper. With no additional arguments the points use default size, shape, and colour.</p>
+<p><code>geom_smooth(method = "lm", se = FALSE)</code> adds a <em>smoothing layer</em>. The argument <code>method = "lm"</code> instructs <code>ggplot2</code> to fit an ordinary least-squares line through the points, the same model that <code>lm()</code> fits below. Setting <code>se = FALSE</code> suppresses the shaded confidence band around the line, keeping the plot uncluttered. When <code>se = TRUE</code> (the default) the band shows the 95% pointwise confidence interval for the conditional mean.</p>
+<p>The positive slope visible in the plot is consistent with selective pairing: partners tend to have similar MedScores because they form pairs within the same district, scoring bracket, and statistical future.</p>
+<hr>
+</section>
+<section id="sec-model-intercept" class="level3" data-number="4.3.2">
+<h3 data-number="4.3.2" class="anchored" data-anchor-id="sec-model-intercept"><span class="header-section-number">4.3.2</span> Fitting the model with an intercept</h3>
+<p>The function <code>lm()</code> fits a linear model by ordinary least squares. Its two essential arguments are a <em>formula</em> and a <em>data frame</em>.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>model_med_01 <span class="ot">&lt;-</span> <span class="fu">lm</span>(partner_b <span class="sc">~</span> partner_a, <span class="at">data =</span> medical)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The formula <code>partner_b ~ partner_a</code> uses R’s formula notation, where the tilde <code>~</code> separates the response variable on the left from the predictor on the right. Reading it aloud: <em>“partner_b as a function of partner_a”</em>. R automatically adds an intercept unless instructed otherwise, so the model fitted is:</p>
+<p><span class="math display">\[\widehat{\text{partner\_b}}_i = \hat\beta_0 + \hat\beta_1 \cdot \text{partner\_a}_i\]</span></p>
+<p>The result object <code>model_med_01</code> is a list containing the fitted coefficients, residuals, fitted values, and various diagnostics. Printing it directly shows only the coefficients; <code>summary()</code> extracts the full inferential output.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model_med_01)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = partner_b ~ partner_a, data = medical)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-19.4685  -3.9208   0.8301   3.9538  11.1287 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept) 41.93015   10.66162   3.933 0.000161 ***
+partner_a    0.69965    0.06106  11.458  &lt; 2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 5.928 on 94 degrees of freedom
+Multiple R-squared:  0.5828,    Adjusted R-squared:  0.5783 
+F-statistic: 131.3 on 1 and 94 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p>Reading <code>summary()</code> proceeds column by column in the <code>Coefficients</code> table:</p>
+<ul>
+<li><p><code>Estimate</code>: the point estimate of each coefficient. <code>(Intercept)</code> stands for <span class="math inline">\(\hat\beta_0\)</span>; <code>partner_a</code> for <span class="math inline">\(\hat\beta_1\)</span>, the slope. The slope tells us how many units <code>partner_b</code> is predicted to increase for each one-unit increase in <code>partner_a</code>.</p></li>
+<li><p><code>Std. Error</code>: the standard error of the estimate, measuring its sampling uncertainty. A smaller standard error relative to the estimate indicates more precise estimation.</p></li>
+<li><p><code>t value</code>: the test statistic for the null hypothesis that the coefficient equals zero: <span class="math inline">\(t = \hat\beta / \text{se}(\hat\beta)\)</span>. Large absolute values provide evidence against the null. From <a href="11-Introduction.html#sec-introduction-test-beta" class="quarto-xref"><span>Section 3.5.2</span></a> we know that this statistics follow the t-Student distribution.</p></li>
+<li><p><code>Pr(&gt;|t|)</code>: the two-sided p-value for that t-test. Values below the chosen significance level <span class="math inline">\(\alpha\)</span> (commonly 0.05) are flagged with stars: <code>***</code> for <span class="math inline">\(p &lt; 0.001\)</span>, <code>**</code> for <span class="math inline">\(p &lt; 0.01\)</span>, <code>*</code> for <span class="math inline">\(p &lt; 0.05\)</span>.</p></li>
+</ul>
+<p>Below the coefficient table, <code>summary()</code> also reports:</p>
+<ul>
+<li><p><code>Residual standard error</code>: an estimate of <span class="math inline">\(\hat\sigma\)</span>, the standard deviation of the residuals. Smaller values indicate better fit.</p></li>
+<li><p><code>Multiple R-squared</code>: the proportion of variance in <code>partner_b</code> explained by the model. A value of, for example, 0.55 means that 55% of the variability in Partner B’s MedScore is accounted for by Partner A’s MedScore.</p></li>
+<li><p><code>Adjusted R-squared</code>: a version of <span class="math inline">\(R^2\)</span> penalised for the number of predictors. More relevant when comparing models with different numbers of variables.</p></li>
+<li><p><code>F-statistic</code> and its p-value: a joint test of whether <em>all</em> slope coefficients are simultaneously zero. In simple regression with one predictor this is equivalent to the t-test on the slope.</p></li>
+</ul>
+<hr>
+</section>
+<section id="sec-model-no-intercept" class="level3" data-number="4.3.3">
+<h3 data-number="4.3.3" class="anchored" data-anchor-id="sec-model-no-intercept"><span class="header-section-number">4.3.3</span> Fitting the model without an intercept</h3>
+<p>The model formula notation is a highly expressive mechanism for describing the relationships between dependent and independent variables. In the following sections, we will explore various symbols that allow us to control the structure of the X matrix. For example, adding the symbol <code>-1</code> or <code>+0</code> to the formula ensures that no constant term is included in the experimental matrix.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>model_med_02 <span class="ot">&lt;-</span> <span class="fu">lm</span>(partner_b <span class="sc">~</span> partner_a <span class="sc">-</span> <span class="dv">1</span>, <span class="at">data =</span> medical)</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model_med_02)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = partner_b ~ partner_a - 1, data = medical)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-20.2151  -3.7001   0.2849   4.2928  15.4519 
+
+Coefficients:
+          Estimate Std. Error t value Pr(&gt;|t|)    
+partner_a  0.93941    0.00372   252.6   &lt;2e-16 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 6.363 on 95 degrees of freedom
+Multiple R-squared:  0.9985,    Adjusted R-squared:  0.9985 
+F-statistic: 6.378e+04 on 1 and 95 DF,  p-value: &lt; 2.2e-16</code></pre>
+</div>
+</div>
+<p>The <code>-1</code> in the formula suppresses the intercept. Adding <code>-1</code> (or equivalently <code>+0</code>) to the right-hand side of a formula tells <code>lm()</code> to fit the model through the origin — that is, to constrain <span class="math inline">\(\hat\beta_0 = 0\)</span>. The model becomes:</p>
+<p><span class="math display">\[\widehat{\text{partner\_b}}_i = \hat\beta_1 \cdot \text{partner\_a}_i\]</span></p>
+<p>This constraint is only justified when the response is truly zero when the predictor is zero. In the MedScore context it would mean: if Partner A has a MedScore of zero, Partner B must also be predicted to have a MedScore of zero. Whether that is a reasonable substantive assumption should be decided from domain knowledge, not from the data alone.</p>
+<p>Removing the intercept also changes the interpretation of <span class="math inline">\(R^2\)</span>: without an intercept, <span class="math inline">\(R^2\)</span> is computed relative to the zero baseline rather than the sample mean, and can appear artificially large. The <code>Adjusted R-squared</code> in the output of a no-intercept model should therefore not be compared directly with the adjusted <span class="math inline">\(R^2\)</span> from a model that includes an intercept.</p>
+<p>Comparing the two coefficient tables reveals whether the intercept carries meaningful information. If the estimate of <span class="math inline">\(\hat\beta_0\)</span> in <code>model_med_01</code> is not significantly different from zero, and if the slope estimate changes little between the two models, the simpler no-intercept model may be adequate. If the intercept is significant, dropping it distorts the slope estimate.</p>
+<hr>
+</section>
+<section id="sec-anova-models" class="level3 page-columns page-full" data-number="4.3.4">
+<h3 data-number="4.3.4" class="anchored" data-anchor-id="sec-anova-models"><span class="header-section-number">4.3.4</span> Comparing the two models with a likelihood ratio test</h3>
+<p>Data modelling typically involves constructing a number of competing models that describe the relationship between variables in different ways. The natural question that arises is which of these models better describes the observed data. Statistical tests allow us to compare models, determining whether one of them fits the data significantly better.</p>
+<p>The generic function <code>anova()</code>, when called with two nested <code>lm</code> objects, performs a <em>likelihood ratio test</em> comparing the smaller model against the larger one. The two models must be <em>nested</em>: one must be a special case of the other obtained by setting one or more coefficients to a fixed value (usually 0).</p>
+<p>In our example <code>model_med_02</code> is nested within <code>model_med_01</code>, it is <code>model_med_01</code> with <span class="math inline">\(\beta_0\)</span> constrained to zero. Comparing these models using a statistical test will allow us to verify whether the model with an intercept term equal to zero is significantly worse than the model where the intercept term is estimated from the data.</p>
+<div id="tbl-anova-models" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-tbl figure page-columns page-full">
+<div aria-describedby="tbl-anova-models-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(model_med_02, model_med_01)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Analysis of Variance Table
+
+Model 1: partner_b ~ partner_a - 1
+Model 2: partner_b ~ partner_a
+  Res.Df    RSS Df Sum of Sq      F    Pr(&gt;F)    
+1     95 3846.8                                  
+2     94 3303.3  1    543.53 15.467 0.0001606 ***
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-tbl margin-caption" id="tbl-anova-models-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;4.1: Likelihood ratio test comparing the no-intercept model (model_med_02) with the intercept model (model_med_01). The models differ by one degree of freedom — the intercept term.
+</figcaption>
+</figure>
+</div>
+<p>Reading the output proceeds row by row:</p>
+<ul>
+<li><p><code>Res.Df</code>: residual degrees of freedom for each model. The no-intercept model has one more residual degree of freedom than the intercept model, because it estimates one fewer parameter.</p></li>
+<li><p><code>RSS</code>: residual sum of squares, <span class="math inline">\(\sum_i (y_i - \hat y_i)^2\)</span>, for each model. The intercept model always has RSS <span class="math inline">\(\leq\)</span> the no-intercept model, because adding a free parameter can only improve or maintain fit.</p></li>
+<li><p><code>Df</code>: the difference in the number of parameters between the two models. Here <code>Df = 1</code> because the only difference is the intercept.</p></li>
+<li><p><code>Sum of Sq</code>: the reduction in RSS when moving from the restricted model to the full model: <span class="math inline">\(\text{RSS}_{\text{restricted}} -
+\text{RSS}_{\text{full}}\)</span>. A large reduction means the additional parameter explains substantial variance.</p></li>
+<li><p><code>F</code>: the F-statistic: <span class="math display">\[F = \frac{(\text{RSS}_{\text{restricted}} - \text{RSS}_{\text{full}}) / \Delta df}{\text{RSS}_{\text{full}} / df_{\text{full}}}\]</span> Under the null hypothesis that the restricted model is correct, this statistic follows an <span class="math inline">\(F\)</span> distribution with <span class="math inline">\(\Delta df\)</span> numerator degrees of freedom and <span class="math inline">\(df_{\text{full}}\)</span> denominator degrees of freedom.</p></li>
+<li><p><code>Pr(&gt;F)</code>: the p-value for the F-test. A small p-value provides evidence against the null hypothesis, that is, evidence that the additional parameter (here the intercept) improves the fit beyond what would be expected by chance. If <span class="math inline">\(p &lt; \alpha\)</span>, the full model with the intercept is preferred. If <span class="math inline">\(p \geq \alpha\)</span>, the data do not provide sufficient evidence to reject the simpler no-intercept model.</p></li>
+</ul>
+<p>The result of this test is consistent with the marginal t-test for the intercept visible in <code>summary(model_med_01)</code>: both ask the same question, is <span class="math inline">\(\beta_0\)</span> significantly different than 0?</p>
+<p>For these data, we observe a p-value of <span class="math inline">\(0.0001606\)</span>, so we can conclude that this coefficient is significantly different from zero. The reader may carry out a similar test for coefficient <span class="math inline">\(\beta_1\)</span>.</p>
+</section>
+<section id="interval-predictions-with-linear-models" class="level3 page-columns page-full" data-number="4.3.5">
+<h3 data-number="4.3.5" class="anchored" data-anchor-id="interval-predictions-with-linear-models"><span class="header-section-number">4.3.5</span> Interval predictions with linear models</h3>
+<p>Returning to our original problem, we were interested in predicting the partner MedScore. We will be interested in both point prediction (determining <span class="math inline">\(\hat{y}\)</span>) and interval prediction. For both purposes, we can use the generic <code>predict()</code> function.</p>
+<p>The fact that <code>predict()</code> is a generic function means that the function’s operation depends on the class of the first argument. If the first argument of <code>predict()</code> is a linear model, formulas for the linear model will be used for prediction (more precisely, the <code>predict.lm()</code> function will be used). If the argument is a classifier, generalized regression model, or object of another class, different formulas appropriate to what is the function argument will be used for prediction.</p>
+<p>The derivation of the formula for the prediction interval can be found in <a href="11-Introduction.html#sec-introduction-test-y" class="quarto-xref"><span>Section 3.5.6</span></a>. The example below determines point and interval estimates at confidence level <span class="math inline">\(0.95\)</span> for the partner’s score</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(model_med_01, </span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">newdata =</span> <span class="fu">data.frame</span>(<span class="at">partner_a =</span> <span class="dv">170</span>), </span>
+<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">interval =</span> <span class="st">"prediction"</span>, </span>
+<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">level =</span> <span class="fl">0.95</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       fit      lwr      upr
+1 160.8713 149.0283 172.7142</code></pre>
+</div>
+</div>
+<p>The prediction interval at level <span class="math inline">\(0.95\)</span> is <span class="math inline">\(CI_{0.95} = [166.4681, 192.3463]\)</span>, which is quite wide. We present it graphically in <a href="#fig-confinterval-MedScore" class="quarto-xref">Figure&nbsp;<span>4.3</span></a>.</p>
+<div class="cell page-columns page-full">
+<div class="cell-output-display page-columns page-full">
+<div id="fig-confinterval-MedScore" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-confinterval-MedScore-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="21-simple-regression_files/figure-html/fig-confinterval-MedScore-1.png" class="img-fluid figure-img" style="width:80.0%">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-confinterval-MedScore-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.3: Prediction interval for partner-b’s MedScore if partner-a’s score is 170. The confidence interval estimate was performed based on a linear model using the predict() function. The resulting confidence interval is quite wide, which is related to high variability in the data (high <span class="math inline">\(\sigma^2\)</span>) and a small number of observations that don’t allow for precise estimation of model parameters. The dashed line marks the linear trend estimated by the model. The marked Gaussian distribution concerns the prediction for <span class="math inline">\(x=170\)</span>; this confidence interval can be moved along the trend line to obtain confidence intervals for other observations as well.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+</section>
+<section id="the-case-the-shape-of-cost" class="level2 page-columns page-full" data-number="4.4">
+<h2 data-number="4.4" class="anchored" data-anchor-id="the-case-the-shape-of-cost"><span class="header-section-number">4.4</span> The Case: The Shape of Cost</h2>
+
+<div class="no-row-height column-margin column-container"><div class="">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figure/MedScore_intro.png" class="img-fluid figure-img"></p>
+<figcaption>Follow the money</figcaption>
+</figure>
+</div>
+</div></div><p>The second message arrived at 4:23 a.m. Same verified node. District 23 administrative subnet.</p>
+<blockquote class="blockquote">
+<p><em>One more task. We need a regression model estimating healthcare expenditure as a function of MedScore. The dataset is the one you already hold. The legislative committee meets in six days.</em></p>
+</blockquote>
+<p>“They did not even wait to see if we would answer the first one,” Bit said.</p>
+<p>“They know we kept the money,” Beta answered flatly.</p>
+<p>It was the same ninety-six pairs, the same clinic, but this time she pulled the third column, the one she had ignored the night before: health_expenses, the joint annual healthcare cost for each LifeContract pair, in WaszKrak credits. She ran the scatter plot before doing anything else, old habit, look before you calculate. Partner_a along the bottom, expenditure up the side.</p>
+<p>The shape was wrong. Not corrupted-data wrong, curve-pretending-to-be-a-line wrong. At the low end of MedScore the costs did not sit near the others; they detonated, a handful of pairs climbing past a million and a half credits while the rest of the district hugged the floor. At the high end the points flattened and pulled together, dense and calm. And the spread itself changed as the eye traveled: enormous scatter among low-scoring pairs, tight and orderly among high-scoring ones. The relationship existed, it plainly increased, but it bent, and its variance bent with it.</p>
+<p>“Linear regression will fit,” Bit said, reading the residual cloud over her shoulder. “R-squared around 0.6. Decent enough for a committee report.”</p>
+<p>“It will be wrong,” Beta said.</p>
+<p>“It will be usable.”</p>
+<p>She closed the plot without answering and picked up the encrypted line to District 9. The Statistician answered on the third ring, which meant she had not been sleeping either.</p>
+<p>“Variance increasing with the fitted values,” Beta said, without greeting. “Expenditure data. Strictly positive. Heavy right tail. A straight line through it underestimates both ends and the residuals fan open like a megaphone.”</p>
+<p>A pause. The scratch of a pencil.</p>
+<p>“Box-Cox,” the old woman said simply. “Do not guess the shape. Find lambda. Let the data tell you what power it wants to be raised to.”</p>
+<p>Beta ran the profile log-likelihood over lambda and watched the curve rise to a single clean peak. The maximum sat close to zero, close enough that the confidence interval all but embraced the log transform, but not exactly zero, a shade above. She read the optimum near a fifth of the way up from zero and used it, raising expenditure to that small power and rebuilding the model on the transformed response. The fanning collapsed. The residuals settled into something that looked, at last, like honesty. On the new scale the relationship ran straight and the spread held even from the poorest pairs to the richest.</p>
+<p>The transformed model was clean, well-behaved, statistically valid. And when she back-transformed its predictions into credits, the gap it described was brutal in its tidiness. A pair deep in District 7, low MedScore, the kind of household TierCare systematically deprioritized, was predicted to cost the system many times what a high-scoring District 23 pair would. The curve she had straightened to satisfy the assumptions was, underneath, a curve of who costs what to keep alive.</p>
+<p>Neither of them spoke for a moment.</p>
+<p>“The model is correct,” Beta said finally.</p>
+<p>“I know.”</p>
+<p>“Low-scoring pairs are genuinely more expensive. Worse baseline health, delayed diagnoses, no preventive care. The system underfunds them for years and then pays for the crisis.”</p>
+<p>“I know, Beta.”</p>
+<p>“So when D23 takes this to the committee, they will use it to argue that low-MedScore patients are a fiscal burden. That rationing their care is economically rational. That the data says so.”</p>
+<p>Bit leaned back and looked at the ceiling. Outside, a surveillance drone hummed past the broken window, its light sweeping across walls papered with printed regression outputs and old equations.</p>
+<p>“The model is correct,” he said slowly, echoing her. “And it will be used to justify exactly what created the pattern in the first place.”</p>
+<p>Beta did not send it. Not yet. But before the argument about what the model meant, there was still the matter of building it correctly, and that was not yet finished. She had eyeballed the curvature; the data could confirm it. Which power, exactly, straightened this relationship and stilled its variance, and how sure could she be of that value before staking a report on it? Was the plain logarithm, the simplest, most legible choice, close enough to the optimum to use in its place, or did the costs demand something else? And once the response was transformed and the line refit, did the residuals finally lie flat, or did some structure still hide in them?</p>
+<p>Those questions had answers, and the answers lived in the data, not in District 23’s committee room. Outside, District 7 was still dark. The mortality rate there was 18.7 per thousand. The model would not change that number. It would only explain it, and whether the explanation saved anyone or merely made the policy look cleaner depended on someone she had never met, whose name she still did not know.</p>
+<p>The cursor blinked on the send button. Beta left it blinking, and went to find lambda.</p>
+</section>
+<section id="sec-intro-boxcox-trans" class="level2" data-number="4.5">
+<h2 data-number="4.5" class="anchored" data-anchor-id="sec-intro-boxcox-trans"><span class="header-section-number">4.5</span> The Formula: Box Cox Transformation</h2>
+<p>In linear models, we assume a linear and additive relationship between variable <span class="math inline">\(y\)</span> and variables <span class="math inline">\(X\)</span>. However, this is not a major limitation because many nonlinear models can be linearized by applying appropriate variable transformations. For example:</p>
+<ul>
+<li>A power relationship <span class="math inline">\(y = a x^b\)</span> can be transformed to linear by using log-transformed variables <span class="math inline">\(y' = \log(y)\)</span>, <span class="math inline">\(x' = \log(x)\)</span>.</li>
+<li>An exponential relationship <span class="math inline">\(y = a \exp(xb)\)</span> can be transformed to linear by log-transforming the response variable <span class="math inline">\(y' = \log(y)\)</span>.</li>
+<li>A relationship <span class="math inline">\(y = x/(ax - b)\)</span> can be transformed to linear by inverse transformations <span class="math inline">\(y'=1/y\)</span> and <span class="math inline">\(x'=1/x\)</span>.</li>
+</ul>
+<p>In <a href="11-Introduction.html#sec-introduction-model" class="quarto-xref"><span>Section 3.2</span></a> we discussed a bit how to conver real-world concepts into quantitative numbers, that can be included to a model. The same applies to the response variable. In certain situations, we expect a monotonic but not necessarily linear relationship between the linear combination <span class="math inline">\(X \beta\)</span> and the response variable <span class="math inline">\(y\)</span>. In such situations, applying an appropriate transformation of variables often allows converting a nonlinear relationship to a linear one. In this section, we present selected commonly used classes of transformations of the response variable.</p>
+<p>A fairly broad class of transformations is the Box-Cox class, indexed by parameter <span class="math inline">\(\lambda\)</span> and described by the formula</p>
+<p><span id="eq-boxcox-lambda"><span class="math display">\[
+y'_i = \begin{cases}
+(y_i^\lambda - 1)/\lambda &amp; \lambda \neq 0, \\
+\log(y_i) &amp; \lambda = 0.
+\end{cases}
+\tag{4.2}\]</span></span></p>
+<p>If we don’t know which <span class="math inline">\(\lambda\)</span> to use, we can use the log-likelihood function to estimate it (see an example below).</p>
+<p>A very popular transformation is the logarithmic transformation. While it falls into the Box-Cox class, quite ofen a special version is considered with unknown shift parameter. In other words, we consider the a family of transformations of the form</p>
+<p><span id="eq-logtrans-alpha"><span class="math display">\[
+y' = \log(y + \alpha).
+\tag{4.3}\]</span></span></p>
+<p>The parameter <span class="math inline">\(\alpha\)</span> may be estimtated with the use of log-likelihood criterion.</p>
+</section>
+<section id="the-terminal-lets-cox" class="level2 page-columns page-full" data-number="4.6">
+<h2 data-number="4.6" class="anchored" data-anchor-id="the-terminal-lets-cox"><span class="header-section-number">4.6</span> The Terminal: Let’s Cox!</h2>
+<section id="sec-simple-cox-plot" class="level3 page-columns page-full" data-number="4.6.1">
+<h3 data-number="4.6.1" class="anchored" data-anchor-id="sec-simple-cox-plot"><span class="header-section-number">4.6.1</span> Show me the data</h3>
+<p>The third variable in the <code>medical</code> dataset is <code>health_expenses</code>, i.e. the joint annual healthcare expenditure for each LifeContract pair in WaszKrak world. Before fitting any model it is again worth looking at the data.</p>
+<div class="cell page-columns page-full">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(medical, <span class="fu">aes</span>(<span class="at">x =</span> partner_a, <span class="at">y =</span> health_expenses)) <span class="sc">+</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display page-columns page-full">
+<div id="fig-scatter-expenses" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-scatter-expenses-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="21-simple-regression_files/figure-html/fig-scatter-expenses-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-scatter-expenses-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.4: Partner A’s MedScore (x-axis) versus joint annual healthcare expenditure (y-axis) for 96 LifeContract pairs. The relationship exists but bends sharply at the low end of MedScore, expenditure explodes for low-scoring pairs and flattens for high-scoring ones. A straight line would fit poorly.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The scatter plot reveals a pattern that is not linear. At the low end of <code>partner_a</code>, healthcare expenditure varies enormously and reaches very large values. At the high end, costs are lower and more tightly clustered. The relationship exists, it is clearly increasing, but it bends. A straight line drawn through these points would systematically underestimate expenditure at both extremes and overestimate it in the middle. More importantly, the variance of expenditure grows as MedScore decreases, which violates the homoscedasticity assumption of ordinary least squares.</p>
+<p>In a second we will consider models with various transformations of the y-variable. To provide a point of reference, let’s see what the value of the log-likelihood function is for the untransformed model.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>model_med_03 <span class="ot">&lt;-</span> <span class="fu">lm</span>(health_expenses <span class="sc">~</span> partner_a, <span class="at">data =</span> medical)</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">logLik</span>(model_med_03)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>'log Lik.' -1331.453 (df=3)</code></pre>
+</div>
+</div>
+<p>Residual plots (not shown here) would confirm heteroscedasticity: residuals fade out as fitted values decrease. The model is not wrong in direction, but it is wrong in shape.</p>
+<hr>
+</section>
+<section id="sec-terminal-boxcox-method" class="level3 page-columns page-full" data-number="4.6.2">
+<h3 data-number="4.6.2" class="anchored" data-anchor-id="sec-terminal-boxcox-method"><span class="header-section-number">4.6.2</span> Choosing a transformation with Box-Cox</h3>
+<p>The Box-Cox family of power transformations provides a systematic way to identify which transformation of the response variable best stabilises variance and linearises the relationship. The family is indexed by a single parameter <span class="math inline">\(\lambda\)</span>:</p>
+<p><span class="math display">\[y'_i = \begin{cases} (y_i^\lambda - 1) / \lambda &amp; \lambda \neq 0 \\ \log(y_i) &amp; \lambda = 0 \end{cases}.\]</span></p>
+<p>The function <code>boxcox()</code> from the <code>MASS</code> package estimates the optimal <span class="math inline">\(\lambda\)</span> by maximum likelihood, profiling the log-likelihood over a grid of candidate values.</p>
+<div class="cell page-columns page-full">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"MASS"</span>)</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>bc <span class="ot">&lt;-</span> <span class="fu">boxcox</span>(model_med_03)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display page-columns page-full">
+<div id="fig-boxcox" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-boxcox-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="21-simple-regression_files/figure-html/fig-boxcox-1.png" class="img-fluid figure-img" style="width:80.0%">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-boxcox-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.5: Profile log-likelihood for the Box-Cox parameter lambda. The curve peaks at the value of lambda that maximises the likelihood of the transformed model. The dashed vertical lines mark the 95% confidence interval for lambda. If the interval contains 1, no transformation is needed; if it contains 0, a log transformation is appropriate.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><code>boxcox()</code> takes a fitted <code>lm</code> object as its first argument and uses the predictor structure already specified in that model. It produces a plot automatically, the x-axis shows candidate values of <span class="math inline">\(\lambda\)</span> and the y-axis shows the profile log-likelihood. The optimal <span class="math inline">\(\lambda\)</span> is the value at the peak of the curve.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a>bc_parameter <span class="ot">&lt;-</span> bc<span class="sc">$</span>x[<span class="fu">which.max</span>(bc<span class="sc">$</span>y)]</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>bc_parameter</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 0.1818182</code></pre>
+</div>
+</div>
+<p><code>bc$x</code> is the vector of candidate <span class="math inline">\(\lambda\)</span> values over which the log-likelihood was evaluated; <code>bc$y</code> is the corresponding vector of log-likelihood values. <code>which.max(bc$y)</code> returns the index of the maximum element of <code>bc$y</code>, and <code>bc$x[...]</code> retrieves the <span class="math inline">\(\lambda\)</span> value at that index. The result is the point estimate of the optimal transformation parameter.</p>
+<p>When <span class="math inline">\(\lambda\)</span> is close to zero, as it typically is for right-skewed, strictly positive response variables like healthcare expenditure, the log transformation (<span class="math inline">\(\lambda = 0\)</span>) is a natural and interpretable choice. The 95% confidence interval shown in the plot (bounded by the two dashed vertical lines) indicates the range of <span class="math inline">\(\lambda\)</span> values consistent with the data; if this interval contains zero, a log transformation is formally justified.</p>
+<hr>
+</section>
+<section id="sec-terminal-boxcox-apply" class="level3 page-columns page-full" data-number="4.6.3">
+<h3 data-number="4.6.3" class="anchored" data-anchor-id="sec-terminal-boxcox-apply"><span class="header-section-number">4.6.3</span> Applying the Box-Cox transformation</h3>
+<p>Once <span class="math inline">\(\lambda\)</span> is chosen, the transformed response is computed manually and added to the dataset as a new column.</p>
+<div class="cell page-columns page-full">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>medical<span class="sc">$</span>health_bc <span class="ot">&lt;-</span> (medical<span class="sc">$</span>health_expenses<span class="sc">^</span>bc_parameter <span class="sc">-</span> <span class="dv">1</span>) <span class="sc">/</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  bc_parameter</span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(medical, <span class="fu">aes</span>(<span class="at">x =</span> partner_a, <span class="at">y =</span> health_bc)) <span class="sc">+</span></span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_point</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display page-columns page-full">
+<div id="fig-scatter-bc" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-scatter-bc-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="21-simple-regression_files/figure-html/fig-scatter-bc-1.png" class="img-fluid figure-img" style="width:80.0%">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-scatter-bc-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.6: Partner A’s MedScore (x-axis) versus Box-Cox transformed healthcare expenditure (y-axis). After transformation the relationship is more nearly linear and the variance is more uniform across the range of MedScore, both conditions required by the linear model.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The expression <code>(medical$health_expenses^bc_parameter - 1) / bc_parameter</code> implements the Box-Cox formula directly. Three steps are executed in order: first, each value of <code>health_expenses</code> is raised to the power <code>bc_parameter</code>; second, 1 is subtracted from each result; third, the result is divided by <code>bc_parameter</code>. The transformed values are stored in a new column <code>health_bc</code> attached to the <code>medical</code> data frame using the <code>$</code> operator.</p>
+<p>Comparing the two scatter plots, <code>health_expenses</code> versus <code>partner_a</code> before transformation, and <code>health_bc</code> versus <code>partner_a</code> after, makes the effect of the transformation visible. The fanning pattern of the raw data gives way to a more linear cloud of points with more uniform spread. A linear model fitted to <code>health_bc</code> will satisfy the regression assumptions more closely than one fitted to the raw expenditure.</p>
+<hr>
+</section>
+<section id="sec-terminal-logtrans" class="level3 page-columns page-full" data-number="4.6.4">
+<h3 data-number="4.6.4" class="anchored" data-anchor-id="sec-terminal-logtrans"><span class="header-section-number">4.6.4</span> Logarithmic transformation with unknown shift</h3>
+<p>A closely related family of transformations is the shifted logarithm:</p>
+<p><span class="math display">\[y' = \log(y + \alpha),\]</span></p>
+<p>where <span class="math inline">\(\alpha\)</span> is an unknown shift parameter estimated from the data. This is useful when the response has values near zero, adding <span class="math inline">\(\alpha\)</span> before taking the log prevents undefined results and can improve the fit further. When <span class="math inline">\(\alpha = 0\)</span> this reduces to the standard log transformation, which is the <span class="math inline">\(\lambda = 0\)</span> limit of the Box-Cox family.</p>
+<p>The function <code>logtrans()</code> from <code>MASS</code> profiles the log-likelihood over a grid of candidate <span class="math inline">\(\alpha\)</span> values, analogously to <code>boxcox()</code> for <span class="math inline">\(\lambda\)</span>.</p>
+<div class="cell page-columns page-full">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a>lt <span class="ot">&lt;-</span> <span class="fu">logtrans</span>(model_med_03, <span class="at">alpha =</span> <span class="fu">seq</span>(<span class="sc">-</span><span class="dv">1200</span>, <span class="dv">20000</span>, <span class="dv">1000</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display page-columns page-full">
+<div id="fig-logtrans" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-logtrans-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="21-simple-regression_files/figure-html/fig-logtrans-1.png" class="img-fluid figure-img" style="width:80.0%">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-logtrans-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;4.7: Profile log-likelihood for the shift parameter alpha in the logarithmic transformation log(health_expenses + alpha). The curve peaks at the value of alpha that maximises the likelihood. Positive alpha shifts the distribution away from zero before taking the log.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><code>logtrans()</code> takes the same fitted model as its first argument. The <code>alpha</code> argument specifies the grid of candidate shift values to evaluate: <code>seq(-1200, 20000, 1000)</code> generates a sequence from −1200 to 20,000 in steps of 1,000. Negative values of <span class="math inline">\(\alpha\)</span> are only feasible if all values of <code>health_expenses</code> exceed <span class="math inline">\(|\alpha|\)</span>, otherwise the log of a non-positive number would be undefined. The function produces a plot automatically with the same structure as <code>boxcox()</code>.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a>lt<span class="sc">$</span>x[<span class="fu">which.max</span>(lt<span class="sc">$</span>y)]</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] 14921.21</code></pre>
+</div>
+</div>
+<p>As with <code>bc$x</code> and <code>bc$y</code>, <code>lt$x</code> contains the candidate <span class="math inline">\(\alpha\)</span> values and <code>lt$y</code> the corresponding log-likelihood values. <code>lt$x[which.max(lt$y)]</code> extracts the <span class="math inline">\(\alpha\)</span> that maximises the likelihood, the optimal shift for the logarithmic transformation.</p>
+<p>A large positive <span class="math inline">\(\alpha\)</span> indicates that the raw distribution of <code>health_expenses</code> is far from the log-linear regime, and that shifting it substantially before taking the log is beneficial. When the optimal <span class="math inline">\(\alpha\)</span> from <code>logtrans()</code> is small relative to the scale of <code>health_expenses</code>, the standard log transformation without a shift is adequate.</p>
+<hr>
+</section>
+<section id="sec-terminal-choice" class="level3" data-number="4.6.5">
+<h3 data-number="4.6.5" class="anchored" data-anchor-id="sec-terminal-choice"><span class="header-section-number">4.6.5</span> Choosing between Box-Cox and log transformation</h3>
+<p>Both <code>boxcox()</code> and <code>logtrans()</code> use the same criterion, maximum likelihood, but they search over different families of transformations. The Box-Cox family varies the power <span class="math inline">\(\lambda\)</span>; the logarithmic family with shift fixes the functional form as a log but varies the location <span class="math inline">\(\alpha\)</span>.</p>
+<p>In practice, the choice between them is often guided by following considerations.</p>
+<p>Interpretability. Depending on the variable being described, certain transformations often have a natural interpretation – logarithmic, quadratic or square-root. Rather than choosing transformations based solely on the data, it is worth considering the meaning of the variables being described. For expenditure, a logarithmic transformation is a very common choice.</p>
+<p>The confidence interval for <span class="math inline">\(\lambda\)</span>. If the 95% confidence interval shown in the <code>boxcox()</code> plot contains zero, the log transformation is statistically similar from the optimal Box-Cox transformation and the simpler interpretation is preferred.</p>
+<p>In the WaszKrak context, the log transformation is the natural choice: expenditure is strictly positive, right-skewed, and spans several orders of magnitude across districts, exactly the conditions for which the log is both statistically appropriate and substantively meaningful.</p>
+</section>
+</section>
+<section id="sec-exercises-simple-regression" class="level2" data-number="4.7">
+<h2 data-number="4.7" class="anchored" data-anchor-id="sec-exercises-simple-regression"><span class="header-section-number">4.7</span> Exercises</h2>
+<hr>
+<section id="sec-ex1" class="level3" data-number="4.7.1">
+<h3 data-number="4.7.1" class="anchored" data-anchor-id="sec-ex1"><span class="header-section-number">4.7.1</span> Exercise 1: Reading the output</h3>
+<p>Beta has fitted the following model to the <code>medical</code> dataset:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>model <span class="ot">&lt;-</span> <span class="fu">lm</span>(partner_b <span class="sc">~</span> partner_a, <span class="at">data =</span> medical)</span>
+<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The output shows a slope estimate of 0.71 with a standard error of 0.06 and a p-value below 0.001. The intercept estimate is 18.3.</p>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>(a)</strong> Write down the fitted regression equation using the estimates above. What is the predicted MedScore of Partner B if Partner A has a MedScore of 160?</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>(b)</strong> The p-value for the slope is reported as <code>&lt; 0.001</code>. What null hypothesis is being tested? What does rejecting it mean in the context of LifeContract pairs?</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>(c)</strong> The <code>Adjusted R-squared</code> is 0.58. How much of the variability in Partner B’s MedScore is <em>not</em> explained by Partner A’s MedScore?</p>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="sec-ex2" class="level3" data-number="4.7.2">
+<h3 data-number="4.7.2" class="anchored" data-anchor-id="sec-ex2"><span class="header-section-number">4.7.2</span> Exercise 2: Symmetry of regression</h3>
+<p>Bit claims that it does not matter which partner is placed on the left-hand side of the formula, the model will give the same result either way.</p>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>(a)</strong> Fit the two models below and compare their slope estimates:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>model_ab <span class="ot">&lt;-</span> <span class="fu">lm</span>(partner_b <span class="sc">~</span> partner_a, <span class="at">data =</span> medical)</span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>model_ba <span class="ot">&lt;-</span> <span class="fu">lm</span>(partner_a <span class="sc">~</span> partner_b, <span class="at">data =</span> medical)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Are the slopes equal? Are they reciprocals of each other? What does this tell you about the symmetry of linear regression?</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>(b)</strong> The correlation coefficient satisfies <span class="math inline">\(r = r_{AB} = r_{BA}\)</span>. Show numerically that the slope of <code>model_ab</code> equals <span class="math inline">\(r \cdot (s_B / s_A)\)</span>, where <span class="math inline">\(s_A\)</span> and <span class="math inline">\(s_B\)</span> are the sample standard deviations of <code>partner_a</code> and <code>partner_b</code> respectively. Use <code>cor()</code> and <code>sd()</code> to verify.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>(c)</strong> Beta and Bit receive a request asking: <em>“what MedScore should my partner have?”</em> Which model should they use — <code>model_ab</code> or <code>model_ba</code>? Explain why the choice of response variable is not a statistical decision but a substantive one.</p>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="sec-ex3" class="level3" data-number="4.7.3">
+<h3 data-number="4.7.3" class="anchored" data-anchor-id="sec-ex3"><span class="header-section-number">4.7.3</span> Exercise 3: Prediction interval</h3>
+<p>A resident of District 7 has a MedScore of 145. She wants to know the predicted MedScore range for a potential LifeContract partner.</p>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>(a)</strong> Use <code>predict()</code> to compute a 95% prediction interval for Partner B’s MedScore when Partner A scores 145:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">predict</span>(model_ab,</span>
+<span id="cb25-2"><a href="#cb25-2" aria-hidden="true" tabindex="-1"></a>        <span class="at">newdata  =</span> <span class="fu">data.frame</span>(<span class="at">partner_a =</span> <span class="dv">145</span>),</span>
+<span id="cb25-3"><a href="#cb25-3" aria-hidden="true" tabindex="-1"></a>        <span class="at">interval =</span> <span class="st">"prediction"</span>,</span>
+<span id="cb25-4"><a href="#cb25-4" aria-hidden="true" tabindex="-1"></a>        <span class="at">level    =</span> <span class="fl">0.95</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+</div>
+</div>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>(b)</strong> The interval is considerably wider than the confidence interval for the mean. Explain in one sentence the difference between a <em>prediction interval</em> for an individual observation and a <em>confidence interval</em> for the conditional mean.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>(c)</strong> Bit notices that 145 is near the lower end of the observed range of <code>partner_a</code>. Without fitting a new model, explain why prediction intervals tend to be wider for values of the predictor far from its mean.</p>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="sec-ex4" class="level3" data-number="4.7.4">
+<h3 data-number="4.7.4" class="anchored" data-anchor-id="sec-ex4"><span class="header-section-number">4.7.4</span> Exercise 4: Model without intercept</h3>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>(a)</strong> Fit the no-intercept model and compare it to the intercept model using <code>anova()</code>:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>model_0  <span class="ot">&lt;-</span> <span class="fu">lm</span>(partner_b <span class="sc">~</span> partner_a <span class="sc">-</span> <span class="dv">1</span>, <span class="at">data =</span> medical)</span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>model_01 <span class="ot">&lt;-</span> <span class="fu">lm</span>(partner_b <span class="sc">~</span> partner_a,     <span class="at">data =</span> medical)</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="fu">anova</span>(model_0, model_01)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>At significance level <span class="math inline">\(\alpha = 0.05\)</span>, which model is preferred by the test?</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>(b)</strong> Look at the <code>Multiple R-squared</code> from both <code>summary()</code> outputs. The no-intercept model reports a higher <span class="math inline">\(R^2\)</span> than the intercept model. Does this mean it fits better? Explain why <span class="math inline">\(R^2\)</span> values from models with and without an intercept cannot be compared directly.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>(c)</strong> Under what substantive assumption would a no-intercept model for Partner B’s MedScore be appropriate? Is that assumption reasonable in the WaszKrak context?</p>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="sec-ex5" class="level3" data-number="4.7.5">
+<h3 data-number="4.7.5" class="anchored" data-anchor-id="sec-ex5"><span class="header-section-number">4.7.5</span> Exercise 5: Inference</h3>
+<p>QuantumCorp publishes a report claiming that <em>“partner MedScores are independent, knowing one partner’s score tells you nothing about the other’s.”</em></p>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>(a)</strong> Formulate this claim as a statistical hypothesis about the slope <span class="math inline">\(\beta_1\)</span> in the model <code>partner_b ~ partner_a</code>.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>(b)</strong> Using the output of <code>summary(model_ab)</code>, identify the test statistic and p-value relevant to this hypothesis. At <span class="math inline">\(\alpha = 0.05\)</span>, do the data support QuantumCorp’s claim?</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>(c)</strong> Beta points out that rejecting the null hypothesis does not prove that the relationship is <em>causal</em>. Name one alternative explanation for the observed correlation between partner MedScores that does not require a direct causal link between them.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>(d)</strong> The confidence level is set at 95%. If Beta were to repeat this study with 100 independent samples from WaszKrak and compute a 95% confidence interval for <span class="math inline">\(\beta_1\)</span> each time, approximately how many of those intervals would <em>not</em> contain the true population slope?</p>
+</div>
+</div>
+</div>
+
+
+</section>
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./11-Introduction.html" class="pagination-link" aria-label="Theorems and Formulas">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Theorems and Formulas</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./31-anova-one.html" class="pagination-link" aria-label="One-Way ANOVA and the CuriosityScore story">
+        <span class="nav-page-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">One-Way ANOVA and the CuriosityScore story</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/BetaAndBit/RogueGuide2LinearModels/edit/main/21-simple-regression.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/BetaAndBit/RogueGuide2LinearModels/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

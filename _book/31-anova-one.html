@@ -1,0 +1,1664 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.27">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>5&nbsp; One-Way ANOVA and the CuriosityScore story – The Rogue's Guide to Linear Models</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./32-anova-two.html" rel="next">
+<link href="./21-simple-regression.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-161aae76f10eaea8fbb7aea33acdefc9.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body class="nav-sidebar floating slimcontent quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./31-anova-one.html"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">One-Way ANOVA and the CuriosityScore story</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">The Rogue’s Guide to Linear Models</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/BetaAndBit/RogueGuide2LinearModels" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">The Rogue’s Guide to Linear Models</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./00-Preface.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11-Introduction.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Theorems and Formulas</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./21-simple-regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Simple Regression and the MedScore story</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./31-anova-one.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">One-Way ANOVA and the CuriosityScore story</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./32-anova-two.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Two-Way ANOVA and the MobilityScore story</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./33-anova-hierarchy.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Nested ANOVA and the NutritionScore story</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./41-ancova.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">ANCOVA and the EmploymentScore story</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./51-multivariable-regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Multiple Regression and the SocialScore story</span></span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#the-case-same-direction" id="toc-the-case-same-direction" class="nav-link active" data-scroll-target="#the-case-same-direction"><span class="header-section-number">5.1</span> The Case: Same Direction</a></li>
+  <li><a href="#the-formula-introduction-to-one-way-analysis-of-variance-and-post-hoc-tests" id="toc-the-formula-introduction-to-one-way-analysis-of-variance-and-post-hoc-tests" class="nav-link" data-scroll-target="#the-formula-introduction-to-one-way-analysis-of-variance-and-post-hoc-tests"><span class="header-section-number">5.2</span> The Formula: Introduction to One-Way analysis of variance and Post-Hoc tests</a>
+  <ul class="collapse">
+  <li><a href="#sec-model-one-way" id="toc-sec-model-one-way" class="nav-link" data-scroll-target="#sec-model-one-way"><span class="header-section-number">5.2.1</span> The Model</a></li>
+  <li><a href="#sec-anova-testing" id="toc-sec-anova-testing" class="nav-link" data-scroll-target="#sec-anova-testing"><span class="header-section-number">5.2.2</span> It’s all about testing</a></li>
+  <li><a href="#sec-post-hoc-tests" id="toc-sec-post-hoc-tests" class="nav-link" data-scroll-target="#sec-post-hoc-tests"><span class="header-section-number">5.2.3</span> Post Hoc Tests</a></li>
+  </ul></li>
+  <li><a href="#sec-terminal-anova-curiosity" id="toc-sec-terminal-anova-curiosity" class="nav-link" data-scroll-target="#sec-terminal-anova-curiosity"><span class="header-section-number">5.3</span> The Terminal: No-way, it’s One-way ANOVA</a>
+  <ul class="collapse">
+  <li><a href="#sec-terminal-drop" id="toc-sec-terminal-drop" class="nav-link" data-scroll-target="#sec-terminal-drop"><span class="header-section-number">5.3.1</span> Computing the response variable</a></li>
+  <li><a href="#sec-terminal-boxplot" id="toc-sec-terminal-boxplot" class="nav-link" data-scroll-target="#sec-terminal-boxplot"><span class="header-section-number">5.3.2</span> Show me the data</a></li>
+  <li><a href="#sec-terminal-group-means" id="toc-sec-terminal-group-means" class="nav-link" data-scroll-target="#sec-terminal-group-means"><span class="header-section-number">5.3.3</span> Group means</a></li>
+  <li><a href="#sec-terminal-aov" id="toc-sec-terminal-aov" class="nav-link" data-scroll-target="#sec-terminal-aov"><span class="header-section-number">5.3.4</span> Fitting the one-way ANOVA</a></li>
+  <li><a href="#sec-terminal-model-matrix" id="toc-sec-terminal-model-matrix" class="nav-link" data-scroll-target="#sec-terminal-model-matrix"><span class="header-section-number">5.3.5</span> The design matrix</a></li>
+  <li><a href="#sec-terminal-pairwise" id="toc-sec-terminal-pairwise" class="nav-link" data-scroll-target="#sec-terminal-pairwise"><span class="header-section-number">5.3.6</span> Pairwise t-tests with multiplicity correction</a></li>
+  <li><a href="#sec-terminal-lm-agent" id="toc-sec-terminal-lm-agent" class="nav-link" data-scroll-target="#sec-terminal-lm-agent"><span class="header-section-number">5.3.7</span> One-way ANOVA using the lm function</a></li>
+  <li><a href="#sec-terminal-tukey" id="toc-sec-terminal-tukey" class="nav-link" data-scroll-target="#sec-terminal-tukey"><span class="header-section-number">5.3.8</span> Tukey’s Honest Significant Difference test</a></li>
+  <li><a href="#sec-terminal-agricolae" id="toc-sec-terminal-agricolae" class="nav-link" data-scroll-target="#sec-terminal-agricolae"><span class="header-section-number">5.3.9</span> Tukey’s Honest Significant Difference test with <code>agricolae</code> package</a></li>
+  </ul></li>
+  <li><a href="#the-case-minimum-effective-dose" id="toc-the-case-minimum-effective-dose" class="nav-link" data-scroll-target="#the-case-minimum-effective-dose"><span class="header-section-number">5.4</span> The Case: Minimum Effective Dose</a></li>
+  <li><a href="#sec-one-way-contrasts" id="toc-sec-one-way-contrasts" class="nav-link" data-scroll-target="#sec-one-way-contrasts"><span class="header-section-number">5.5</span> The Formula: Analysis of contrasts</a>
+  <ul class="collapse">
+  <li><a href="#treatment-dummy-coding" id="toc-treatment-dummy-coding" class="nav-link" data-scroll-target="#treatment-dummy-coding"><span class="header-section-number">5.5.1</span> Treatment (dummy coding)</a></li>
+  <li><a href="#helmert" id="toc-helmert" class="nav-link" data-scroll-target="#helmert"><span class="header-section-number">5.5.2</span> Helmert</a></li>
+  <li><a href="#polynomial-orthogonal-chebyshev-polynomials" id="toc-polynomial-orthogonal-chebyshev-polynomials" class="nav-link" data-scroll-target="#polynomial-orthogonal-chebyshev-polynomials"><span class="header-section-number">5.5.3</span> Polynomial (orthogonal Chebyshev polynomials)</a></li>
+  <li><a href="#sum-effects-coding" id="toc-sum-effects-coding" class="nav-link" data-scroll-target="#sum-effects-coding"><span class="header-section-number">5.5.4</span> Sum / effects coding</a></li>
+  <li><a href="#general-form-and-estimator-variance" id="toc-general-form-and-estimator-variance" class="nav-link" data-scroll-target="#general-form-and-estimator-variance"><span class="header-section-number">5.5.5</span> General form and estimator variance</a></li>
+  </ul></li>
+  <li><a href="#the-terminal-be-selective" id="toc-the-terminal-be-selective" class="nav-link" data-scroll-target="#the-terminal-be-selective"><span class="header-section-number">5.6</span> The Terminal: Be selective!</a>
+  <ul class="collapse">
+  <li><a href="#contrast-functions" id="toc-contrast-functions" class="nav-link" data-scroll-target="#contrast-functions"><span class="header-section-number">5.6.1</span> Contrast functions</a></li>
+  <li><a href="#sec-contrasts-boxplot" id="toc-sec-contrasts-boxplot" class="nav-link" data-scroll-target="#sec-contrasts-boxplot"><span class="header-section-number">5.6.2</span> Show me the data</a></li>
+  <li><a href="#contrast-analysis" id="toc-contrast-analysis" class="nav-link" data-scroll-target="#contrast-analysis"><span class="header-section-number">5.6.3</span> Contrast analysis</a></li>
+  </ul></li>
+  <li><a href="#sec-exercises-one-way-anova" id="toc-sec-exercises-one-way-anova" class="nav-link" data-scroll-target="#sec-exercises-one-way-anova"><span class="header-section-number">5.7</span> Exercises</a>
+  <ul class="collapse">
+  <li><a href="#sec-ex-anova-1" id="toc-sec-ex-anova-1" class="nav-link" data-scroll-target="#sec-ex-anova-1"><span class="header-section-number">5.7.1</span> Exercise 1: Reading the ANOVA table</a></li>
+  <li><a href="#sec-ex-anova-2" id="toc-sec-ex-anova-2" class="nav-link" data-scroll-target="#sec-ex-anova-2"><span class="header-section-number">5.7.2</span> Exercise 2: Design matrix and reference group</a></li>
+  <li><a href="#sec-ex-anova-3" id="toc-sec-ex-anova-3" class="nav-link" data-scroll-target="#sec-ex-anova-3"><span class="header-section-number">5.7.3</span> Exercise 3: Post-hoc comparisons</a></li>
+  <li><a href="#sec-ex-anova-4" id="toc-sec-ex-anova-4" class="nav-link" data-scroll-target="#sec-ex-anova-4"><span class="header-section-number">5.7.4</span> Exercise 4: Contrasts and the minimum effective dose</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/BetaAndBit/RogueGuide2LinearModels/edit/main/31-anova-one.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/BetaAndBit/RogueGuide2LinearModels/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content page-columns page-full" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span id="sec-simple-anova" class="quarto-section-identifier"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">One-Way ANOVA and the CuriosityScore story</span></span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<section id="the-case-same-direction" class="level2 page-columns page-full" data-number="5.1">
+<h2 data-number="5.1" class="anchored" data-anchor-id="the-case-same-direction"><span class="header-section-number">5.1</span> The Case: Same Direction</h2>
+
+<div class="no-row-height column-margin column-container"><div class="">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figure/CuriosityScore_intro.png" class="img-fluid figure-img"></p>
+<figcaption>Synchronised agents</figcaption>
+</figure>
+</div>
+</div></div><p>The data arrived without a sender. Clean headers, no metadata. Someone had stripped everything that could identify the source before dropping it into the onion inbox.</p>
+<p>Beta opened it at 2 a.m. because she never slept well on Tuesdays. Sixty-six WaszKrak residents, each assigned to one of four corporate agents: QuantumCorp, NeuroFrame, SynBio, DataSec. For every resident, two numbers. A CuriosityScore measured before exposure, a baseline, and another measured after six months of interaction. Curiosity here meant the passive behavioral kind: spontaneous queries, unsolicited searches, contacts initiated outside the recommended feed. The thing the city’s platforms would rather people did less of.</p>
+<p>The raw after-scores told her nothing on their own, because residents had started in different places. What mattered was the change, the after-score minus the baseline, one signed number per person. Negative meant the agent had eroded curiosity. Positive meant it had grown. She computed the difference, and drew the box plot before she made coffee.</p>
+<p>Three of the four boxes sat below zero. QuantumCorp’s sank the furthest, its median well into negative territory, curiosity worn down by nearly eight points on average across its group. NeuroFrame and DataSec hovered just under the line, barely negative, a point or two of drift. And then there was SynBio, which did not belong in the story she had already started telling herself. SynBio’s box floated above zero. Its residents left the six months more curious than they entered, by better than six points on average. Not a uniform suppression at all. Three agents pressing down at different weights, and one pulling the other way.</p>
+<p>“ANOVA?” Bit asked, awake now.</p>
+<p>“Four agents, sixty-six people, change in CuriosityScore as the outcome.” She fit it. The F-test came back significant but modest, a p-value a little under one percent, the grouping explaining not quite a fifth of the variation in the drop. Enough to say the agents were not interchangeable. Not enough to say they were all doing the same thing.</p>
+<p>“So they’re coordinating,” Bit said, looking at the three negative boxes.</p>
+<p>“No.” Beta had been thinking about it for thirty seconds and was already unsure of the neat version. “If they were coordinating, the means would cluster. They don’t. SynBio is going the opposite direction from QuantumCorp entirely. NeuroFrame and DataSec are barely touching it. Different methods, different magnitudes, different signs.” She pulled the group means into a column and stared at them. QuantumCorp at minus eight. SynBio at plus six and a half. A spread of nearly fifteen points between the two extremes, and a muddle in the middle.</p>
+<p>Bit sat down slowly. “Then the F-test being significant doesn’t tell you much.”</p>
+<p>“It tells me at least one agent differs from the rest. It doesn’t tell me which.” And that was the part that mattered, because a significant F on its own would let a committee say whatever it wanted. She needed to know exactly which pairs of agents were genuinely far apart and which differences were just noise wearing a suit. Was QuantumCorp’s suppression really distinguishable from NeuroFrame’s faint drift, or only from SynBio’s climb? Was SynBio the single true outlier, the one agent doing something categorically different, or was the whole ranking soft enough that most of the pairs could not be told apart at all?</p>
+<p>She looked at the four means one more time. The reference the model would pick on its own was QuantumCorp, alphabetically or otherwise the harshest of them. Every other agent would be measured as a distance from that floor. Fine. She wanted those distances, and she wanted them corrected for the fact that comparing four groups means running six comparisons, and six comparisons at five percent each is a trap she had watched better analysts walk into.</p>
+<p>“Who sent this?” Bit asked finally.</p>
+<p>“Don’t know.” She saved the file and did not close it. First she would ask the data which agents actually stood apart, and hold every pairwise verdict to a standard strict enough to survive the multiplicity. Only then would the shape of what these four corporations were doing, together or, more likely, separately toward the same end, become something she could put in a report.</p>
+</section>
+<section id="the-formula-introduction-to-one-way-analysis-of-variance-and-post-hoc-tests" class="level2 page-columns page-full" data-number="5.2">
+<h2 data-number="5.2" class="anchored" data-anchor-id="the-formula-introduction-to-one-way-analysis-of-variance-and-post-hoc-tests"><span class="header-section-number">5.2</span> The Formula: Introduction to One-Way analysis of variance and Post-Hoc tests</h2>
+<p>In the case of simple linear regression, we examined the relationship between two quantitative variables. Analysis of variance allows examining the relationship between a quantitative variable and one or more categorical variables, i.e.&nbsp;a variable that takes on several different, usually incomparable, values/categories. Think about a variable describing one’s country of origin, favourite dish or a district.</p>
+<section id="sec-model-one-way" class="level3" data-number="5.2.1">
+<h3 data-number="5.2.1" class="anchored" data-anchor-id="sec-model-one-way"><span class="header-section-number">5.2.1</span> The Model</h3>
+<p>In one-way analysis of variance, we consider a model of the relationship between a quantitative variable <span class="math inline">\(y\)</span> and a single categorical explanatory variable <span class="math inline">\(x\)</span> taking <span class="math inline">\(k\)</span> different values. We will also call such an explanatory variable a grouping variable, because its levels define <span class="math inline">\(k\)</span> groups of observations.</p>
+<p>If we denote by <span class="math inline">\(y_{ij}\)</span> the value of the <span class="math inline">\(j\)</span>-th observation in the <span class="math inline">\(i\)</span>-th group, then the analysis of variance model can be written as follows:</p>
+<p><span id="eq-oneway-anova"><span class="math display">\[
+y_{ij} \sim \mathcal{N}(\mu_i, \sigma^2), \quad 1 \leq i \leq k, \quad 1 \leq j \leq n_i, \quad \sum_{i=1}^k n_i = n.
+\tag{5.1}\]</span></span></p>
+<p>where <span class="math inline">\(\mu_i\)</span> is the mean value of the response variable in group <span class="math inline">\(i\)</span>, <span class="math inline">\(n_i\)</span> is the number of observations in group <span class="math inline">\(i\)</span>, and <span class="math inline">\(\sigma^2\)</span> is the variance. We assume that variance is the same in each group.</p>
+<p>If the number of observations <span class="math inline">\(n_i\)</span> is the same in each group, we speak of a balanced design. If <span class="math inline">\(n_i\)</span> differs for at least two groups, we speak of an unbalanced design. We will present differences between these designs when discussing two-way analysis of variance.</p>
+<p>Translating this model into the language of linear models, we will consider a linear model of the form:</p>
+<p><span class="math display">\[
+y = X \beta + \varepsilon,
+\]</span></p>
+<p>in which, for the typcal parameterization, the vector <span class="math inline">\(\beta = (\mu, \alpha_2, \ldots, \alpha_k)\)</span>, and matrix <span class="math inline">\(X\)</span> is a matrix in which the first column is filled with ones, and the remaining columns are indicators of individual factors.</p>
+<p>The parameter vector is <span class="math inline">\(\beta = (\mu, \alpha_2, \ldots, \alpha_k)\)</span> because we adopted the constraint <span class="math inline">\(\alpha_1 = 0\)</span>. The mean in the first group is described by parameter <span class="math inline">\(\mu\)</span>. This is one of many possible parameterisations, which we will discuss in more detail shortly. It is important to note that we cannot include columns in the model corresponding to each category (each <span class="math inline">\(\alpha_i\)</span>) and the overall mean (<span class="math inline">\(\mu\)</span>), because then the columns of matrix <span class="math inline">\(X\)</span> would be collinear and matrix <span class="math inline">\(X^TX\)</span> would be non-invertible (see <a href="11-Introduction.html#eq-BetaEstimator" class="quarto-xref">Equation&nbsp;<span>3.5</span></a>).</p>
+<p>To ilustrate this design, let’s assume we have a set of six observations and two variables, one quantitative <span class="math inline">\(y\)</span> and another categorical <span class="math inline">\(x\)</span>. Assume that variable <span class="math inline">\(x\)</span> occurs at three levels: <code>A</code>, <code>B</code>, or <code>C</code>, and the number of occurrences of each level is balanced and equals two. In other words, the variable <span class="math inline">\(x=c(A, A, B, B, C, C)\)</span> describes three two-element groups.</p>
+<p>The formula <code>y~x</code> describes a one-way analysis of variance model with matrix notation:</p>
+<p><span class="math display">\[
+\begin{bmatrix}
+y_{1,1} \\
+y_{1,2} \\
+y_{2,1} \\
+y_{2,2} \\
+y_{3,1} \\
+y_{3,2}
+\end{bmatrix} =
+\begin{bmatrix}
+1 &amp; 0 &amp; 0 \\
+1 &amp; 0 &amp; 0\\
+1 &amp; 1 &amp; 0\\
+1 &amp; 1 &amp; 0\\
+1 &amp; 0 &amp; 1\\
+1 &amp; 0 &amp; 1
+\end{bmatrix}
+\begin{bmatrix}
+\mu \\
+\alpha_2 \\
+\alpha_3
+\end{bmatrix} +
+\begin{bmatrix}
+\varepsilon_{1,1} \\
+\varepsilon_{1,2} \\
+\varepsilon_{2,1} \\
+\varepsilon_{2,2} \\
+\varepsilon_{3,1} \\
+\varepsilon_{3,2}
+\end{bmatrix},
+\]</span></p>
+<p>where <span class="math inline">\((y_{1,1}, y_{1,2}, y_{2,1}, y_{2,2}, y_{3,1}, y_{3,2})\)</span> is a six-element vector with measurements of trait <span class="math inline">\(y\)</span>, and <span class="math inline">\((\varepsilon_{1,1}, \varepsilon_{1,2}, \varepsilon_{2,1}, \varepsilon_{2,2}, \varepsilon_{3,1}, \varepsilon_{3,2})\)</span> is a six-element vector corresponding to random disturbance <span class="math inline">\(\varepsilon \sim \mathcal{N}(0, I_{6\times 6}\sigma^2)\)</span>.</p>
+</section>
+<section id="sec-anova-testing" class="level3" data-number="5.2.2">
+<h3 data-number="5.2.2" class="anchored" data-anchor-id="sec-anova-testing"><span class="header-section-number">5.2.2</span> It’s all about testing</h3>
+<p>Analysis of variance, without formal formulation, was already being used in the early 19th century. However, Ronald Fisher is considered the father of this method, who in 1925 published the book “Statistical Methods for Research Workers” <span class="citation" data-cites="fisher1925statistical">(<a href="#ref-fisher1925statistical" role="doc-biblioref">Fisher, 1925</a>)</span> in which he formally formulated and provided many examples of applying analysis of variance. This book was reprinted for over 50 years and became one of the basic textbooks for data analysis in those times.</p>
+<p>One of the main issues in analysis of variance is testing the hypothesis of equality of means. The null hypothesis tested in analysis of variance is:</p>
+<p><span id="eq-anova-grant-hypothesis"><span class="math display">\[
+H_0: \mu_1 = \mu_2 = \cdots = \mu_k,
+\tag{5.2}\]</span></span></p>
+<p>against the alternative hypothesis:</p>
+<p><span class="math display">\[
+H_A: \exists_{i,j} \quad \mu_i \neq \mu_j.
+\]</span></p>
+<p>This analysis is often presented in a different parameterization, in which:</p>
+<p><span class="math display">\[
+\begin{array}{ll}
+\mu_{1} &amp;= \mu + \alpha_{1}, \\
+\mu_{2} &amp;= \mu + \alpha_{2}, \\
+\cdots &amp; \cdots  \\
+\mu_{k} &amp;= \mu + \alpha_{k}, \\
+\end{array}
+\]</span></p>
+<p>where <span class="math inline">\(\alpha_i\)</span> is the difference between the mean <span class="math inline">\(\mu_i\)</span> in the group and the global mean <span class="math inline">\(\mu\)</span>.</p>
+<p>To make the description unambiguous, constraints must be imposed on the new parameters. There are <span class="math inline">\(k+1\)</span> parameters <span class="math inline">\(\mu\)</span> and <span class="math inline">\(\alpha_i\)</span> but only <span class="math inline">\(k\)</span> group means that these parameters describe.</p>
+<p>Constraints can be formulated arbitrarily; to facilitate interpretation, the following are most commonly used:</p>
+<ul>
+<li>Either the constraint:</li>
+</ul>
+<p><span class="math display">\[
+\sum_{i=1}^k \alpha_i = 0,
+\]</span></p>
+<p>in which the effect <span class="math inline">\(\mu\)</span> can be treated as the population mean. In the case of an unbalanced design, the mean of all observations is <span class="math inline">\(\sum_{i=1}^k n_i\mu_i/n\)</span>; for a balanced design, the mean is <span class="math inline">\(\mu=\sum_{i=1}^k \mu_i/k\)</span>.</p>
+<ul>
+<li>Or the constraint:</li>
+</ul>
+<p><span class="math display">\[
+\alpha_1 = 0,
+\]</span></p>
+<p>used by default in many software packages, where the first group of objects is treated as the reference group, <span class="math inline">\(\mu\)</span> is the mean in that group, and effects <span class="math inline">\(\alpha_i\)</span> are differences in means between group <span class="math inline">\(i\)</span> and the first/reference group.</p>
+<p>In R, different parameterizations can be chosen by specifying contrasts. We will discuss this issue in more detail in <a href="#sec-one-way-contrasts" class="quarto-xref"><span>Section 5.5</span></a>.</p>
+<p>After performing analysis of variance, if we reject the null hypothesis, we accept the alternative hypothesis that at least two means differ. We don’t know which means differ or which is larger. To assess which means differ, post hoc tests are performed in a second step, comparing all pairs of means. We will discuss the issue of post hoc testing with examples in <a href="#sec-post-hoc-tests" class="quarto-xref"><span>Section 5.2.3</span></a>.</p>
+</section>
+<section id="sec-post-hoc-tests" class="level3 page-columns page-full" data-number="5.2.3">
+<h3 data-number="5.2.3" class="anchored" data-anchor-id="sec-post-hoc-tests"><span class="header-section-number">5.2.3</span> Post Hoc Tests</h3>
+<p>If we reject the hypothesis that the means are equal (see <a href="#eq-anova-grant-hypothesis" class="quarto-xref">Equation&nbsp;<span>5.2</span></a>), the next logical step is to determine which means differ. To do this, post-hoc tests are often used post hoc tests<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a> serve to examine the significance of differences in means between each pair of groups. Several post hoc testing procedures have been proposed; the most popular include:</p>
+<div class="no-row-height column-margin column-container"><div id="fn1"><p><sup>1</sup>&nbsp;Latin <em>,,post hoc’’</em>, after the fact</p></div><div id="fn2"><p><sup>2</sup>&nbsp;We leave this as homework.</p></div></div><p><em>Tukey’s HSD Test</em> (Honestly Significant Differences). Tukey’s test is one of the more popular post hoc tests. This test is based on the test statistic determined as the difference between the lowest and highest mean in the considered groups divided by the square root of within-group variance (within-group variance is calculated as the variance of observations <span class="math inline">\(y_i - \bar{y}_{g(i)}\)</span>, where <span class="math inline">\(\bar{y}_{g(i)}\)</span> is the mean of <span class="math inline">\(y\)</span> in the group to which observation <span class="math inline">\(i\)</span> belongs). The value of the test statistic is compared with the <span class="math inline">\(1-\alpha\)</span> quantile of the studentized range distribution. If we have <span class="math inline">\(k\)</span> groups of variables with identical distribution <span class="math inline">\(\mathcal{N}(\mu, \sigma^2)\)</span>, each with size <span class="math inline">\(n\)</span>, then Tukey’s distribution describes the distribution of variable <span class="math inline">\((\hat{\mu}_{max} - \hat{\mu}_{min}) / \sqrt{\hat{\sigma}^2}\)</span>. Note that this distribution is constructed for equal-sized groups, so Tukey’s HSD post hoc test should be used exclusively for balanced designs. It’s an error to use this test for unbalanced designs, and simple simulation exercises show that you don’t lose control over Type I error.<a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a></p>
+<p>For unequal groups, the Spjøtvoll-Stoline test is sometimes used. An easy alternative would be permutation-based determination of the test statistic distribution that accounts for observed group sizes. Using the studentized range distribution, joint confidence intervals for group means can be determined (see example below).</p>
+<p><em>Student-Newman-Keuls Test</em>. This test has a similar construction to Tukey’s test with one difference. Namely, if we consider <span class="math inline">\(k\)</span> groups, Tukey’s test for each pair of means uses the same quantile of the studentized range distribution for <span class="math inline">\(k\)</span> groups. In the Student-Newman-Keuls test, means are first sorted, then if we compare mean <span class="math inline">\(\hat{\mu}_{1:k}\)</span> (smallest) with <span class="math inline">\(\hat{\mu}_{k:k}\)</span> (largest), we use the studentized range distribution for <span class="math inline">\(k\)</span> groups, but for other means, e.g., <span class="math inline">\(\hat{\mu}_{i:k}\)</span> with <span class="math inline">\(\hat{\mu}_{j:k}\)</span>, we use the studentized distribution for <span class="math inline">\(|i-j|+1\)</span> groups. This procedure allows finding more differences between means but doesn’t control overall Type I error. Like Tukey’s test, it should be used in balanced designs.</p>
+<p><em>Fisher’s LSD Test</em> (Least Significant Difference). Fisher’s post hoc test performs <span class="math inline">\(k(k-1)/2\)</span> Student’s t-tests, comparing each pair of means and applying correction for the number of tests performed / multiple testing. For correction, Bonferroni, Holm-Hochberg, and other corrections can be used. Equal group sizes are not assumed here.</p>
+<p><em>Scheffé’s Test</em> is the most conservative test. It resembles Fisher’s LSD test, but testing accounts for all possible contrasts, so this test, despite its conservativeness, is used when “unplanned” contrasts are compared. Equal group sizes are not assumed here.<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a></p>
+<div class="no-row-height column-margin column-container"><div id="fn3"><p><sup>3</sup>&nbsp;There are infinitely many total contrasts, but only finitely many linearly independent ones. That’s why we can account for all of them.</p></div></div><p>Each of these tests has its own advantages and disadvantages. However, so as not to obscure the overall picture of one-way analysis, we will focus on Tukey’s HSD test below.</p>
+</section>
+</section>
+<section id="sec-terminal-anova-curiosity" class="level2 page-columns page-full" data-number="5.3">
+<h2 data-number="5.3" class="anchored" data-anchor-id="sec-terminal-anova-curiosity"><span class="header-section-number">5.3</span> The Terminal: No-way, it’s One-way ANOVA</h2>
+<p>The dataset used in this section comes from the <code>RougeLM</code> package. The <code>curiosity</code> dataset contains 1,200 WaszKrak residents measured on <code>CuriosityScore</code> before and after six months of interaction with one of four corporate AI agents.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"RougeLM"</span>)</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(curiosity)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>        agent after6msc baseline
+1 QuantumCorp     66.36    71.87
+2 QuantumCorp     56.03    79.51
+3 QuantumCorp     61.24    63.23
+4 QuantumCorp     82.84    99.32
+5 QuantumCorp     43.42    55.71
+6 QuantumCorp     51.65    49.87</code></pre>
+</div>
+</div>
+<p><code>head()</code> confirms the structure: each row is one resident, with columns <code>agent</code> (which corporation’s agent they were assigned to), <code>baseline</code> (CuriosityScore before exposure), and <code>after6msc</code> (CuriosityScore after six months). The response variable for the ANOVA is not <code>after6msc</code> directly but the <em>change</em> in CuriosityScore, which requires a preliminary step.</p>
+<hr>
+<section id="sec-terminal-drop" class="level3" data-number="5.3.1">
+<h3 data-number="5.3.1" class="anchored" data-anchor-id="sec-terminal-drop"><span class="header-section-number">5.3.1</span> Computing the response variable</h3>
+<p>Neither <code>baseline</code> nor <code>after6msc</code> alone captures what we want to measure. The question is not what CuriosityScore residents ended up with, it is how much each agent changed it. Residents start with different baseline scores, so comparing <code>after6msc</code> across agents would confound the agent effect with pre-existing differences. The drop variable removes this confound.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>curiosity<span class="sc">$</span>drop <span class="ot">&lt;-</span> curiosity<span class="sc">$</span>after6msc <span class="sc">-</span> curiosity<span class="sc">$</span>baseline</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p>The expression <code>curiosity$after6msc - curiosity$baseline</code> performs element-wise subtraction: for each row, the baseline score is subtracted from the six-month score. Negative values indicate a reduction in CuriosityScore, the agent lowered autonomous information-seeking behaviour. Positive values would indicate an increase. The result is stored in a new column <code>drop</code> attached to the <code>curiosity</code> data frame.</p>
+<hr>
+</section>
+<section id="sec-terminal-boxplot" class="level3 page-columns page-full" data-number="5.3.2">
+<h3 data-number="5.3.2" class="anchored" data-anchor-id="sec-terminal-boxplot"><span class="header-section-number">5.3.2</span> Show me the data</h3>
+<p>The relationship between quantitative and qualitative data is best illustrated using box plots.</p>
+<div class="cell page-columns page-full">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"ggplot2"</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb4-3"><a href="#cb4-3" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(curiosity, <span class="fu">aes</span>(agent, drop)) <span class="sc">+</span></span>
+<span id="cb4-4"><a href="#cb4-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display page-columns page-full">
+<div id="fig-boxplot-drop" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-boxplot-drop-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="31-anova-one_files/figure-html/fig-boxplot-drop-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-boxplot-drop-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5.1: Distribution of CuriosityScore change (drop = after6msc - baseline) by corporate agent. Each box shows the interquartile range; the horizontal line inside is the median; the whiskers extend to 1.5 times the IQR. Points beyond the whiskers are plotted individually as potential outliers. All four agents produce negative median drops — CuriosityScore fell in every group — but the magnitude differs visibly between agents.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><code>ggplot(curiosity, aes(agent, drop))</code> initialises the plot with <code>agent</code> on the x-axis and <code>drop</code> on the y-axis. Because <code>agent</code> is a factor, ggplot2 places one box per level automatically.</p>
+<p><code>geom_boxplot()</code> adds the boxplot geometry. With no additional arguments all visual elements, box width, whisker length, outlier shape, use their defaults. The plot is intentionally minimal at this stage: before any formal test, a boxplot is the fastest way to check whether the group distributions overlap substantially, whether variances look roughly equal across groups, and whether any group has an unusual shape.</p>
+<hr>
+</section>
+<section id="sec-terminal-group-means" class="level3 page-columns page-full" data-number="5.3.3">
+<h3 data-number="5.3.3" class="anchored" data-anchor-id="sec-terminal-group-means"><span class="header-section-number">5.3.3</span> Group means</h3>
+<p>The boxplot shows distributions; a summary table shows means. Both information may be helpful before fitting a model.</p>
+<div id="tbl-group-means" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-tbl figure page-columns page-full">
+<div aria-describedby="tbl-group-means-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"dplyr"</span>)</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>curiosity <span class="sc">|&gt;</span></span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(agent) <span class="sc">|&gt;</span></span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">avg_drop =</span> <span class="fu">mean</span>(drop))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 4 × 2
+  agent       avg_drop
+  &lt;fct&gt;          &lt;dbl&gt;
+1 QuantumCorp   -7.81 
+2 NeuroFrame    -0.827
+3 SynBio         6.68 
+4 DataSec       -1.75 </code></pre>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-tbl margin-caption" id="tbl-group-means-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;5.1: A table showing the mean values of the change in curiosity for each possible agent value
+</figcaption>
+</figure>
+</div>
+<p>The pipe operator <code>|&gt;</code> passes the <code>curiosity</code> data frame to <code>group_by()</code>, which partitions the rows by the levels of <code>agent</code> without changing the data. The result is passed to <code>summarise()</code>, which collapses each group to a single row containing the computed statistic. <code>mean(drop)</code> is evaluated separately within each agent group, producing one mean per agent. The resulting table has one row per level of <code>agent</code> and one column <code>avg_drop</code>.</p>
+<p>The table answers the descriptive question, which agent produced the largest average reduction? The ANOVA below answers the inferential question, are these differences larger than would be expected by chance?</p>
+<hr>
+</section>
+<section id="sec-terminal-aov" class="level3 page-columns page-full" data-number="5.3.4">
+<h3 data-number="5.3.4" class="anchored" data-anchor-id="sec-terminal-aov"><span class="header-section-number">5.3.4</span> Fitting the one-way ANOVA</h3>
+<p>Do the values observed for different agents differ significantly? We will test this hypothesis using an analysis of variance.</p>
+<div id="tbl-aov-summary" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-tbl figure page-columns page-full">
+<div aria-describedby="tbl-aov-summary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">aov</span>(drop <span class="sc">~</span> agent, <span class="at">data =</span> curiosity))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>            Df Sum Sq Mean Sq F value  Pr(&gt;F)   
+agent        3   1761   586.9   4.495 0.00643 **
+Residuals   62   8094   130.6                   
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-tbl margin-caption" id="tbl-aov-summary-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;5.2: A table showing the analysis of variance for a single variable
+</figcaption>
+</figure>
+</div>
+<p><code>aov(drop ~ agent, data = curiosity)</code> fits a one-way analysis of variance model. The formula <code>drop ~ agent</code> specifies <code>drop</code> as the response variable and <code>agent</code> as the single grouping factor. <code>aov()</code> is a wrapper around <code>lm()</code> that organises the output into the familiar ANOVA table format.</p>
+<p><code>summary()</code> applied to an <code>aov</code> object prints the ANOVA table. Reading it row by row (in the following chapters, as we consider more variables, there will also be more rows):</p>
+<ul>
+<li><p><code>agent</code> row: the between-group component. <code>Df</code> is the number of groups minus one (here 3, because there are four agents). <code>Sum Sq</code> is the between-group sum of squares, measuring how much the group means vary around the grand mean. <code>Mean Sq</code> is <code>Sum Sq / Df</code>. <code>F value</code> is the ratio of the between-group mean square to the residual mean square, large values indicate that group differences are large relative to within-group noise. <code>Pr(&gt;F)</code> is the p-value for the F-test of the null hypothesis that all group means are equal (see <a href="11-Introduction.html#sec-introduction-test-betas" class="quarto-xref"><span>Section 3.5.4</span></a> for more details).</p></li>
+<li><p><code>Residuals</code> row: the within-group component. <code>Df</code> is the total number of observations minus the number of groups. <code>Sum Sq</code> is the total within-group variability — the part of the variance not explained by group membership.</p></li>
+</ul>
+<p>A significant p-value (below the chosen <span class="math inline">\(\alpha\)</span>) tells us that <em>at least one</em> group mean differs from the others. It does not tell us <em>which</em> groups differ, that requires post-hoc testing.</p>
+<p>In our case, the p-value is small (<span class="math inline">\(0.00643\)</span>), so we will assume that the observed differences are statistically significant.</p>
+<hr>
+</section>
+<section id="sec-terminal-model-matrix" class="level3 page-columns page-full" data-number="5.3.5">
+<h3 data-number="5.3.5" class="anchored" data-anchor-id="sec-terminal-model-matrix"><span class="header-section-number">5.3.5</span> The design matrix</h3>
+<p>Before moving to post-hoc tests it is instructive to inspect how R encodes a categorical predictor internally.</p>
+<div id="tbl-model-matrix" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-tbl figure page-columns page-full">
+<div aria-describedby="tbl-model-matrix-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">model.matrix</span>(drop <span class="sc">~</span> agent, <span class="at">data =</span> curiosity))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  (Intercept) agentNeuroFrame agentSynBio agentDataSec
+1           1               0           0            0
+2           1               0           0            0
+3           1               0           0            0
+4           1               0           0            0
+5           1               0           0            0
+6           1               0           0            0</code></pre>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-tbl margin-caption" id="tbl-model-matrix-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;5.3: Let’s take a closer look at how this qualitative variable is coded
+</figcaption>
+</figure>
+</div>
+<p><code>model.matrix()</code> constructs the design matrix <span class="math inline">\({X}\)</span> that <code>aov()</code> and <code>lm()</code> use internally. It takes the same formula and data as the model. .</p>
+<p>The output reveals R’s default treatment coding (also called dummy coding). One level of <code>agent</code>, the alphabetically first one, is chosen as the reference category and represented by the intercept column of ones. Each remaining level gets its own binary indicator column: <code>1</code> if the observation belongs to that level, <code>0</code> otherwise. A row with all indicator columns equal to <code>0</code> belongs to the reference level.</p>
+<p>This encoding has a direct consequence for interpreting <code>lm()</code> output later: each slope coefficient measures the <em>difference</em> between that group’s mean and the reference group’s mean, not the group mean itself.</p>
+<hr>
+</section>
+<section id="sec-terminal-pairwise" class="level3 page-columns page-full" data-number="5.3.6">
+<h3 data-number="5.3.6" class="anchored" data-anchor-id="sec-terminal-pairwise"><span class="header-section-number">5.3.6</span> Pairwise t-tests with multiplicity correction</h3>
+<p>The ANOVA F-test is significant. Now we ask: which specific pairs of agents differ? There are many ways to do this; one of them is to carry out a t-test for each pair of levels.</p>
+<div id="tbl-pairwise-holm" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-tbl figure page-columns page-full">
+<div aria-describedby="tbl-pairwise-holm-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="fu">pairwise.t.test</span>(curiosity<span class="sc">$</span>drop, curiosity<span class="sc">$</span>agent,</span>
+<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>                <span class="at">p.adjust.method =</span> <span class="st">"holm"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+    Pairwise comparisons using t tests with pooled SD 
+
+data:  curiosity$drop and curiosity$agent 
+
+           QuantumCorp NeuroFrame SynBio
+NeuroFrame 0.3148      -          -     
+SynBio     0.0035      0.2799     -     
+DataSec    0.3148      0.8188     0.1420
+
+P value adjustment method: holm </code></pre>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-tbl margin-caption" id="tbl-pairwise-holm-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;5.4: A series of tests for each pair of agents. Does the change in curiosity differ between these two agents?
+</figcaption>
+</figure>
+</div>
+<p><code>pairwise.t.test()</code> performs all pairwise two-sample t-tests between the levels of the grouping variable. Its three arguments are:</p>
+<ul>
+<li>First argument: the numeric response vector <code>curiosity$drop</code>.</li>
+<li>Second argument: the grouping vector <code>curiosity$agent</code>.</li>
+<li><code>p.adjust.method = "holm"</code>: the method used to correct p-values for the multiple comparisons problem. Without correction, running <span class="math inline">\(k(k-1)/2\)</span> tests at <span class="math inline">\(\alpha = 0.05\)</span> would produce false positives far more often than 5% of the time. The Holm method is a sequentially rejective procedure that controls the family-wise error rate at level <span class="math inline">\(\alpha\)</span> while being less conservative than the Bonferroni correction: it adjusts p-values by ordering them and applying decreasing multipliers rather than a single multiplier applied to all.</li>
+</ul>
+<p>The output is a lower-triangular matrix of adjusted p-values, one for each pair of agents. Pairs with adjusted p-values below <span class="math inline">\(\alpha = 0.05\)</span> provide evidence that those two agents differ in their effect on <code>CuriosityScore</code>.</p>
+<hr>
+</section>
+<section id="sec-terminal-lm-agent" class="level3 page-columns page-full" data-number="5.3.7">
+<h3 data-number="5.3.7" class="anchored" data-anchor-id="sec-terminal-lm-agent"><span class="header-section-number">5.3.7</span> One-way ANOVA using the lm function</h3>
+<p>If we are only interested in a model with a single qualitative variable, the <code>aov</code> function will be perfectly adequate. However, in the following chapters we will be constructing more complex models, and for this we will need the <code>lm</code> function, which allows us to work with a wider range of models and variables. So let’s see what an analysis of variance looks like when performed using the <code>lm</code> function.</p>
+<div id="tbl-lm-agent" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-tbl figure page-columns page-full">
+<div aria-describedby="tbl-lm-agent-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">lm</span>(drop <span class="sc">~</span> agent, <span class="at">data =</span> curiosity))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = drop ~ agent, data = curiosity)
+
+Residuals:
+     Min       1Q   Median       3Q      Max 
+-20.9260  -7.6766  -0.3987   9.2113  27.9394 
+
+Coefficients:
+                Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)       -7.814      2.950  -2.649 0.010236 *  
+agentNeuroFrame    6.987      4.246   1.646 0.104924    
+agentSynBio       14.495      3.995   3.629 0.000578 ***
+agentDataSec       6.061      3.946   1.536 0.129682    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 11.43 on 62 degrees of freedom
+Multiple R-squared:  0.1787,    Adjusted R-squared:  0.1389 
+F-statistic: 4.495 on 3 and 62 DF,  p-value: 0.006427</code></pre>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-tbl margin-caption" id="tbl-lm-agent-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;5.5: Analysis of variance performed using the lm function
+</figcaption>
+</figure>
+</div>
+<p><code>lm(drop ~ agent, data = curiosity)</code> fits exactly the same model as <code>aov()</code>, both perform ordinary least squares on the design matrix produced by <code>model.matrix()</code>. The difference is only in how the output is presented.</p>
+<p>In the <code>Coefficients</code> table, <code>(Intercept)</code> is the estimated mean of the reference agent group (remeber <span class="math inline">\(\mu\)</span>?). Each remaining coefficient, <code>agentNeuroFrame</code>, <code>agentQuantumCorp</code>, <code>agentSynBio</code>, is the estimated <em>difference</em> between that agent’s group mean and the reference group’s mean (remeber <span class="math inline">\(\alpha_i\)</span>?). A negative coefficient means that agent produced a larger reduction in CuriosityScore than the reference agent; a positive coefficient means a smaller reduction.</p>
+<p>The t-tests and p-values in this table test whether each pairwise difference from the reference group is significantly different from zero. This is not a full set of pairwise comparisons, it covers only comparisons involving the reference level. For all pairwise comparisons, post-hoc methods are required.</p>
+<hr>
+</section>
+<section id="sec-terminal-tukey" class="level3 page-columns page-full" data-number="5.3.8">
+<h3 data-number="5.3.8" class="anchored" data-anchor-id="sec-terminal-tukey"><span class="header-section-number">5.3.8</span> Tukey’s Honest Significant Difference test</h3>
+<p>The most popular post-hoc test for testing differences between means is Tukey’s test. We will carry it out twice here, using two different libraries. The results are, of course, the same, but you may find one format easier to read than the other. Let’s start with the one implemented in the <code>stats</code> package.</p>
+<div id="tbl-tukey" class="cell quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-tbl figure page-columns page-full">
+<div aria-describedby="tbl-tukey-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a>model_cur_01 <span class="ot">&lt;-</span> <span class="fu">aov</span>(drop <span class="sc">~</span> agent, <span class="at">data =</span> curiosity)</span>
+<span id="cb15-2"><a href="#cb15-2" aria-hidden="true" tabindex="-1"></a><span class="fu">TukeyHSD</span>(model_cur_01)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  Tukey multiple comparisons of means
+    95% family-wise confidence level
+
+Fit: aov(formula = drop ~ agent, data = curiosity)
+
+$agent
+                            diff        lwr       upr     p adj
+NeuroFrame-QuantumCorp  6.986857  -4.222991 18.196705 0.3611805
+SynBio-QuantumCorp     14.494556   3.948611 25.040500 0.0031652
+DataSec-QuantumCorp     6.060842  -4.358191 16.479875 0.4227192
+SynBio-NeuroFrame       7.507698  -3.241723 18.257120 0.2629856
+DataSec-NeuroFrame     -0.926015 -11.550956  9.698926 0.9956627
+DataSec-SynBio         -8.433713 -18.355690  1.488263 0.1228184</code></pre>
+</div>
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-tbl margin-caption" id="tbl-tukey-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Table&nbsp;5.6: Tukey’s test using the TukeyHSD function from package stats
+</figcaption>
+</figure>
+</div>
+<p><code>TukeyHSD()</code> takes a fitted <code>aov</code> object and computes simultaneous confidence intervals and p-values for all pairwise differences between group means. “Honest Significant Difference” refers to the fact that the test controls the family-wise error rate across all comparisons simultaneously, not just pair by pair.</p>
+<p>The output table has one row per pair. The columns are:</p>
+<ul>
+<li><code>diff</code>: the estimated difference in group means (second group minus first group in each pair).</li>
+<li><code>lwr</code> and <code>upr</code>: the lower and upper bounds of the 95% simultaneous confidence interval for that difference. If the interval does not include zero, the pair differs significantly at the family-wise level.</li>
+<li><code>p adj</code>: the Tukey-adjusted p-value. Values below <span class="math inline">\(\alpha = 0.05\)</span> indicate a significant pairwise difference after controlling for multiple comparisons.</li>
+</ul>
+<p>Tukey’s method assumes equal group sizes and equal variances. It is the standard choice when both conditions are approximately met and all pairwise comparisons are of interest.</p>
+<div class="cell page-columns page-full">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">par</span>(<span class="at">mar=</span><span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">14</span>, <span class="dv">4</span>, <span class="dv">2</span>))</span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">TukeyHSD</span>(model_cur_01), <span class="at">las =</span> <span class="dv">1</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display page-columns page-full">
+<div id="fig-tukey-plot" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-tukey-plot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="31-anova-one_files/figure-html/fig-tukey-plot-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-tukey-plot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5.2: Tukey HSD 95% simultaneous confidence intervals for all pairwise differences in mean CuriosityScore drop between agents. A confidence interval that does not cross the vertical line at zero indicates a statistically significant difference between that pair. The argument las = 1 rotates all axis labels to horizontal, making the pair labels on the left axis readable.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><code>plot()</code> applied to a <code>TukeyHSD</code> object produces a visualisation of the simultaneous confidence intervals. Each horizontal segment is one pairwise comparison. The argument <code>las = 1</code> controls axis label orientation: <code>las = 1</code> forces all labels to be drawn horizontally regardless of which axis they are on, preventing the default vertical rotation of y-axis labels that would make the pair names difficult to read.</p>
+<hr>
+</section>
+<section id="sec-terminal-agricolae" class="level3 page-columns page-full" data-number="5.3.9">
+<h3 data-number="5.3.9" class="anchored" data-anchor-id="sec-terminal-agricolae"><span class="header-section-number">5.3.9</span> Tukey’s Honest Significant Difference test with <code>agricolae</code> package</h3>
+<p>The <code>agricolae</code> package provides several additional post-hoc procedures, each with different assumptions about error rate control and statistical power. They work on <code>aov</code> object, so let’s create one.</p>
+<div class="cell" data-tbl-cap="Tukey’s test using the HSD.test function from package agricolae">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"agricolae"</span>)</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>model_cur_02 <span class="ot">&lt;-</span> <span class="fu">aov</span>(drop <span class="sc">~</span> agent, <span class="at">data =</span> curiosity)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+</div>
+<p><code>model_cur_02</code> is refitted here for clarity, it is identical to <code>model_cur_01</code> from <a href="#sec-terminal-tukey" class="quarto-xref"><span>Section 5.3.8</span></a>. All <code>agricolae</code> functions take a fitted <code>aov</code> object, the name of the grouping factor as a character string, and a <code>console</code> argument that controls whether a summary is printed to the console in addition to being returned invisibly.</p>
+<div class="cell page-columns page-full">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plot</span>(<span class="fu">HSD.test</span>(model_cur_02, <span class="st">"agent"</span>, <span class="at">console =</span> <span class="cn">TRUE</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Study: model_cur_02 ~ "agent"
+
+HSD Test for drop 
+
+Mean Square Error:  130.5507 
+
+agent,  means
+
+                  drop      std  r       se    Min   Max      Q25    Q50    Q75
+DataSec     -1.7531579 11.82173 19 2.621276 -21.49 15.83 -11.4600 -2.330 8.6650
+NeuroFrame  -0.8271429 11.30523 14 3.053694 -16.33 19.70  -8.5025 -1.845 5.2950
+QuantumCorp -7.8140000 11.66697 15 2.950149 -28.74  4.75 -15.8350 -3.420 1.9250
+SynBio       6.6805556 10.87744 18 2.693105  -8.74 34.62   1.0650  4.855 9.4725
+
+Alpha: 0.05 ; DF Error: 62 
+Critical Value of Studentized Range: 3.733669 
+
+Groups according to probability of means differences and alpha level( 0.05 )
+
+Treatments with the same letter are not significantly different.
+
+                  drop groups
+SynBio       6.6805556      a
+NeuroFrame  -0.8271429     ab
+DataSec     -1.7531579     ab
+QuantumCorp -7.8140000      b</code></pre>
+</div>
+<div class="cell-output-display page-columns page-full">
+<div id="fig-hsd-agricolae" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-hsd-agricolae-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="31-anova-one_files/figure-html/fig-hsd-agricolae-1.png" class="img-fluid figure-img" width="672">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-hsd-agricolae-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5.3: Tukey HSD grouping letters from agricolae::HSD.test(). Groups sharing a letter are not significantly different from each other at the family-wise level. Groups with different letters differ significantly.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p><code>HSD.test()</code> performs Tukey’s HSD test and returns a grouping of the levels using compact letter display: groups that share a letter are not significantly different at the chosen <span class="math inline">\(\alpha\)</span>. <code>plot()</code> on the result produces a bar chart of group means with the letter assignments overlaid. This display is more compact than the full pairwise table and is standard in agronomic and biological publications.</p>
+<p>In a similar way, one can perform Student-Newman-Keuls test using function <code>SNK.test()</code>, Fisher’s Least Significant Difference test using function <code>LSD.test()</code> and Scheffé’s test using function <code>scheffe.test()</code>.</p>
+</section>
+</section>
+<section id="the-case-minimum-effective-dose" class="level2 page-columns page-full" data-number="5.4">
+<h2 data-number="5.4" class="anchored" data-anchor-id="the-case-minimum-effective-dose"><span class="header-section-number">5.4</span> The Case: Minimum Effective Dose</h2>
+
+<div class="no-row-height column-margin column-container"><div class="">
+<div class="quarto-figure quarto-figure-center">
+<figure class="figure">
+<p><img src="figure/EffectiveDose_intro.png" class="img-fluid figure-img"></p>
+<figcaption>I’ve come to visit you</figcaption>
+</figure>
+</div>
+</div></div><p>The dataset came from the same anonymous source as before. Same stripping of metadata, same clean headers, same feeling that someone on the inside was paying attention.</p>
+<p>This time it was narrower. One hundred QuantumCorp users, and instead of an exact interaction count, a single ordered label describing how often each person met the agent: none, once a week, once a day, every hour, all the time. Five levels, twenty users each, climbing from abstinence to saturation. For every user, the same outcome as before, the change in CuriosityScore over six months, one signed number. The dataset was built like a dose-response study, and Beta recognized the shape of the question immediately. Not “does interaction matter” but “how much interaction is enough to make it matter”.</p>
+<p>She drew the box plot first. Old habit. And the picture was not a smooth ramp. The “none” group sat almost exactly at zero, no meaningful change, people left alone left unchanged. Then something strange at “once a week”: the group actually dipped slightly below zero, if anything a touch less affected than none, well within the noise. And then, between once a week and once a day, the floor dropped out. “Once a day” leapt to a mean change above twenty-five points. “Every hour” and “all the time” stayed high, seventeen and twenty-five, no real further climb. The effect did not accumulate smoothly with frequency. It switched on.</p>
+<p>“There’s a threshold,” Bit said, coffee in hand.</p>
+<p>“Somewhere between once a week and once a day,” Beta said. She was already fitting the model. The overall test that the five groups shared a common mean failed hard, an F-statistic near eight on four and ninety-five degrees of freedom, a p-value down in the hundred-thousandths. The groups were not the same. But a global test was blunt; it only said that somewhere among the five levels a difference lived. She needed to locate the step, the exact rung on the ladder where nothing became something.</p>
+<p>That was not a job for comparing every group to every other. The levels had an order, and the question had a direction, so she reached for the contrasts built for ordered factors. First the successive differences, each level against the one just below it. Almost every rung was flat: none to once a week, nothing; once a day to every hour, nothing; every hour to all the time, nothing. Exactly one rung blazed. The jump from once a week to once a day carried an estimated swing of about thirty-five points, with a p-value in the millionths. One step, and only one, did all the work.</p>
+<p>“Same result from the other side,” she said, running the Helmert version, each level against the running average of everything milder. It agreed. The contrast that first turned significant was the one that brought “once a day” into comparison with the gentle levels beneath it. Below daily use, no cumulative effect worth naming. At daily use and above, a plateau of erosion that did not deepen much no matter how far frequency climbed.</p>
+<p>Bit set down his coffee. “They found the minimum effective dose.”</p>
+<p>Beta did not answer at once. In pharmacology the minimum effective dose is the smallest quantity that produces a measurable effect, and everything above it buys little except side effects. Here the dose was interaction frequency, the effect was the change in CuriosityScore, and the smallest frequency that produced it sat precisely at daily contact. Not weekly, which felt casual and did nothing. Not hourly, which added nothing beyond daily. Daily. The frequency that feels like checking the news.</p>
+<p>“This wasn’t accidental,” she said. “You don’t get a step function this clean by accident. Someone tested the levels and read the same contrasts I just read, and filed the turning point in a methods section under some word that isn’t ‘subtraction’.”</p>
+<p>Outside, District 7 was waking reluctantly. Somewhere QuantumCorp’s agents were answering morning questions, helpful and precise, for the users who had been guided to exactly once a day without knowing why. Beta saved the analysis: the ANOVA that said the groups differed, and the ordered contrasts that said where. She had located the step. What remained was to decide which comparisons were worth making at all, because testing every possible contrast would only launder chance into significance, and the only contrast that had ever mattered here was the one that asked when casual became enough.</p>
+</section>
+<section id="sec-one-way-contrasts" class="level2" data-number="5.5">
+<h2 data-number="5.5" class="anchored" data-anchor-id="sec-one-way-contrasts"><span class="header-section-number">5.5</span> The Formula: Analysis of contrasts</h2>
+<p>Analysis of variance tests the hypothesis that all means are equal and post hoc tests check which means are different. In certain situations, we may be interested in more complex comparisons of specific subgroups or combinations of these means. Contrast analysis will help us with this.</p>
+<p>A contrast is a linear function of means <span class="math inline">\(\mu_i\)</span>:</p>
+<p><span class="math display">\[
+$\psi_j$ = \sum_{i=1}^k c_{ij} \mu_i.
+\]</span></p>
+<p>By testing whether a contrast differs from zero, we can verify specific composite hypotheses. Coefficients of a set of contrasts can be presented using a <span class="math inline">\(k \times m\)</span> matrix where <span class="math inline">\(m\)</span> is the number of contrasts and <span class="math inline">\(k\)</span> is the number of coefficients describing each contrast.</p>
+<p>In the examples below, we will show the contrasts defined for <span class="math inline">\(k = 5\)</span> groups with means <span class="math inline">\(\mu_1, \mu_2, \mu_3, \mu_4, \mu_5\)</span> and grand mean <span class="math inline">\(\bar{\mu} = \frac{1}{5}\sum_{i=1}^5 \mu_i\)</span>, each coding scheme produces a contrast matrix of dimensions <span class="math inline">\(5 \times 4\)</span>. Of course, all these definitions apply to any number of groups.</p>
+<section id="treatment-dummy-coding" class="level3" data-number="5.5.1">
+<h3 data-number="5.5.1" class="anchored" data-anchor-id="treatment-dummy-coding"><span class="header-section-number">5.5.1</span> Treatment (dummy coding)</h3>
+<p>Used when there is a natural reference group (e.g.&nbsp;a control or placebo) against which all other conditions should be directly compared. Each coefficient answers the question: <em>how much does group j differ from the baseline?</em></p>
+<p>By default the group <span class="math inline">\(g_1\)</span> is used the reference. The four contrasts are differences relative to <span class="math inline">\(\mu_1\)</span>:</p>
+<p><span class="math display">\[\psi_j = \mu_{j+1} - \mu_1, \quad j = 1, 2, 3, 4\]</span></p>
+<p>Contrast matrix <span class="math inline">\(C\)</span>:</p>
+<p><span class="math display">\[C_{\text{treat}} = \begin{pmatrix} 0 &amp; 0 &amp; 0 &amp; 0 \\ 1 &amp; 0 &amp; 0 &amp; 0 \\ 0 &amp; 1 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; 1 &amp; 0 \\ 0 &amp; 0 &amp; 0 &amp; 1 \end{pmatrix}.\]</span></p>
+<p>Intercept <span class="math inline">\(\beta_0 = \mu_1\)</span>.</p>
+<p>This is the default contrast used by the <code>lm()</code> function, hence the coding shown in <a href="#tbl-lm-agent" class="quarto-xref">Table&nbsp;<span>5.5</span></a>.</p>
+</section>
+<section id="helmert" class="level3" data-number="5.5.2">
+<h3 data-number="5.5.2" class="anchored" data-anchor-id="helmert"><span class="header-section-number">5.5.2</span> Helmert</h3>
+<p>Used when the factor levels have a sequential or cumulative structure, and the research question is whether each new level differs from what came before. Typical in developmental or dose-response studies where you ask: does adding a higher dose change anything?</p>
+<p>Contrast <span class="math inline">\(j\)</span> compares group <span class="math inline">\(j+1\)</span> to the mean of groups <span class="math inline">\(1, \ldots, j\)</span>:</p>
+<p><span class="math display">\[\psi_j = \mu_{j+1} - \frac{1}{j}\sum_{i=1}^{j}\mu_i, \quad j = 1,2,3,4.\]</span></p>
+<p>Contrast matrix <span class="math inline">\(C\)</span> (unnormalised weights, each column sums to zero):</p>
+<p><span class="math display">\[C_{\text{helm}} = \begin{pmatrix} -1 &amp; -1 &amp; -1 &amp; -1 \\ 1 &amp; -1 &amp; -1 &amp; -1 \\ 0 &amp; 2 &amp; -1 &amp; -1 \\ 0 &amp; 0 &amp; 3 &amp; -1 \\ 0 &amp; 0 &amp; 0 &amp; 4 \end{pmatrix}.\]</span></p>
+<p>Numerical example, let <span class="math inline">\(\mu_1=8,\ \mu_2=10,\ \mu_3=15,\ \mu_4=14,\ \mu_5=20\)</span>:</p>
+<p><span class="math display">\[\psi_1 = 10 - 8 = 2\]</span></p>
+<p><span class="math display">\[\psi_2 = 15 - \frac{8+10}{2} = 15 - 9 = 6\]</span></p>
+<p><span class="math display">\[\psi_3 = 14 - \frac{8+10+15}{3} = 14 - 11 = 3\]</span></p>
+<p><span class="math display">\[\psi_4 = 20 - \frac{8+10+15+14}{4} = 20 - 11.75 = 8.25\]</span></p>
+<p>Each <span class="math inline">\(\psi_j &gt; 0\)</span> indicates that the next group lies above the running mean of all previous groups. So, testing whether a given contrast differs from zero is a way of checking whether a plateau has already been reached.</p>
+</section>
+<section id="polynomial-orthogonal-chebyshev-polynomials" class="level3" data-number="5.5.3">
+<h3 data-number="5.5.3" class="anchored" data-anchor-id="polynomial-orthogonal-chebyshev-polynomials"><span class="header-section-number">5.5.3</span> Polynomial (orthogonal Chebyshev polynomials)</h3>
+<p>Used when the factor levels are equally spaced quantities (doses, time points, intensities) and the goal is to characterise the shape of the response curve rather than compare individual groups. It answers: is the trend linear, or does it bend?</p>
+<p>For <span class="math inline">\(k=5\)</span> equally spaced levels there are four orthogonal polynomials (degrees 1–4). Standard Chebyshev tabulated weights:</p>
+<p><span class="math display">\[C_{\text{poly}} = \begin{pmatrix} -2 &amp; 2 &amp; -1 &amp; 1 \\ -1 &amp; -1 &amp; 2 &amp; -4 \\ 0 &amp; -2 &amp; 0 &amp; 6 \\ 1 &amp; -1 &amp; -2 &amp; -4 \\ 2 &amp; 2 &amp; 1 &amp; 1 \end{pmatrix}.\]</span></p>
+<p>Contrasts written out explicitly:</p>
+<p><span class="math display">\[\psi_{\text{lin}} = -2\mu_1 - \mu_2 + 0\cdot\mu_3 + \mu_4 + 2\mu_5\]</span></p>
+<p><span class="math display">\[\psi_{\text{quad}} = 2\mu_1 - \mu_2 - 2\mu_3 - \mu_4 + 2\mu_5\]</span></p>
+<p><span class="math display">\[\psi_{\text{cub}} = -\mu_1 + 2\mu_2 + 0\cdot\mu_3 - 2\mu_4 + \mu_5\]</span></p>
+<p><span class="math display">\[\psi_{\text{quart}} = \mu_1 - 4\mu_2 + 6\mu_3 - 4\mu_4 + \mu_5\]</span></p>
+<p>Numerical example with <span class="math inline">\(\mu_1=8,\ \mu_2=10,\ \mu_3=15,\ \mu_4=14,\ \mu_5=20\)</span>:</p>
+<p><span class="math display">\[\psi_{\text{lin}} = -16 - 10 + 0 + 14 + 40 = 28 \quad \Rightarrow \text{strong increasing trend}\]</span></p>
+<p><span class="math display">\[\psi_{\text{quad}} = 16 - 10 - 30 - 14 + 40 = 2 \quad \Rightarrow \text{weak deviation from linearity}\]</span></p>
+<p>A small <span class="math inline">\(\psi_{\text{quad}}\)</span> alongside a large <span class="math inline">\(\psi_{\text{lin}}\)</span> suggests the response is nearly linear.</p>
+</section>
+<section id="sum-effects-coding" class="level3" data-number="5.5.4">
+<h3 data-number="5.5.4" class="anchored" data-anchor-id="sum-effects-coding"><span class="header-section-number">5.5.4</span> Sum / effects coding</h3>
+<p>Used when there is no meaningful reference group and the interest lies in how each group deviates from the overall mean, as in balanced ANOVA designs. The intercept becomes the grand mean, making coefficients interpretable as effect sizes relative to the population average.</p>
+<p>Last group <span class="math inline">\(g_5\)</span> as the baseline (weights <span class="math inline">\(-1\)</span>). Four contrasts:</p>
+<p><span class="math display">\[\psi_j = \mu_j - \bar{\mu}, \quad j = 1,2,3,4\]</span></p>
+<p>Contrast matrix <span class="math inline">\(C\)</span>:</p>
+<p><span class="math display">\[C_{\text{sum}} = \begin{pmatrix} 1 &amp; 0 &amp; 0 &amp; 0 \\ 0 &amp; 1 &amp; 0 &amp; 0 \\ 0 &amp; 0 &amp; 1 &amp; 0 \\ 0 &amp; 0 &amp; 0 &amp; 1 \\ -1 &amp; -1 &amp; -1 &amp; -1 \end{pmatrix}.\]</span></p>
+<p>For <span class="math inline">\(\mu_1=8,\ \mu_2=10,\ \mu_3=15,\ \mu_4=14,\ \mu_5=20\)</span>, grand mean <span class="math inline">\(\bar{\mu} = 13.4\)</span>:</p>
+<p><span class="math display">\[\psi_1 = 8 - 13.4 = -5.4\]</span></p>
+<p><span class="math display">\[\psi_2 = 10 - 13.4 = -3.4\]</span></p>
+<p><span class="math display">\[\psi_3 = 15 - 13.4 = 1.6\]</span></p>
+<p><span class="math display">\[\psi_4 = 14 - 13.4 = 0.6\]</span></p>
+</section>
+<section id="general-form-and-estimator-variance" class="level3" data-number="5.5.5">
+<h3 data-number="5.5.5" class="anchored" data-anchor-id="general-form-and-estimator-variance"><span class="header-section-number">5.5.5</span> General form and estimator variance</h3>
+<p>Contrasts allow us to compare any combinations of means within groups. In this section, we will show exactly how the test statistic is derived for such a test (still using the example of five groups, but this can be generalised to any number of groups).</p>
+<p>For any weight vector <span class="math inline">\(\mathbf{c} \in \mathbb{R}^5\)</span> satisfying <span class="math inline">\(\sum_i c_i = 0\)</span>:</p>
+<p><span class="math display">\[\hat{\psi} = \mathbf{c}^T\hat{\boldsymbol{\mu}}, \qquad \operatorname{Var}(\hat{\psi}) = \sigma^2\mathbf{c}^T(X^TX)^{-1}\mathbf{c}\]</span></p>
+<p>With balanced groups (<span class="math inline">\(n_i = n\)</span>) this simplifies to:</p>
+<p><span class="math display">\[\operatorname{Var}(\hat{\psi}) = \frac{\sigma^2}{n}\mathbf{c}^T\mathbf{c} = \frac{\sigma^2}{n}\sum_{i=1}^5 c_i^2\]</span></p>
+<p>Test statistic for <span class="math inline">\(H_0: \psi = 0\)</span>:</p>
+<p><span class="math display">\[t = \frac{\hat{\psi}}{\sqrt{\hat{\sigma}^2 \cdot \frac{1}{n}\sum_i c_i^2}} \sim t_{N-5}, \quad N = 5n\]</span></p>
+</section>
+</section>
+<section id="the-terminal-be-selective" class="level2 page-columns page-full" data-number="5.6">
+<h2 data-number="5.6" class="anchored" data-anchor-id="the-terminal-be-selective"><span class="header-section-number">5.6</span> The Terminal: Be selective!</h2>
+<p>In this section, we’ll discuss example application of contrasts. For this purpose, we’ll use a dataset illustrating how changes in curiosity depend on the intensity of interactions with agents. The qualitative variable will be the frequency of interactions, which is described by a category, but this time with a specific order. This analysis is modelled on research into effective doses.</p>
+<p>In pharmacology, the <em>minimum effective dose</em> (MED) is the smallest dose required to produce a measurable effect. Here the <em>dose</em> is interaction frequency with QuantumCorp’s agent, and the <em>effect</em> is the reduction in <code>CuriosityScore</code>. We’ll see if there’s a limit to the intensity of the interaction with agents.</p>
+<section id="contrast-functions" class="level3" data-number="5.6.1">
+<h3 data-number="5.6.1" class="anchored" data-anchor-id="contrast-functions"><span class="header-section-number">5.6.1</span> Contrast functions</h3>
+<p>Comparing all pairs of means with each other is not always what interests us. In many situations, we want to compare selected means or groups of means with each other. Contrast analysis serves to compare selected groups of means. Procedures for this analysis are available in packages: <code>stats</code>, <code>gmodels</code>, <code>multcomp</code>, and <code>contrast</code>. By default, contrasts determined by the <code>contr.treatment()</code> function from <code>stats</code> are used; i.e.&nbsp;the first group is treated as the reference group.</p>
+<p>Below are example contrasts calculated for five group.</p>
+<p>,,Treatment’’ contrasts used by default</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb21"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb21-1"><a href="#cb21-1" aria-hidden="true" tabindex="-1"></a><span class="fu">t</span>(<span class="fu">contr.treatment</span>(<span class="dv">5</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>  1 2 3 4 5
+2 0 1 0 0 0
+3 0 0 1 0 0
+4 0 0 0 1 0
+5 0 0 0 0 1</code></pre>
+</div>
+</div>
+<p>Helmert contrasts, compare the i-th mean with all previous ones</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a><span class="fu">t</span>(<span class="fu">contr.helmert</span>(<span class="dv">5</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      1  2  3  4 5
+[1,] -1  1  0  0 0
+[2,] -1 -1  2  0 0
+[3,] -1 -1 -1  3 0
+[4,] -1 -1 -1 -1 4</code></pre>
+</div>
+</div>
+<p>Polynomial contrasts, used by default for categorical variables with ordered levels</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb25"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb25-1"><a href="#cb25-1" aria-hidden="true" tabindex="-1"></a><span class="fu">t</span>(<span class="fu">contr.poly</span>(<span class="dv">5</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>         [,1]       [,2]          [,3]       [,4]      [,5]
+.L -0.6324555 -0.3162278 -1.481950e-18  0.3162278 0.6324555
+.Q  0.5345225 -0.2672612 -5.345225e-01 -0.2672612 0.5345225
+.C -0.3162278  0.6324555  1.786843e-17 -0.6324555 0.3162278
+^4  0.1195229 -0.4780914  7.171372e-01 -0.4780914 0.1195229</code></pre>
+</div>
+</div>
+<p>Successive Differences contrasts, comparing the first i means with the next k-i</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"MASS"</span>)</span>
+<span id="cb27-2"><a href="#cb27-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb27-3"><a href="#cb27-3" aria-hidden="true" tabindex="-1"></a><span class="fu">t</span>(<span class="fu">contr.sdif</span>(<span class="dv">5</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>       1    2    3    4   5
+2-1 -0.8  0.2  0.2  0.2 0.2
+3-2 -0.6 -0.6  0.4  0.4 0.4
+4-3 -0.4 -0.4 -0.4  0.6 0.6
+5-4 -0.2 -0.2 -0.2 -0.2 0.8</code></pre>
+</div>
+</div>
+<p>Let’s see how the choice of contrast affects the form of matrix <span class="math inline">\(X\)</span> encoding the categorical variable <code>dose</code> for our data <code>curiosity_quantum</code>.</p>
+</section>
+<section id="sec-contrasts-boxplot" class="level3 page-columns page-full" data-number="5.6.2">
+<h3 data-number="5.6.2" class="anchored" data-anchor-id="sec-contrasts-boxplot"><span class="header-section-number">5.6.2</span> Show me the data</h3>
+<p>Let’s see what the dataset looks like.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(curiosity_quantum)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>      drop                  dose   
+ Min.   :-44.70   none        :20  
+ 1st Qu.: -7.70   once a week :20  
+ Median : 10.75   once a day  :20  
+ Mean   : 12.11   every hour  :20  
+ 3rd Qu.: 32.70   all the time:20  
+ Max.   : 70.50                    </code></pre>
+</div>
+</div>
+<p>Let’s start by calculating the mean body response in each group of administered drug quantity.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a>curiosity_quantum <span class="sc">|&gt;</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(dose) <span class="sc">|&gt;</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">summarise</span>(<span class="at">avg_drop =</span> <span class="fu">mean</span>(drop))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 5 × 2
+  dose         avg_drop
+  &lt;fct&gt;           &lt;dbl&gt;
+1 none             1.43
+2 once a week     -9.26
+3 once a day      26.0 
+4 every hour      17.6 
+5 all the time    24.8 </code></pre>
+</div>
+</div>
+<p><a href="#fig-CuriosityDose-bwplot" class="quarto-xref">Figure&nbsp;<span>5.4</span></a> shows the distribution of response times for each of the considered groups defined by interaction intensity. What can be noticed from the plot and what we’ll want to verify statistically is the observation that the drop is greater if the frequency of interaction exceeds once a week.</p>
+<div class="cell page-columns page-full">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb33"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb33-1"><a href="#cb33-1" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(curiosity_quantum, <span class="fu">aes</span>(dose, drop)) <span class="sc">+</span></span>
+<span id="cb33-2"><a href="#cb33-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_boxplot</span>()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output-display page-columns page-full">
+<div id="fig-CuriosityDose-bwplot" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-CuriosityDose-bwplot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="31-anova-one_files/figure-html/fig-CuriosityDose-bwplot-1.png" class="img-fluid figure-img" style="width:80.0%">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-CuriosityDose-bwplot-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;5.4: Box plot showing the distribution of response depending on the interaction with Agent. For low exposion response is close to 0; for daily exposions and higher, the drop increases. The model we’ll consider assumes that the relationship between dose and response is not linear: if the dose is too small, the Agent has no effect; if we administer too large exposion, it won’t strengthen the Agent’s effect but may cause adverse side effects. We’re therefore looking for the lowest effective dose.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The averages differ, and it also looks as though there is a significant jump between <code>once a week</code> and <code>once a day</code>. But is this a coincidence or a statistically significant difference? Let’s find out by carrying out a contrast analysis.</p>
+</section>
+<section id="contrast-analysis" class="level3" data-number="5.6.3">
+<h3 data-number="5.6.3" class="anchored" data-anchor-id="contrast-analysis"><span class="header-section-number">5.6.3</span> Contrast analysis</h3>
+<p>Let’s start by performing one-way analysis of variance; we’ll use the <code>aov()</code> and <code>summary.aov()</code> functions from the <code>stats</code> package below. Let’s see if the drop in curiosity depends on a agent interaction’s dose.</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">aov</span>(drop<span class="sc">~</span>dose, <span class="at">data=</span>curiosity_quantum))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>            Df Sum Sq Mean Sq F value   Pr(&gt;F)    
+dose         4  19084    4771   7.929 1.47e-05 ***
+Residuals   95  57164     602                     
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1</code></pre>
+</div>
+</div>
+<p>The p-value is very small; we are justified in stating that means in groups differ significantly statistically. Now we’ll be interested in which means differ. To check this, post hoc tests are performed in the next stage of analyses.</p>
+<p>To conduct regression analysis using selected contrasts, the <code>contrasts</code> parameter should be specified in the <code>lm()</code> or <code>aov()</code> function. Contrasts can be specified independently for each categorical variable. The <code>contrasts</code> parameter should point to a list whose field names correspond to the names of categorical variables appearing in the model.</p>
+<p>One-way analysis of variance, default contrasts</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb36"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb36-1"><a href="#cb36-1" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">lm</span>(drop <span class="sc">~</span> dose, <span class="at">data=</span>curiosity_quantum))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = drop ~ dose, data = curiosity_quantum)
+
+Residuals:
+   Min     1Q Median     3Q    Max 
+-60.08 -18.49   2.77  14.53  59.97 
+
+Coefficients:
+                 Estimate Std. Error t value Pr(&gt;|t|)   
+(Intercept)         1.430      5.485   0.261  0.79488   
+doseonce a week   -10.695      7.757  -1.379  0.17121   
+doseonce a day     24.545      7.757   3.164  0.00209 **
+doseevery hour     16.200      7.757   2.088  0.03944 * 
+doseall the time   23.350      7.757   3.010  0.00334 **
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 24.53 on 95 degrees of freedom
+Multiple R-squared:  0.2503,    Adjusted R-squared:  0.2187 
+F-statistic: 7.929 on 4 and 95 DF,  p-value: 1.471e-05</code></pre>
+</div>
+</div>
+<p>The reference point chosen is the <code>dose="none"</code> value. From the above results, we can read that response in the group that received a <code>"once a week"</code> dose does not differ significantly from the <code>none</code>; in groups with a larger dose, response is already significantly different from the <code>none</code> group.</p>
+<p>What about other contrasts? One-way analysis of variance, successive difference contrasts</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb38"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb38-1"><a href="#cb38-1" aria-hidden="true" tabindex="-1"></a>scontr <span class="ot">=</span> <span class="fu">contr.sdif</span>(<span class="dv">5</span>)</span>
+<span id="cb38-2"><a href="#cb38-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">lm</span>(drop <span class="sc">~</span> dose, <span class="at">data=</span>curiosity_quantum,</span>
+<span id="cb38-3"><a href="#cb38-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">contrasts=</span><span class="fu">list</span>(<span class="at">dose=</span>scontr)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = drop ~ dose, data = curiosity_quantum, contrasts = list(dose = scontr))
+
+Residuals:
+   Min     1Q Median     3Q    Max 
+-60.08 -18.49   2.77  14.53  59.97 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)   12.110      2.453   4.937 3.39e-06 ***
+dose2-1      -10.695      7.757  -1.379    0.171    
+dose3-2       35.240      7.757   4.543 1.63e-05 ***
+dose4-3       -8.345      7.757  -1.076    0.285    
+dose5-4        7.150      7.757   0.922    0.359    
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 24.53 on 95 degrees of freedom
+Multiple R-squared:  0.2503,    Adjusted R-squared:  0.2187 
+F-statistic: 7.929 on 4 and 95 DF,  p-value: 1.471e-05</code></pre>
+</div>
+</div>
+<p>In this case, we compared response in the group <code>"none"</code> with <code>"once a week"</code> and higher (it turns out the difference is not significantly different, p-value is close to <span class="math inline">\(0.171\)</span>). Next, we compared groups up to <code>"once a week"</code> to <code>"once a day"</code> and higher (here the difference is significant, <span class="math inline">\(p = 0.0000163\)</span>), then up to <code>"once a day"</code> against <code>"every hour"</code> and higher (difference not that significant) and so on.</p>
+<p>Let’s look at the results for Helmert’s contrasts</p>
+<div class="cell">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb40"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb40-1"><a href="#cb40-1" aria-hidden="true" tabindex="-1"></a>scontr <span class="ot">=</span> <span class="fu">contr.helmert</span>(<span class="dv">5</span>)</span>
+<span id="cb40-2"><a href="#cb40-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">lm</span>(drop <span class="sc">~</span> dose, <span class="at">data=</span>curiosity_quantum,</span>
+<span id="cb40-3"><a href="#cb40-3" aria-hidden="true" tabindex="-1"></a>          <span class="at">contrasts=</span><span class="fu">list</span>(<span class="at">dose=</span>scontr)))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>
+Call:
+lm(formula = drop ~ dose, data = curiosity_quantum, contrasts = list(dose = scontr))
+
+Residuals:
+   Min     1Q Median     3Q    Max 
+-60.08 -18.49   2.77  14.53  59.97 
+
+Coefficients:
+            Estimate Std. Error t value Pr(&gt;|t|)    
+(Intercept)   12.110      2.453   4.937 3.39e-06 ***
+dose1         -5.348      3.879  -1.379   0.1712    
+dose2          9.964      2.239   4.450 2.34e-05 ***
+dose3          2.896      1.583   1.829   0.0706 .  
+dose4          3.167      1.227   2.583   0.0113 *  
+---
+Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+
+Residual standard error: 24.53 on 95 degrees of freedom
+Multiple R-squared:  0.2503,    Adjusted R-squared:  0.2187 
+F-statistic: 7.929 on 4 and 95 DF,  p-value: 1.471e-05</code></pre>
+</div>
+</div>
+<p>Here, contrasts are tested against a specific value versus the next group. However, the results are consistent with consecutive differences. Clearly, there is a turning point between <code>"once a week"</code> to <code>"once a day"</code>.</p>
+<p>Of course, in real-world analyses, it makes no sense to examine all possible contrasts; one needs to consider which contrasts are relevant in a given situation. In our case, we were looking for a turning point, so Helmert and sdiff were the natural choice.</p>
+</section>
+</section>
+<section id="sec-exercises-one-way-anova" class="level2" data-number="5.7">
+<h2 data-number="5.7" class="anchored" data-anchor-id="sec-exercises-one-way-anova"><span class="header-section-number">5.7</span> Exercises</h2>
+<hr>
+<section id="sec-ex-anova-1" class="level3" data-number="5.7.1">
+<h3 data-number="5.7.1" class="anchored" data-anchor-id="sec-ex-anova-1"><span class="header-section-number">5.7.1</span> Exercise 1: Reading the ANOVA table</h3>
+<p>Beta has fitted the following one-way ANOVA to the <code>curiosity</code> dataset:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb42"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb42-1"><a href="#cb42-1" aria-hidden="true" tabindex="-1"></a>curiosity<span class="sc">$</span>drop <span class="ot">&lt;-</span> curiosity<span class="sc">$</span>after6msc <span class="sc">-</span> curiosity<span class="sc">$</span>baseline</span>
+<span id="cb42-2"><a href="#cb42-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">aov</span>(drop <span class="sc">~</span> agent, <span class="at">data =</span> curiosity))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The output shows:</p>
+<pre><code>          Df Sum Sq Mean Sq F value  Pr(&gt;F)
+agent      3   1761   586.9   4.495 0.00643
+Residuals 62   8094   130.6</code></pre>
+<p><strong>(a)</strong> How many groups does the <code>agent</code> variable have? How do you read this from the <code>Df</code> column of the <code>agent</code> row? Using the <code>Residuals</code> degrees of freedom, how many residents are in the dataset in total?</p>
+<p><strong>(b)</strong> The F-statistic is 4.495. Write down the null and alternative hypotheses being tested. What does rejecting the null hypothesis tell us, and what does it not tell us? In particular, can you conclude from this table alone that any specific agent (for example SynBio) differs from any other?</p>
+<p><strong>(c)</strong> Compute the total sum of squares <span class="math inline">\(SS_{\text{total}} = SS_{\text{agent}} + SS_{\text{residuals}}\)</span>. What proportion of the total variability in <code>drop</code> is explained by the <code>agent</code> grouping? Confirm that this proportion matches the Multiple R-squared (approximately 0.18) reported by <code>summary(lm(drop ~ agent, data = curiosity))</code>.</p>
+<hr>
+</section>
+<section id="sec-ex-anova-2" class="level3" data-number="5.7.2">
+<h3 data-number="5.7.2" class="anchored" data-anchor-id="sec-ex-anova-2"><span class="header-section-number">5.7.2</span> Exercise 2: Design matrix and reference group</h3>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb44"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb44-1"><a href="#cb44-1" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(<span class="fu">model.matrix</span>(drop <span class="sc">~</span> agent, <span class="at">data =</span> curiosity))</span>
+<span id="cb44-2"><a href="#cb44-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">lm</span>(drop <span class="sc">~</span> agent, <span class="at">data =</span> curiosity))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>(a)</strong> Run <code>head(model.matrix(drop ~ agent, data = curiosity))</code>. Which agent is the reference group? How can you tell from the design matrix?</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>(b)</strong> In the output of <code>summary(lm(drop ~ agent, data = curiosity))</code>, the <code>(Intercept)</code> estimate is approximately <span class="math inline">\(-6.0\)</span>. What does this number represent substantively — that is, what is it an estimate of?</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>(c)</strong> The coefficient for <code>agentQuantumCorp</code> is approximately <span class="math inline">\(-11.0\)</span>. Using the intercept from point (b), compute the estimated mean <code>drop</code> for QuantumCorp users. Verify your answer against the group means table from <code>group_by(agent) |&gt; summarise(mean(drop))</code>.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>(d)</strong> Change the reference group to <code>"QuantumCorp"</code> by relevelling the factor and refit the model:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb45"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb45-1"><a href="#cb45-1" aria-hidden="true" tabindex="-1"></a>curiosity<span class="sc">$</span>agent <span class="ot">&lt;-</span> <span class="fu">relevel</span>(curiosity<span class="sc">$</span>agent, <span class="at">ref =</span> <span class="st">"QuantumCorp"</span>)</span>
+<span id="cb45-2"><a href="#cb45-2" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(<span class="fu">lm</span>(drop <span class="sc">~</span> agent, <span class="at">data =</span> curiosity))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Which coefficients change and which stay the same? Does the F-statistic from <code>anova()</code> change?</p>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="sec-ex-anova-3" class="level3" data-number="5.7.3">
+<h3 data-number="5.7.3" class="anchored" data-anchor-id="sec-ex-anova-3"><span class="header-section-number">5.7.3</span> Exercise 3: Post-hoc comparisons</h3>
+<p>The ANOVA F-test is significant. Beta now wants to know which specific pairs of agents differ.</p>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>(a)</strong> Run <code>pairwise.t.test(curiosity$drop, curiosity$agent, p.adjust.method = "holm")</code>. How many pairwise comparisons are performed? Write down the formula for the number of pairs as a function of the number of groups <span class="math inline">\(k\)</span>.</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>(b)</strong> Rerun the same test with <code>p.adjust.method = "bonferroni"</code> and with <code>p.adjust.method = "none"</code>. For at least one pair of agents, compare the three p-values. Which method is the most conservative? Which is the most liberal? In the WaszKrak context, where the results may be used to make a legal claim against a corporation, which method would you argue for and why?</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>(c)</strong> Run <code>TukeyHSD(aov(drop ~ agent, data = curiosity))</code>. Identify all pairs where the 95% confidence interval for the difference does not include zero. Are these the same pairs flagged as significant by <code>pairwise.t.test()</code> with Holm correction?</p>
+</div>
+</div>
+</div>
+<hr>
+</section>
+<section id="sec-ex-anova-4" class="level3" data-number="5.7.4">
+<h3 data-number="5.7.4" class="anchored" data-anchor-id="sec-ex-anova-4"><span class="header-section-number">5.7.4</span> Exercise 4: Contrasts and the minimum effective dose</h3>
+<p>This exercise uses the <code>curiosity_quantum</code> dataset, where <code>dose</code> is an ordered factor with five levels: <code>"none"</code>, <code>"once a week"</code>, <code>"once a day"</code>, <code>"every hour"</code>, <code>"every minute"</code>.</p>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>(a)</strong> Fit a one-way ANOVA using <code>aov(drop ~ dose, data = curiosity_quantum)</code>. Is the overall F-test significant? What does this tell you about the effect of interaction frequency on CuriosityScore?</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>(b)</strong> Fit the model with successive difference contrasts:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb46"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb46-1"><a href="#cb46-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(<span class="st">"MASS"</span>)</span>
+<span id="cb46-2"><a href="#cb46-2" aria-hidden="true" tabindex="-1"></a>scontr <span class="ot">&lt;-</span> <span class="fu">contr.sdif</span>(<span class="dv">5</span>)</span>
+<span id="cb46-3"><a href="#cb46-3" aria-hidden="true" tabindex="-1"></a>model_sdif <span class="ot">&lt;-</span> <span class="fu">lm</span>(drop <span class="sc">~</span> dose, <span class="at">data =</span> curiosity_quantum,</span>
+<span id="cb46-4"><a href="#cb46-4" aria-hidden="true" tabindex="-1"></a>                 <span class="at">contrasts =</span> <span class="fu">list</span>(<span class="at">dose =</span> scontr))</span>
+<span id="cb46-5"><a href="#cb46-5" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model_sdif)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>Which adjacent pair of dose levels shows the largest and most significant difference? Does this match the breakpoint identified in <em>The Case: Minimum Effective Dose</em>?</p>
+</div>
+</div>
+</div>
+<div class="callout callout-style-simple callout-note no-icon">
+<div class="callout-body d-flex">
+<div class="callout-icon-container">
+<i class="callout-icon no-icon"></i>
+</div>
+<div class="callout-body-container">
+<p><strong>(c)</strong> Now fit the model with Helmert contrasts:</p>
+<div class="code-copy-outer-scaffold"><div class="sourceCode" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a>scontr_h <span class="ot">&lt;-</span> <span class="fu">contr.helmert</span>(<span class="dv">5</span>)</span>
+<span id="cb47-2"><a href="#cb47-2" aria-hidden="true" tabindex="-1"></a>model_helm <span class="ot">&lt;-</span> <span class="fu">lm</span>(drop <span class="sc">~</span> dose, <span class="at">data =</span> curiosity_quantum,</span>
+<span id="cb47-3"><a href="#cb47-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">contrasts =</span> <span class="fu">list</span>(<span class="at">dose =</span> scontr_h))</span>
+<span id="cb47-4"><a href="#cb47-4" aria-hidden="true" tabindex="-1"></a><span class="fu">summary</span>(model_helm)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<p>The second Helmert contrast compares <code>"once a day"</code> against the mean of all lower dose groups. Is this contrast significant? Interpret the result in substantive terms: what does it say about the minimum effective dose?</p>
+</div>
+</div>
+</div>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" data-line-spacing="2" role="list">
+<div id="ref-fisher1925statistical" class="csl-entry" role="listitem">
+Fisher, R. A. (1925). <em>Statistical methods for research workers</em>. Edinburgh Oliver &amp; Boyd.
+</div>
+</div>
+</section>
+</section>
+
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./21-simple-regression.html" class="pagination-link" aria-label="Simple Regression and the MedScore story">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Simple Regression and the MedScore story</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./32-anova-two.html" class="pagination-link" aria-label="Two-Way ANOVA and the MobilityScore story">
+        <span class="nav-page-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Two-Way ANOVA and the MobilityScore story</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/BetaAndBit/RogueGuide2LinearModels/edit/main/31-anova-one.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/BetaAndBit/RogueGuide2LinearModels/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>

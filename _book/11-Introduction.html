@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.8.27">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>3&nbsp; Theorems and Formulas – The Rogue's Guide to Linear Models</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for citations */
+div.csl-bib-body { }
+div.csl-entry {
+  clear: both;
+  margin-bottom: 0em;
+}
+.hanging-indent div.csl-entry {
+  margin-left:2em;
+  text-indent:-2em;
+}
+div.csl-left-margin {
+  min-width:2em;
+  float:left;
+}
+div.csl-right-inline {
+  margin-left:2em;
+  padding-left:1em;
+}
+div.csl-indent {
+  margin-left: 2em;
+}</style>
+
+
+<script src="site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="site_libs/quarto-nav/headroom.min.js"></script>
+<script src="site_libs/clipboard/clipboard.min.js"></script>
+<script src="site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="site_libs/quarto-search/fuse.min.js"></script>
+<script src="site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="./">
+<link href="./21-simple-regression.html" rel="next">
+<link href="./00-Preface.html" rel="prev">
+<script src="site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="site_libs/quarto-html/axe/axe-check.js" type="module"></script>
+<script src="site_libs/quarto-html/popper.min.js"></script>
+<script src="site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="site_libs/quarto-html/anchor.min.js"></script>
+<link href="site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="site_libs/quarto-html/quarto-syntax-highlighting-ed96de9b727972fe78a7b5d16c58bf87.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="site_libs/bootstrap/bootstrap-161aae76f10eaea8fbb7aea33acdefc9.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+<link rel="stylesheet" href="style.css">
+</head>
+
+<body class="nav-sidebar floating slimcontent quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="./11-Introduction.html"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Theorems and Formulas</span></a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="./">The Rogue’s Guide to Linear Models</a> 
+        <div class="sidebar-tools-main">
+    <a href="https://github.com/BetaAndBit/RogueGuide2LinearModels" title="Source Code" class="quarto-navigation-tool px-1" aria-label="Source Code"><i class="bi bi-github"></i></a>
+</div>
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">The Rogue’s Guide to Linear Models</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./00-Preface.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Introduction</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./11-Introduction.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Theorems and Formulas</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./21-simple-regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Simple Regression and the MedScore story</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./31-anova-one.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">One-Way ANOVA and the CuriosityScore story</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./32-anova-two.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Two-Way ANOVA and the MobilityScore story</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./33-anova-hierarchy.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Nested ANOVA and the NutritionScore story</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./41-ancova.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">ANCOVA and the EmploymentScore story</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="./51-multivariable-regression.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Multiple Regression and the SocialScore story</span></span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#a-bit-of-history" id="toc-a-bit-of-history" class="nav-link active" data-scroll-target="#a-bit-of-history"><span class="header-section-number">3.1</span> A Bit of History</a></li>
+  <li><a href="#sec-introduction-model" id="toc-sec-introduction-model" class="nav-link" data-scroll-target="#sec-introduction-model"><span class="header-section-number">3.2</span> Models and Coefficients</a></li>
+  <li><a href="#sec-introduction-mle" id="toc-sec-introduction-mle" class="nav-link" data-scroll-target="#sec-introduction-mle"><span class="header-section-number">3.3</span> Estimators for Model Coefficients</a>
+  <ul class="collapse">
+  <li><a href="#sec-OLS-method-theory" id="toc-sec-OLS-method-theory" class="nav-link" data-scroll-target="#sec-OLS-method-theory"><span class="header-section-number">3.3.1</span> Ordinary Least Squares (OLS) Method</a></li>
+  <li><a href="#sec-OLS-method-properties" id="toc-sec-OLS-method-properties" class="nav-link" data-scroll-target="#sec-OLS-method-properties"><span class="header-section-number">3.3.2</span> Properties of the OLS Estimator</a></li>
+  <li><a href="#sec-ML-method-theory" id="toc-sec-ML-method-theory" class="nav-link" data-scroll-target="#sec-ML-method-theory"><span class="header-section-number">3.3.3</span> Maximum Likelihood Method</a></li>
+  <li><a href="#sec-introduction-regularisation" id="toc-sec-introduction-regularisation" class="nav-link" data-scroll-target="#sec-introduction-regularisation"><span class="header-section-number">3.3.4</span> Regularized Estimation of Coefficients in Linear Models</a></li>
+  <li><a href="#sec-ridge-method" id="toc-sec-ridge-method" class="nav-link" data-scroll-target="#sec-ridge-method"><span class="header-section-number">3.3.5</span> Ridge Regression</a></li>
+  <li><a href="#sec-LASSO-method" id="toc-sec-LASSO-method" class="nav-link" data-scroll-target="#sec-LASSO-method"><span class="header-section-number">3.3.6</span> LASSO Regression (Least Absolute Shrinkage and Selection Operator)</a></li>
+  <li><a href="#sec-ElasticNet-method" id="toc-sec-ElasticNet-method" class="nav-link" data-scroll-target="#sec-ElasticNet-method"><span class="header-section-number">3.3.7</span> Elastic Net</a></li>
+  </ul></li>
+  <li><a href="#sec-introduction-dist" id="toc-sec-introduction-dist" class="nav-link" data-scroll-target="#sec-introduction-dist"><span class="header-section-number">3.4</span> Distributions of Estimators</a>
+  <ul class="collapse">
+  <li><a href="#sec-asymtoticDistEstOLS" id="toc-sec-asymtoticDistEstOLS" class="nav-link" data-scroll-target="#sec-asymtoticDistEstOLS"><span class="header-section-number">3.4.1</span> Distributions of OLS Estimators</a></li>
+  <li><a href="#sec-asymtoticDistEstML" id="toc-sec-asymtoticDistEstML" class="nav-link" data-scroll-target="#sec-asymtoticDistEstML"><span class="header-section-number">3.4.2</span> Asymptotic Distribution of Maximum Likelihood Estimators</a></li>
+  </ul></li>
+  <li><a href="#sec-introduction-tests" id="toc-sec-introduction-tests" class="nav-link" data-scroll-target="#sec-introduction-tests"><span class="header-section-number">3.5</span> Confidence Intervals and Tests</a>
+  <ul class="collapse">
+  <li><a href="#confidence-interval-for-beta_i" id="toc-confidence-interval-for-beta_i" class="nav-link" data-scroll-target="#confidence-interval-for-beta_i"><span class="header-section-number">3.5.1</span> Confidence Interval for <span class="math inline">\(\beta_i\)</span></a></li>
+  <li><a href="#sec-introduction-test-beta" id="toc-sec-introduction-test-beta" class="nav-link" data-scroll-target="#sec-introduction-test-beta"><span class="header-section-number">3.5.2</span> Test for a Marginal Hypothesis About <span class="math inline">\(\beta_i\)</span></a></li>
+  <li><a href="#confidence-intervals-for-a-set-of-coefficients-of-vector-beta" id="toc-confidence-intervals-for-a-set-of-coefficients-of-vector-beta" class="nav-link" data-scroll-target="#confidence-intervals-for-a-set-of-coefficients-of-vector-beta"><span class="header-section-number">3.5.3</span> Confidence Intervals for a Set of Coefficients of Vector <span class="math inline">\(\beta\)</span></a></li>
+  <li><a href="#sec-introduction-test-betas" id="toc-sec-introduction-test-betas" class="nav-link" data-scroll-target="#sec-introduction-test-betas"><span class="header-section-number">3.5.4</span> Test for a Hypothesis About a Subset of Coefficients <span class="math inline">\(\beta\)</span></a></li>
+  <li><a href="#confidence-interval-for-sigma2" id="toc-confidence-interval-for-sigma2" class="nav-link" data-scroll-target="#confidence-interval-for-sigma2"><span class="header-section-number">3.5.5</span> Confidence Interval for <span class="math inline">\(\sigma^2\)</span></a></li>
+  <li><a href="#sec-introduction-test-y" id="toc-sec-introduction-test-y" class="nav-link" data-scroll-target="#sec-introduction-test-y"><span class="header-section-number">3.5.6</span> Confidence Interval for <span class="math inline">\(y_i\)</span></a></li>
+  <li><a href="#orthogonality-of-the-model-matrix" id="toc-orthogonality-of-the-model-matrix" class="nav-link" data-scroll-target="#orthogonality-of-the-model-matrix"><span class="header-section-number">3.5.7</span> Orthogonality of the Model Matrix</a></li>
+  <li><a href="#armed-lets-see-how-it-works-in-practice" id="toc-armed-lets-see-how-it-works-in-practice" class="nav-link" data-scroll-target="#armed-lets-see-how-it-works-in-practice"><span class="header-section-number">3.5.8</span> Armed? Let’s see how it works in practice</a></li>
+  </ul></li>
+  </ul>
+<div class="toc-actions"><ul><li><a href="https://github.com/BetaAndBit/RogueGuide2LinearModels/edit/main/11-Introduction.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/BetaAndBit/RogueGuide2LinearModels/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></nav>
+    </div>
+<!-- main -->
+<main class="content page-columns page-full" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title"><span id="sec-introduction" class="quarto-section-identifier"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Theorems and Formulas</span></span></h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p>This chapter is written in an encyclopaedic style; here we compile mathematical facts concerning the formulation of models, the analysis of estimator distributions, and the construction of tests for linear models. Based on mathematical foundations introduced in this chapter, we will go forward to construct specific tests in the detailed scenarios and model formulations described. The encyclopedic format has many advantages (such as precision) but also has drawbacks; without context, it is difficult to understand the role played by each fact presented. Therefore, on a first reading, this chapter can be skipped. After reading the subsequent chapters, once you have gained an intuition, is it worth to return to this chapter to familiarise yourself with the precise mathematical properties of the tests and estimators used in linear models.</p>
+<section id="a-bit-of-history" class="level2 page-columns page-full" data-number="3.1">
+<h2 data-number="3.1" class="anchored" data-anchor-id="a-bit-of-history"><span class="header-section-number">3.1</span> A Bit of History</h2>
+<p>Linear models are one of the oldest and most popular methods for modeling the relationship between a set of observed traits of some objects. Just to give some examples: Is there a relationship between the quantity and quality of milk produced (trait) by a cow (object)? What is the relationship between the size of a plant (trait) and the rate (trait) of plant (object) growth? Is there a relationship between eating habits (trait) and health (trait) in children (object), and if so, what is it?</p>
+<p>In the case of linear models, we usually identify one trait that we wish to describe (will be called <em>dependent</em> variable or <em>response</em>), treating the other traits as something we will use to describe that particular one (will be called <em>independent</em> variable or <em>predictor</em>).</p>
+<p>These names reflect a somewhat mechanistic intuition, whereby we can imagine that we have an influence on the predictors/explanatory variables and wish to investigate the extent of that influence on the response variable.</p>
+<p>Linear models are extremely popular these days because they have many applications; naming just some of them, we may: (1) derive predictions, given an identified relationship, we can predict one trait from others: a cow’s milk yield from her genes <span class="citation" data-cites="henderson1975">(<a href="#ref-henderson1975" role="doc-biblioref">Henderson, 1975</a>)</span>, sales volume from product attributes, and so on; (2) description of reality, by selecting the best model we commit to a particular description of the world and assess how well it is supported by the data; we can evaluate whether the relationship between height and weight is linear or quadratic, whether a drug dosage affects prognosis <span class="citation" data-cites="draper1998">(<a href="#ref-draper1998" role="doc-biblioref">Draper &amp; Smith, 1998</a>)</span>, and so forth; (3) an intermediate explanatory mechanism within larger models, in large systems processing vast amounts of data, linear models can serve as internal tools for interpreting or transforming data representations, as in sparse autoencoders used in the analysis of deep models <span class="citation" data-cites="bricken2023">(<a href="#ref-bricken2023" role="doc-biblioref">Bricken et al., 2023</a>)</span>. Despite this diversity of applications, these models share a common roots.</p>
+<p>The beginning of linear models can be traced back to the 18th and 19th centuries concerning the method of least squares, initially used in navigation and astronomy. There is no clear answer to the question of who first invented this method. Surprisingly, to this day, the issue of priority sparks debate among historians of mathematics. The first published work devoted to this method dates from 1805 and was written by French mathematician Adrien-Marie Legendre <span class="citation" data-cites="legendre1805">(<a href="#ref-legendre1805" role="doc-biblioref">Legendre, 1805</a>)</span>. However, Johann Carl Friedrich Gauss claimed that he had been using this method since 1794-1795 (Gauss was 18 years old at the time!!!) for calculations needed for his work in astronomy. In 1809, Gauss described the method of least squares in his book, providing numerous examples of applications and proving the properties of this method when the random disturbance has a normal distribution <span class="citation" data-cites="gauss1809">(<a href="#ref-gauss1809" role="doc-biblioref">Gauss, 1809</a>)</span>. Legendre never accepted Gauss’s claim of priority, and disputes over who invented the method of least squares continue to this day. There is still heated debate over who was actually the first and who invented what is perhaps the most important method of data analysis <span class="citation" data-cites="gauss1">Stigler (<a href="#ref-gauss2" role="doc-biblioref">1981</a>)</span>.</p>
+<p>Linear models are often referred to as regression models, while the term <em>regression</em> was first used by Sir Francis Galton in the 19th century. Francis Galton was a Renaissance man, involved in anthropology, statistics, and many other sciences. In 1886, he published a paper titled <em>“Regression towards mediocrity in hereditary stature”</em> <span class="citation" data-cites="galton1886">(<a href="#ref-galton1886" role="doc-biblioref">Galton, 1886</a>)</span>, in which he presented the results of studies on the heritability of height. Galton noticed that sons of very tall fathers are, on average, taller than sons of shorter fathers, but their average height is lower than the average height of their fathers. Similarly, the height of sons of short fathers is closer to the population average. He called this phenomenon <em>“regression toward the mean”</em>. Galton proposed an equation describing the relationship between the heights of sons and fathers, or equivalently, describing the regression of height from generation to generation toward the average value (today we would call this equation a regression model). Using this equation, Galton determined the heritability coefficient for a trait such as height. Since this work, the name regression has been adopted for equations describing relationships between variables, and this name has become so widespread that today it is used even in situations that have nothing to do with the original meaning of the word regress.</p>
+<p>The data set collected by Galton is available in R under the name <code>galton</code> in the <code>UsingR</code> package. In this data set, one column contains the average height of parents calculated as the average of the father’s height and 1.08 times the mother’s height (called <em>midparent</em>), and the other column contains the height of the adult child. Graphical summary of this data set is shown in <a href="#fig-galtonReg" class="quarto-xref">Figure&nbsp;<span>3.1</span></a>. The dashed line corresponds to the line with equation <span class="math inline">\(y=x\)</span>; as can be observed, in each parental height group, the average height of children is closer to the overall average. In the next chapter, we’ll take a look at this data under the guise of its more modern version <code>MedScore</code> story</p>
+<div class="cell page-columns page-full">
+<div class="cell-output-display page-columns page-full">
+<div id="fig-galtonReg" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-galtonReg-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="11-Introduction_files/figure-html/fig-galtonReg-1.png" class="img-fluid figure-img" style="width:80.0%">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-galtonReg-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.1: Illustration of the data set analyzed by Sir Francis Galton. Gray points correspond to values from the galton dataset with added random noise to avoid overlapping observations. The y-axis shows the height of adult children, while the x-axis shows the weighted average height of parents. The red line corresponds to the equation y=x, and box plots are drawn for different parental height ranges. The median heights shown in the box plots are closer to the population average than the y=x line.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Linear models are a special case of regression models in which the model structure takes a specific (linear) form. We will describe this structure in more detail below. These models have been extensively developed in the early 20th century by Karl Pearson and his contemporaries. Today, a century later, regression is one of the most popular statistical modeling tools. The relationship between variables postulated in the model can take various forms. Linear regression models can be relatively easily extended to generalized linear models (this family includes the very popular logistic regression) or to nonlinear models (e.g., GAM models, spline models, etc.). In this guide, we will focus only on linear models, but if you understand them correctly, it will be much easier for you to grasp other types of models as well. Readers wishing to explore the broader family of regression models beyond the linear case will find comprehensive treatments in <span class="citation" data-cites="harrell2015">Harrell (<a href="#ref-harrell2015" role="doc-biblioref">2015</a>)</span>, which covers regression modelling strategy in depth including logistic regression, ordinal models, and survival analysis, and in <span class="citation" data-cites="wood2017">Wood (<a href="#ref-wood2017" role="doc-biblioref">2017</a>)</span>, which provides a thorough introduction to generalised additive models and spline-based smoothing.</p>
+<p>The rest of this chapter is structured in a following way. <a href="#sec-introduction-model" class="quarto-xref"><span>Section 3.2</span></a> presents the general form of the linear model; <a href="#sec-introduction-mle" class="quarto-xref"><span>Section 3.3</span></a> presents the most popular methods for estimating coefficients in the linear model; <a href="#sec-introduction-dist" class="quarto-xref"><span>Section 3.4</span></a> derives distributions for estimators; and <a href="#sec-introduction-tests" class="quarto-xref"><span>Section 3.5</span></a> presents selected methods for testing hypotheses about coefficients in the linear model and constructing confidence intervals for these coefficients.</p>
+</section>
+<section id="sec-introduction-model" class="level2" data-number="3.2">
+<h2 data-number="3.2" class="anchored" data-anchor-id="sec-introduction-model"><span class="header-section-number">3.2</span> Models and Coefficients</h2>
+<p>Models describe relationships between some characteristics of reality. Since they typically take the form of a mathematical equation, then we must first reduce reality to a numerical, quantitative description. For example, if we wish to model the relationship between happiness and factors related to family, work, and health, we must translate these abstract concepts into numbers. The level of happiness can be measured by endorphin concentrations in the blood (impractical), by questionnaire (imprecise), by expert assessment (costly), or by other means. The more abstract the characteristic, the more expertise and domain knowledge is needed to construct a good quantitative description of it. An very interesting discussion of the challenges involved in such operationalisation is given by <span class="citation" data-cites="harrell2015">Harrell (<a href="#ref-harrell2015" role="doc-biblioref">2015</a>)</span> For the purposes of this guide, we will assume that a quantitative description is already in hand: for each object (we will use term <em>observation</em>), say, a person, every relevant characteristic can be expressed as a real number (we will call it a <em>variable</em>).</p>
+<p>We further divide this quantitative description into two groups: variables we wish to predict/understand, called response (or <em>dependent</em>) variables, and variables we have measured and wish to use to explain them, called predictor (or <em>independent</em>) variables. This distinction matters because regression models are not generally symmetric, it is essential to specify which variable is a response and which are predictors. In the happiness example, a model describing happiness (response) as a function of health status (predictor) is an entirely different object from a model describing health status as a function of happiness, even though the same two variables appear in both, their roles have been exchanged. Now that we know how to describe reality, we need to collect data, i.e.&nbsp;these measurements for a certain number of observations (let’s say for <span class="math inline">\(n\)</span> observations).</p>
+<p>We will denote the response variable in this book by the symbol <span class="math inline">\(y\)</span>. The value of this variable for the <span class="math inline">\(i\)</span>-th object will be denoted by <span class="math inline">\(y_i\)</span>. We will assume that this value is described by a single real number <span class="math inline">\(y_i \in \mathbb{R}\)</span>. We will denote the set of <span class="math inline">\(p\)</span> predictor variables by the vector <span class="math inline">\(X = (X_1, ..., X_p)\)</span>, where <span class="math inline">\(X_j\)</span>, <span class="math inline">\(1\leq j\leq p\)</span>, will denote the <span class="math inline">\(j\)</span>-th predictor variable. The value of <span class="math inline">\(X_j\)</span> variable for the <span class="math inline">\(i\)</span>-th object will be denoted by <span class="math inline">\(X_{i,j}\)</span>.</p>
+<p>Assuming a linear relationship between variables <span class="math inline">\(X_j\)</span> and variable <span class="math inline">\(y\)</span>, we express relations between them in the form</p>
+<p><span id="eq-linearModel"><span class="math display">\[
+y_i = X_{i,1} \beta_1 + X_{i,2} \beta_2 + ... + X_{i,p} \beta_p + \varepsilon_i,
+\tag{3.1}\]</span></span></p>
+<p>where <span class="math inline">\(y_i\)</span> and <span class="math inline">\(X_{i,j}\)</span> were introduced above, <span class="math inline">\(\beta = (\beta_1, ..., \beta_p)\)</span> is a vector of unknown model coefficients, and <span class="math inline">\(\varepsilon_i\)</span> corresponds to the difference between the prediction of <span class="math inline">\(y\)</span> and the observed value. This difference may be due to a measurement error, the influence of other, unmeasurable variables, or other inaccuracies. In this guide, we will make the additional (common) assumption that <span class="math inline">\(\varepsilon\)</span> has distribution <span class="math inline">\(\mathcal{N}(0, \sigma^2 I_{n\times n})\)</span>.</p>
+<p>Equivalently, we can therefore represent variable <span class="math inline">\(y_i\)</span> as a random variable with distribution <span class="math inline">\(\mathcal{N}(X_i\beta, \sigma^2)\)</span>. Characteristic of this model is that the random component <span class="math inline">\(\varepsilon\)</span> is additively related to the response variable.</p>
+<p><strong>Note:</strong> The adjective “linear” refers to the linear relationship between variable <span class="math inline">\(y\)</span> and variables <span class="math inline">\(X\)</span>; this does not mean at all that we are limited to linear relationships between the response variable and predictor variables. For example, if we expect power-law relationships between two concentrations, we can consider in the model a linear relationship between the logarithms of these variables (e.g.&nbsp;<span class="math inline">\(\log X_j\)</span>, see <a href="21-simple-regression.html#sec-intro-boxcox-trans" class="quarto-xref"><span>Section 4.5</span></a> for an example); if we expect a nonlinear relationship of unknown character, we can encode variable of interest in a basis of polynomials or using spline functions, etc. In other words, the adjective linear concerns the vector <span class="math inline">\(\beta\)</span> and means that in the model, coefficients appear to the first power; there are no terms such as <span class="math inline">\(\beta_1^2\)</span> or <span class="math inline">\(\beta_1\beta_2\)</span>, etc.</p>
+<p><a href="#eq-linearModel" class="quarto-xref">Equation&nbsp;<span>3.1</span></a> describes a relationship between variables <span class="math inline">\(X_j\)</span> and variable <span class="math inline">\(y\)</span> for a single observation <span class="math inline">\(i\)</span>. It is convenient to express this relationship in vector form, where <span class="math inline">\(X\)</span> is a vector describing the observations, consisting of <span class="math inline">\(p\)</span> columns, and <span class="math inline">\(\beta\)</span> is a column vector of unknown coefficients</p>
+<p><span id="eq-linearModel2"><span class="math display">\[
+y = X \beta + \varepsilon.
+\tag{3.2}\]</span></span></p>
+<p>Vector notation is convenient and compact. Given <span class="math inline">\(n\)</span> observations, we can consider <span class="math inline">\(y = (y_1, ..., y_n)\)</span> is a column vector with values of the response variable <span class="math inline">\(y\)</span> for successive observations, <span class="math inline">\(X_{n\times p} = \{X_{i,j}\}\)</span> is a matrix encoding explanatory variables, element <span class="math inline">\(X_{i,j}\)</span> (in the <span class="math inline">\(i\)</span>-th row and <span class="math inline">\(j\)</span>-th column) determines the value of variable <span class="math inline">\(X_j\)</span> for observation <span class="math inline">\(i\)</span>, <span class="math inline">\(\beta\)</span> is a <span class="math inline">\(p\)</span>-element vector of unknown coefficients, and <span class="math inline">\(\varepsilon = (\varepsilon_1, ..., \varepsilon_n) \sim \mathcal{N}(0, I_{n \times n} \sigma^2)\)</span> is a column vector of <span class="math inline">\(n\)</span> independent random variables with normal distribution and variance <span class="math inline">\(\sigma^2\)</span>.</p>
+<p>By adopting a linear model to describe relationships between variables, we may be interested in the following tasks:</p>
+<ul>
+<li>Estimation of the (unknown) coefficients <span class="math inline">\(\beta\)</span>, both pointwise and interval estimation (construction of confidence intervals). We will use the hat notation for estimates, so estimates for model coefficients will be decoded as <span class="math inline">\(\hat{\beta}\)</span>.</li>
+<li>Estimation of parameter <span class="math inline">\(\sigma^2\)</span>, both pointwise and interval. Estimate will be decoded as <span class="math inline">\(\widehat{\sigma^2}\)</span>.</li>
+<li>Prediction of values of variable <span class="math inline">\(y\)</span> given values of variables <span class="math inline">\(X\)</span>.</li>
+<li>Determination of distributions of estimators <span class="math inline">\(\hat{\beta}\)</span> and <span class="math inline">\(\widehat{\sigma^2}\)</span>.</li>
+<li>Tests for verifying hypotheses about model coefficients, e.g.&nbsp;if they are different than zero.</li>
+<li>Selection of significant variables in the model, in short, selection of the optimal submodel.</li>
+</ul>
+<p>We will discuss these issues in subsequent subsections.</p>
+</section>
+<section id="sec-introduction-mle" class="level2 page-columns page-full" data-number="3.3">
+<h2 data-number="3.3" class="anchored" data-anchor-id="sec-introduction-mle"><span class="header-section-number">3.3</span> Estimators for Model Coefficients</h2>
+<p>In model <a href="#eq-linearModel2" class="quarto-xref">Equation&nbsp;<span>3.2</span></a>, we said that coefficients <span class="math inline">\(\beta\)</span> are unknown. Various estimation methods can be used to estimate them. In this chapter, we will present the most common: estimation with the ordinary least squares (OLS) method, with the maximum likelihood (ML) method and more recent ridge method introduced in <span class="citation" data-cites="hoerl1970">Hoerl &amp; Kennard (<a href="#ref-hoerl1970" role="doc-biblioref">1970</a>)</span> and least absolute shrinkage and selection operator (LASSO) method introduced in <span class="citation" data-cites="tibshirani1996">Tibshirani (<a href="#ref-tibshirani1996" role="doc-biblioref">1996</a>)</span>. The more variables there are in the model, the more popular the last two are; you can read more about them in <span class="citation" data-cites="hastie2009">Hastie et al. (<a href="#ref-hastie2009" role="doc-biblioref">2009</a>)</span>.</p>
+<section id="sec-OLS-method-theory" class="level3 page-columns page-full" data-number="3.3.1">
+<h3 data-number="3.3.1" class="anchored" data-anchor-id="sec-OLS-method-theory"><span class="header-section-number">3.3.1</span> Ordinary Least Squares (OLS) Method</h3>
+<p>In the case of least squares estimation, the estimators <span class="math inline">\(\hat{\beta}\)</span> are found by minimizing the squared difference between values <span class="math inline">\(y\)</span> and values <span class="math inline">\(\tilde{y} = X \tilde{\beta}\)</span>. The objective that is minimized is called the squared error or residual sum of squares, denoted by the abbreviation RSS (Residual Sum of Squares). The sought <span class="math inline">\(\hat{\beta}\)</span> is the <span class="math inline">\(\tilde{\beta}\)</span> minimizing the residual sum of squares.</p>
+<p>To be more precise, for coefficients <span class="math inline">\(\tilde{\beta}\)</span>, the residual sum of squares is</p>
+<p><span id="eq-RSSrownanie"><span class="math display">\[
+\begin{aligned}
+RSS(\tilde{\beta}) &amp;= \sum_{i=1}^n (y_i - \tilde{y}_i)^2 \\
+&amp;= (y - \tilde{y})^T(y - \tilde{y}) \\
+&amp;= \sum_{i=1}^n (y_i-X_i\tilde{\beta})^2 \\
+&amp;= (y - X\tilde{\beta})^T(y - X\tilde{\beta}).
+\end{aligned}
+\tag{3.3}\]</span></span></p>
+<p>Differentiating <span class="math inline">\(RSS(\tilde{\beta})\)</span> with respect to <span class="math inline">\(\tilde{\beta}\)</span> and setting the result to zero proceeds as follows.</p>
+<p>Expand the quadratic form</p>
+<p><span class="math display">\[
+(y - X\tilde{\beta})^T(y - X\tilde{\beta})
+= y^Ty
+  - y^TX\tilde{\beta}
+  - \tilde{\beta}^TX^Ty
+  + \tilde{\beta}^TX^TX\tilde{\beta},
+\]</span></p>
+<p>and since <span class="math inline">\(y^TX\tilde{\beta}\)</span> is a scalar it equals its own transpose <span class="math inline">\(\tilde{\beta}^TX^Ty\)</span>, so the two middle terms combine to <span class="math inline">\(-2\tilde{\beta}^TX^Ty\)</span>. So</p>
+<p><span class="math display">\[
+RSS(\tilde{\beta})
+= (y - X\tilde{\beta})^T(y - X\tilde{\beta})
+= y^Ty - 2\tilde{\beta}^TX^Ty + \tilde{\beta}^TX^TX\tilde{\beta}.
+\]</span> Differentiate with respect to <span class="math inline">\(\tilde{\beta}\)</span>. Using the standard matrix calculus identities</p>
+<p><span class="math display">\[
+\frac{\partial}{\partial \tilde{\beta}}\,\tilde{\beta}^T a = a,
+\qquad
+\frac{\partial}{\partial \tilde{\beta}}\,\tilde{\beta}^T A \tilde{\beta}
+  = 2A\tilde{\beta}
+\quad \text{(when $A$ is symmetric)},
+\]</span></p>
+<p>we differentiate each term of the expanded <span class="math inline">\(RSS\)</span>:</p>
+<p><span class="math display">\[
+\frac{\partial\, RSS(\tilde{\beta})}{\partial \tilde{\beta}}
+= \frac{\partial}{\partial \tilde{\beta}}
+  \Bigl[
+    y^Ty
+    - 2\tilde{\beta}^TX^Ty
+    + \tilde{\beta}^TX^TX\tilde{\beta}
+  \Bigr]
+= 0 - 2X^Ty + 2X^TX\tilde{\beta}.
+\]</span></p>
+<p>Note taht: The first term <span class="math inline">\(y^Ty\)</span> does not depend on <span class="math inline">\(\tilde{\beta}\)</span> and vanishes. The second term gives <span class="math inline">\(-2X^Ty\)</span> by the first identity with <span class="math inline">\(a = X^Ty\)</span>. The third term gives <span class="math inline">\(2X^TX\tilde{\beta}\)</span> by the second identity, which applies because <span class="math inline">\(X^TX\)</span> is symmetric by construction: <span class="math inline">\((X^TX)^T = X^TX\)</span>.</p>
+<p>Set the derivative to zero</p>
+<p><span class="math display">\[
+\frac{\partial\, RSS(\tilde{\beta})}{\partial \tilde{\beta}}
+= -2X^Ty + 2X^TX\tilde{\beta} = 0.
+\]</span></p>
+<p>Dividing through by 2 and rearranging gives the normal equations:</p>
+<p><span id="eq-RSSrownanie2"><span class="math display">\[
+X^TX\hat{\beta} = X^Ty
+\tag{3.4}\]</span></span></p>
+<p>where <span class="math inline">\(\hat{\beta}\)</span> is the value minimizing <span class="math inline">\(RSS(\tilde{\beta})\)</span>. For simplicity of notation, let’s adopt the notation <span class="math inline">\(RSS := RSS(\hat{\beta})\)</span>.</p>
+<p>If we denote by matrix <span class="math inline">\(A\)</span> the expression <span class="math inline">\(A = X^TX\)</span> and by vector <span class="math inline">\(b=X^T y\)</span>, then solving <a href="#eq-RSSrownanie2" class="quarto-xref">Equation&nbsp;<span>3.4</span></a> reduces to solving the system of linear equations <span class="math inline">\(A x = b\)</span> with respect to <span class="math inline">\(x\)</span>. In linear algebra, there are many algorithms for efficiently solving this system of equations.</p>
+<p>To study the properties of estimator <span class="math inline">\(\hat{\beta}\)</span> in a concise mathematical way, we will present <a href="#eq-RSSrownanie2" class="quarto-xref">Equation&nbsp;<span>3.4</span></a> in the form</p>
+<p><span id="eq-BetaEstimator"><span class="math display">\[
+\hat{\beta} = (X^TX)^{-}X^T y,
+\tag{3.5}\]</span></span></p>
+<p>where <span class="math inline">\((X^TX)^-\)</span> denotes the inverse of matrix <span class="math inline">\(X^TX\)</span> if this matrix is invertible, and the Moore-Penrose pseudoinverse if matrix <span class="math inline">\(X^TX\)</span> is not invertible.</p>
+<p><a href="#eq-BetaEstimator" class="quarto-xref">Equation&nbsp;<span>3.5</span></a> is convenient for analyzing properties of model coefficient estimators but is not used in statistical packages directly to compute values of these coefficients, because it requires performing three matrix multiplications and computing one inverse, which is computationally demanding and numerically unstable. In standard R functions, QR decomposition of matrix <span class="math inline">\(X\)</span> is used. For large and narrow matrices <span class="math inline">\(X\)</span>, one can also use the <code>solve()</code> function to directly solve <a href="#eq-RSSrownanie2" class="quarto-xref">Equation&nbsp;<span>3.4</span></a>.</p>
+<p><strong>Note:</strong> <a href="#eq-RSSrownanie2" class="quarto-xref">Equation&nbsp;<span>3.4</span></a> can be efficiently solved using QR decomposition of matrix <span class="math inline">\(X\)</span>. If we substitute <span class="math inline">\(X = QR\)</span>, we obtain</p>
+<p><span id="eq-RSSequationQR"><span class="math display">\[
+R \hat{\beta} = Q^T y.
+\tag{3.6}\]</span></span></p>
+<p>Since <span class="math inline">\(R\)</span> is an upper triangular matrix, the above system of equations is easily solved by the substitution method.</p>
+<p>Let’s introduce the following notation for the vector of fitted values <span class="math inline">\(\hat{y}\)</span> and the vector of residuals <span class="math inline">\(\hat{\varepsilon}\)</span>:</p>
+<p><span id="eq-hatY"><span class="math display">\[
+\hat{y} = X \hat{\beta} = X (X^TX)^{-}X^T y,
+\tag{3.7}\]</span></span></p>
+<p><span id="eq-hatEpsilon"><span class="math display">\[
+\hat{\varepsilon} = y - \hat{y} = \left(I - X (X^TX)^{-}X^T\right) y.
+\tag{3.8}\]</span></span></p>
+<p>Combining <a href="#eq-RSSrownanie" class="quarto-xref">Equation&nbsp;<span>3.3</span></a> and <a href="#eq-BetaEstimator" class="quarto-xref">Equation&nbsp;<span>3.5</span></a>, we can express RSS as</p>
+<p><span class="math display">\[
+RSS = \hat{\varepsilon}^T \hat{\varepsilon} = y^T \left(I - X (X^TX)^{-}X^T\right) y.
+\]</span></p>
+<div class="cell page-columns page-full">
+<div class="cell-output-display page-columns page-full">
+<div id="fig-projectionXbeta" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-projectionXbeta-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figure/rzutXb.png" class="img-fluid figure-img">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-projectionXbeta-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.2: Algebraic interpretation of the estimator obtained by the least squares method. Vector <span class="math inline">\(X\hat{\beta}\)</span> is the projection of vector <span class="math inline">\(y\)</span> onto the space spanned by the columns of matrix <span class="math inline">\(X\)</span>. Vector <span class="math inline">\(X\beta\)</span> is also somewhere in space <span class="math inline">\(\mathcal{R}(X)\)</span>, but due to random disturbance <span class="math inline">\(\varepsilon\)</span>, we cannot determine it.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>The above formulas have an intuitive algebraic interpretation, presented in <a href="#fig-projectionXbeta" class="quarto-xref">Figure&nbsp;<span>3.2</span></a>. From algebra, we know that the orthogonal projection operator onto the subspace spanned by the columns of matrix <span class="math inline">\(X\)</span> is defined by the formula <span class="math inline">\(P_X = X (X^TX)^{-}X^T\)</span>. Thus <span class="math inline">\(X \hat{\beta}\)</span> is the orthogonal projection of vector <span class="math inline">\(y\)</span> onto the space spanned by the columns of matrix <span class="math inline">\(X\)</span>, and <span class="math inline">\(\hat{\varepsilon} = y - X\hat{\beta}\)</span> is the vector connecting <span class="math inline">\(y\)</span> and the projection <span class="math inline">\(X\hat{\beta}\)</span>. Moreover, <span class="math inline">\(RSS\)</span> is the square of the length of vector <span class="math inline">\(\hat{\varepsilon}\)</span>. Obviously, this distance is minimized by the projection operator (this is one of the properties of the projection operator), which is why minimizing <span class="math inline">\(RSS\)</span> we obtained the solution as in <a href="#eq-hatY" class="quarto-xref">Equation&nbsp;<span>3.7</span></a>. Remembering this figure will greatly facilitate understanding the construction of confidence intervals or tests for model coefficients.</p>
+<p>In literature devoted to linear models, the projection operator <span class="math inline">\(P_X\)</span> is often denoted by the symbol <span class="math inline">\(H\)</span>, and the matrix describing this operator is called the hat matrix, so let’s add the notation<a href="#fn1" class="footnote-ref" id="fnref1" role="doc-noteref"><sup>1</sup></a></p>
+<div class="no-row-height column-margin column-container"><div id="fn1"><p><sup>1</sup>&nbsp;The name “hat matrix” comes from the fact that <span class="math inline">\(\hat{y} = H y\)</span>, that is, using simple associations, matrix <span class="math inline">\(H\)</span> “adds a hat” to <span class="math inline">\(y\)</span>.</p></div></div><p><span class="math display">\[
+H = X (X^TX)^{-}X^T.
+\]</span></p>
+</section>
+<section id="sec-OLS-method-properties" class="level3" data-number="3.3.2">
+<h3 data-number="3.3.2" class="anchored" data-anchor-id="sec-OLS-method-properties"><span class="header-section-number">3.3.2</span> Properties of the OLS Estimator</h3>
+<p>A natural question is how good the least squares estimator is. It turns out to be the best in the class of unbiased estimators, as shown by the Gauss-Markov theorem. Note that the theorem concerns milder assumptions than those adopted in this guide, e.g.&nbsp;no need to assume gaussian distribution of <span class="math inline">\(\varepsilon\)</span>.</p>
+<p><strong>Gauss-Markov Theorem</strong></p>
+<p>In a model of the form</p>
+<p><span class="math display">\[
+y = X\beta + \varepsilon,
+\]</span></p>
+<p>where <span class="math inline">\(\forall_i \text{E}[\varepsilon_i]=0\)</span>, <span class="math inline">\(\forall_i \text{Var}[\varepsilon_i] = \sigma^2\)</span>, and <span class="math inline">\(\forall_{i\neq j}\text{Cov}(\varepsilon_i,\varepsilon_j)=0\)</span>, that is, we assume assumptions about the random disturbance: that it has mean zero, constant variance, and individual random disturbances are independent, and matrix <span class="math inline">\(X\)</span> is of full rank, the estimator of coefficients <span class="math inline">\(\beta\)</span> given by <a href="#eq-BetaEstimator" class="quarto-xref">Equation&nbsp;<span>3.5</span></a> is the estimator with the smallest variance in the class of linear unbiased estimators (so-called BLUE, best unbiased linear estimator) and is uniquely determined.</p>
+<p>A proof of this theorem can be found, for example, in Chapter 2.8 of <span class="citation" data-cites="Faraway1">Faraway (<a href="#ref-Faraway1" role="doc-biblioref">2002</a>)</span>.</p>
+<p>An unbiased estimator of variance <span class="math inline">\(\sigma^2\)</span> in model <a href="#eq-linearModel" class="quarto-xref">Equation&nbsp;<span>3.1</span></a> is</p>
+<p><span id="eq-sigma2ols"><span class="math display">\[
+\widehat{\sigma^2} = \frac{(Y - X\hat{\beta})^T (Y - X\hat{\beta})}{n-p} = RSS/(n-p).
+\tag{3.9}\]</span></span></p>
+<p>Moreover, this is the estimator with the smallest variance in the class of unbiased quadratic estimators.</p>
+</section>
+<section id="sec-ML-method-theory" class="level3 page-columns page-full" data-number="3.3.3">
+<h3 data-number="3.3.3" class="anchored" data-anchor-id="sec-ML-method-theory"><span class="header-section-number">3.3.3</span> Maximum Likelihood Method</h3>
+<p>Let’s now see what estimators obtained by the maximum likelihood method look like. The likelihood function for model <a href="#eq-linearModel" class="quarto-xref">Equation&nbsp;<span>3.1</span></a> is expressed by the formula</p>
+<p><span class="math display">\[
+L(\beta, \sigma|y) = (2 \pi \sigma^2)^{-n/2} \exp\left(-\frac{1}{2} (y-X\beta)^T(y-X\beta)/\sigma^2\right),
+\]</span></p>
+<p>and its logarithm</p>
+<p><span id="eq-logLikelihoodML"><span class="math display">\[
+\begin{aligned}
+l(\beta, \sigma|y) &amp;= -\frac{n}{2} \log(2 \pi) -\frac{n}{2} \log(\sigma^2) -\frac{1}{2} (y-X\beta)^T(y-X\beta)/\sigma^2 \\
+&amp;= -\frac{n}{2} \log(2 \pi) -\frac{n}{2} \log(\sigma^2) -\frac{1}{2} RSS(\beta)/\sigma^2.
+\end{aligned}
+\tag{3.10}\]</span></span></p>
+<p>From the form of the log-likelihood function, it follows that maximizing the likelihood function with respect to parameter <span class="math inline">\(\beta\)</span> is equivalent to minimizing <span class="math inline">\(RSS(\beta)\)</span>. Thus the estimators for coefficients <span class="math inline">\(\beta\)</span> obtained by the maximum likelihood method are identical to the estimators obtained by the method of minimizing the residual sum of squares!</p>
+<p>Minimization with respect to parameter <span class="math inline">\(\sigma^2\)</span><a href="#fn2" class="footnote-ref" id="fnref2" role="doc-noteref"><sup>2</sup></a> leads to the estimator</p>
+<div class="no-row-height column-margin column-container"><div id="fn2"><p><sup>2</sup>&nbsp;In most cases, we compute the derivative and set it equal to zero.</p></div></div><p><span id="eq-sigma2ml"><span class="math display">\[
+\widehat{\sigma^2_{ML}} = RSS/n.
+\tag{3.11}\]</span></span></p>
+<p><strong>Note:</strong> Above, when searching for an estimator of parameter <span class="math inline">\(\sigma^2\)</span>, we maximized the likelihood function simultaneously with respect to <span class="math inline">\(\beta\)</span> and <span class="math inline">\(\sigma^2\)</span>, and the estimator found by this method is called the maximum likelihood (ML) estimator.</p>
+<p>If the number of coefficients <span class="math inline">\(\beta\)</span> is large (so called large <span class="math inline">\(p\)</span> problems), then to avoid simultaneous maximization of the likelihood function over a large parameter space, so-called residual/restricted maximum likelihood (REML) estimators are considered. In the first step, vector <span class="math inline">\(y\)</span> is reduced to the subspace orthogonal to the columns of matrix <span class="math inline">\(X\)</span>, and then estimates of parameter <span class="math inline">\(\sigma\)</span> are sought on the reduced subspace. In this way, the influence of nuisance parameters <span class="math inline">\(\beta\)</span> is removed from the estimation of parameter <span class="math inline">\(\sigma^2\)</span>.</p>
+<p>The estimator obtained in this way for the considered linear model is expressed by the formula</p>
+<p><span class="math display">\[
+\widehat{\sigma^2_{REML}} = RSS/(n-p).
+\]</span></p>
+<p>It is therefore equal to estimator <a href="#eq-sigma2ols" class="quarto-xref">Equation&nbsp;<span>3.9</span></a>, and thus is an unbiased estimator of <span class="math inline">\(\sigma^2\)</span>, unlike estimator <a href="#eq-sigma2ml" class="quarto-xref">Equation&nbsp;<span>3.11</span></a>, which is biased (although explaining this is quite technical and goes beyond the scope of this guide).</p>
+<p>In the considered linear model, estimation of coefficients <span class="math inline">\(\beta\)</span> is simple, so this derivation of the REML estimator is rarely encountered. It is, however, often used in mixed models and other more complex models. Here we mention it only for completeness.</p>
+<p>For the purposes of constructing statistical tests, let’s determine the value of the log-likelihood function at the point maximizing this function; it is</p>
+<p><span class="math display">\[
+l(\hat{\beta}, \widehat{\sigma^2_{ML}}|y) = -\frac{n}{2} \log(2 \pi) - \frac{n}{2} \log(RSS/n) - \frac{n}{2},
+\]</span></p>
+<p>and the likelihood function itself is, up to a constant, equal to</p>
+<p><span id="eq-fractionLRSS"><span class="math display">\[
+L(\hat{\beta}, \widehat{\sigma^2_{ML}}|y) \propto (RSS/n)^{-n/2}.
+\tag{3.12}\]</span></span></p>
+<p>We will use this last formula repeatedly.</p>
+</section>
+<section id="sec-introduction-regularisation" class="level3 page-columns page-full" data-number="3.3.4">
+<h3 data-number="3.3.4" class="anchored" data-anchor-id="sec-introduction-regularisation"><span class="header-section-number">3.3.4</span> Regularized Estimation of Coefficients in Linear Models</h3>
+<p>The estimator of coefficients <span class="math inline">\(\beta\)</span> presented in <a href="#eq-BetaEstimator" class="quarto-xref">Equation&nbsp;<span>3.5</span></a> is an unbiased estimator with minimum variance in the class of unbiased estimators (BLUE, best linear unbiased estimator). However, there are situations where biased estimators have smaller variance and even smaller mean squared error than unbiased estimators.<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a></p>
+<div class="no-row-height column-margin column-container"><div id="fn3"><p><sup>3</sup>&nbsp;We don’t need to look far, this is the case, for example, for the variance estimator in linear models, where the ML estimator is biased but has smaller mean squared error than the unbiased estimator.</p></div></div><p>The key to understanding why biased estimators can be useful lies in a concept known as the bias-variance trade-off. The mean squared error of estimator <span class="math inline">\(\hat{\beta}\)</span> can be decomposed into squared bias, variance and the irreducible error <span class="math inline">\(\delta\)</span> (see <span class="citation" data-cites="hastie2009">Hastie et al. (<a href="#ref-hastie2009" role="doc-biblioref">2009</a>)</span> for more details):</p>
+<p><span id="eq-bias-variance-trade-off"><span class="math display">\[
+MSE(\hat{\beta}) = \text{var}(\hat{\beta}) + \text{bias}^2(\hat{\beta}) + \delta,
+\tag{3.13}\]</span></span></p>
+<p>we often speak of the balance between bias and variance of the estimator when minimizing mean squared error. Variance reduction can be achieved by shrinking parameter estimates toward zero, imposing a penalty for large values of coefficients. This leads to biased estimators but (possibly) with smaller variance and (sometimes) lower MSE.</p>
+<p>In other words, for linear models, we can introduce bias in the form of a penalty for the magnitude of coefficients in the model, which results in variance reduction of model coefficient estimates and thus can lead to a decrease in mean squared error of these estimates and, in some situations, a decrease in prediction error of the linear model.</p>
+<p>This leads to a new criterion which can be minimised in order to deliberately introduce a bias. Instead of RSS, by adding a penalty for the magnitude of parameter estimates to the sum of squares, we obtain a new criterion called the Penalized Residual Sum of Squares (PRSS)</p>
+<p><span class="math display">\[
+PRSS(\beta) = (y - X\tilde{\beta})^T (y - X\tilde{\beta}) + f(\beta),
+\]</span></p>
+<p>where <span class="math inline">\(f(\beta)\)</span> is the penalty for coefficient values. The estimator of parameters <span class="math inline">\(\beta\)</span> with respect to PRSS is</p>
+<p><span class="math display">\[
+\hat{\beta}_{f(\beta)} = \min_\beta PRSS(\beta).
+\]</span></p>
+<p>Various penalty functions are considered in the literature. In next sections we describe three that currently form the canon.</p>
+</section>
+<section id="sec-ridge-method" class="level3" data-number="3.3.5">
+<h3 data-number="3.3.5" class="anchored" data-anchor-id="sec-ridge-method"><span class="header-section-number">3.3.5</span> Ridge Regression</h3>
+<p>Ridge regression, also called Tikhonov regularization, is one of the oldest model regularization methods (see <span class="citation" data-cites="hoerl1970">Hoerl &amp; Kennard (<a href="#ref-hoerl1970" role="doc-biblioref">1970</a>)</span>).</p>
+<p>The penalty function <span class="math inline">\(f(\beta)\)</span> is a scaled sum of squared coefficients, that is, the <span class="math inline">\(L_2\)</span> norm of the coefficient vector. More precisely:</p>
+<p><span id="eq-ridgeReg1-f"><span class="math display">\[
+f(\beta) = \lambda||\beta||^2_{L_2} = \lambda\beta^T \beta,
+\tag{3.14}\]</span></span></p>
+<p>and</p>
+<p><span id="eq-ridgeReg1"><span class="math display">\[
+PRSS(\beta) = (y - X\tilde{\beta})^T (y - X\tilde{\beta}) + \lambda\beta^T \beta,
+\tag{3.15}\]</span></span></p>
+<p>where <span class="math inline">\(\lambda\)</span> is the regularization factor.</p>
+<p>If <span class="math inline">\(\lambda=0\)</span>, the problem reduces to the problem without penalty, that is, the least squares method. The larger <span class="math inline">\(\lambda\)</span>, the greater the penalty for coefficient magnitude, and the greater the shrinkage of coefficients <span class="math inline">\(\hat{\beta}_{f(\beta)}\)</span> toward <span class="math inline">\(0\)</span>.</p>
+<p>For such a defined penalty, we can analytically determine the formula for parameter estimators. Computing the derivative with respect to the parameter from <a href="#eq-ridgeReg1" class="quarto-xref">Equation&nbsp;<span>3.15</span></a> and setting it equal to zero leads to the formula</p>
+<p><span id="eq-ridgeReg3"><span class="math display">\[
+\hat{\beta}^{\text{ridge}}_{\lambda} = (X^TX + \lambda I)^{-1}X^T y.
+\tag{3.16}\]</span></span></p>
+<p>We can use ridge regression even when columns of matrix <span class="math inline">\(X\)</span> are collinear and <span class="math inline">\(X^TX\)</span> is not invertible.</p>
+</section>
+<section id="sec-LASSO-method" class="level3" data-number="3.3.6">
+<h3 data-number="3.3.6" class="anchored" data-anchor-id="sec-LASSO-method"><span class="header-section-number">3.3.6</span> LASSO Regression (Least Absolute Shrinkage and Selection Operator)</h3>
+<p>The LASSO method was proposed by <span class="citation" data-cites="tibshirani1996">Tibshirani (<a href="#ref-tibshirani1996" role="doc-biblioref">1996</a>)</span> as a method for both estimating coefficients in the model and selecting the model, hence the term “selection operator” in the title.</p>
+<p>The penalty function <span class="math inline">\(f(\beta)\)</span> is determined as a scaled sum of absolute values of coefficients, that is, the <span class="math inline">\(L_1\)</span> norm of the coefficient vector. More precisely:</p>
+<p><span id="eq-lassoReg1-f"><span class="math display">\[
+f(\beta) = \lambda||\beta||_{L_1} = \lambda \sum_{i=1}^p |\beta_i|,
+\tag{3.17}\]</span></span></p>
+<p>and</p>
+<p><span id="eq-lassoReg1"><span class="math display">\[
+PRSS(\beta) = (y - X\tilde{\beta})^T (y - X\tilde{\beta}) + \lambda ||\beta||_{L_1}.
+\tag{3.18}\]</span></span></p>
+<p>The solution is not given in closed algebraic form as it was in ridge regression. To find estimates of <span class="math inline">\(\beta\)</span> for a given <span class="math inline">\(\lambda\)</span>, quadratic programming techniques are used. An alternative is to use a modification of the LARS algorithm (Least-Angle Regression <span class="citation" data-cites="Efron">(<a href="#ref-Efron" role="doc-biblioref">Efron et al., 2004</a>)</span>) to efficiently determine the LASSO solution for all lambdas.</p>
+<p>The result of the LASSO method is sparse solutions, meaning some coefficients are shrunk to zero, which is why this method is used as a model selection method. We will have a closer look to it in <a href="51-multivariable-regression.html#sec-terminal-lasso" class="quarto-xref"><span>Section 9.3.5</span></a>.</p>
+</section>
+<section id="sec-ElasticNet-method" class="level3" data-number="3.3.7">
+<h3 data-number="3.3.7" class="anchored" data-anchor-id="sec-ElasticNet-method"><span class="header-section-number">3.3.7</span> Elastic Net</h3>
+<p>Elastic net is a method proposed by <span class="citation" data-cites="Zou">Zou &amp; Hastie (<a href="#ref-Zou" role="doc-biblioref">2005</a>)</span> and combines penalty terms from ridge regression and the LASSO method.</p>
+<p>The penalty function <span class="math inline">\(f(\beta)\)</span> is determined as a combination of both norms:</p>
+<p><span id="eq-elasticnet-1"><span class="math display">\[
+f(\beta) = \lambda_1||\beta||_{L_1} + \lambda_2||\beta||_{L_2}.
+\tag{3.19}\]</span></span></p>
+<p>There are many more methods for determining coefficients in models. We mentioned the above because ridge regression shrinks effect estimates in a similar way to Henderson’s equations for mixed models, and the LASSO method is often used as a model selection method.</p>
+<p>Note that the difference between ridge regression and LASSO appears to be only symbolic, the norm in which we calculate vector length changes from <span class="math inline">\(L_2\)</span> to <span class="math inline">\(L_1\)</span>. However, the consequences of this change are significant. The LASSO method produces models where coefficients can be estimated as equal to zero, resulting in a sparse model. Ridge regression shrinks toward zero but doesn’t zero out coefficients (shrinkage). Both methods produce biased estimates of true values in the model, but by introducing bias we hope for variance reduction and thus improved prediction quality.</p>
+</section>
+</section>
+<section id="sec-introduction-dist" class="level2 page-columns page-full" data-number="3.4">
+<h2 data-number="3.4" class="anchored" data-anchor-id="sec-introduction-dist"><span class="header-section-number">3.4</span> Distributions of Estimators</h2>
+<p>So far, we have focused on estimating the model’s coefficients. However, the data we are observing are subject to error and uncertainty, so the estimation of the coefficients is also subject to error and uncertainty. To draw conclusions about the coefficients, we need to know how large this uncertainty is, and this is revealed by information about the distribution of the coefficient estimates.</p>
+<section id="sec-asymtoticDistEstOLS" class="level3 page-columns page-full" data-number="3.4.1">
+<h3 data-number="3.4.1" class="anchored" data-anchor-id="sec-asymtoticDistEstOLS"><span class="header-section-number">3.4.1</span> Distributions of OLS Estimators</h3>
+<p>Let’s start with the distribution of estimator <span class="math inline">\(\hat{\beta}\)</span>. Substituting <span class="math inline">\(y \sim \mathcal{N}(X\beta, \sigma^2)\)</span> into formula <a href="#eq-BetaEstimator" class="quarto-xref">Equation&nbsp;<span>3.5</span></a>, we obtain</p>
+<p><span id="eq-BetaDistribution"><span class="math display">\[
+\hat{\beta} \sim \mathcal{N}\left(\beta, (X^TX)^{-}\sigma^2\right).
+\tag{3.20}\]</span></span></p>
+<p>Using properties of the multivariate normal distribution, we can determine the marginal distribution of the <span class="math inline">\(i\)</span>-th element of vector <span class="math inline">\(\hat{\beta}\)</span>:</p>
+<p><span id="eq-BetaDistribution-i"><span class="math display">\[
+\hat{\beta}_i \sim \mathcal{N}(\beta_i, (X^TX)^{-}_{ii} \sigma^2),
+\tag{3.21}\]</span></span></p>
+<p>where <span class="math inline">\((X^TX)^{-}_{ii}\)</span> is the <span class="math inline">\(i\)</span>-th element on the diagonal of matrix <span class="math inline">\((X^TX)^{-}\)</span>. If variables <span class="math inline">\(X\)</span> are close to collinearity, then values on the diagonal of <span class="math inline">\((X^TX)^{-}\)</span> can be very large, and thus the variance of estimators <span class="math inline">\(\beta_i\)</span> will be large.<a href="#fn4" class="footnote-ref" id="fnref4" role="doc-noteref"><sup>4</sup></a></p>
+<div class="no-row-height column-margin column-container"><div id="fn4"><p><sup>4</sup>&nbsp;In cases where matrix <span class="math inline">\(X^TX\)</span> is close to singular, various methods of regularization are used, for example ridge regression is used, reducing the variance of the estimate of <span class="math inline">\(\beta\)</span> at the cost of bias. More information on this topic is in <a href="51-multivariable-regression.html#sec-multiple-regression" class="quarto-xref"><span>Section 9.2.1</span></a>.</p></div></div><p>What about the variance estimator <span class="math inline">\(\widehat{\sigma^2}\)</span>. The natural candidate to start with is to base the estimate on the residuals <span class="math inline">\(\hat{\varepsilon} = y - X\hat{\beta}\)</span>, since they are the observable counterpart of the unobservable errors. Summing their squares gives the residual sum of squares <span class="math inline">\(RSS = \hat{\varepsilon}^T\hat{\varepsilon}\)</span>, which measures the total variation in <span class="math inline">\(y\)</span> left unexplained by the fitted model. It can be shown that, under the standard assumption <span class="math inline">\(\varepsilon \sim \mathcal{N}(0,
+\sigma^2 I_{n \times n})\)</span>, the scaled quantity</p>
+<p><span id="eq-SigmaDistribution"><span class="math display">\[
+\frac{RSS}{\sigma^2} = \frac{(n-p)\,\widehat{\sigma^2}}{\sigma^2}
+\sim \chi^2_{n-p}
+\tag{3.22}\]</span></span></p>
+<p>follows a chi-squared distribution with <span class="math inline">\(n - p\)</span> degrees of freedom, where <span class="math inline">\(n\)</span> is the number of observations and <span class="math inline">\(p\)</span> is the number of estimated coefficients (including the intercept). Taking the expectation of both sides shows that <span class="math inline">\(\widehat{\sigma^2} = RSS / (n - p)\)</span> is an unbiased estimator of <span class="math inline">\(\sigma^2\)</span>.</p>
+<p>To examine the significance of coefficients <span class="math inline">\(\beta\)</span>, normalized estimates of model coefficients are often used. Using <a href="#eq-BetaDistribution" class="quarto-xref">Equation&nbsp;<span>3.20</span></a>, we can standardize <span class="math inline">\(\hat{\beta}\)</span>:</p>
+<p><span class="math display">\[
+(\hat{\beta} - \beta)(X^TX)^{1/2}/\sigma \sim \mathcal{N}(0, I_p).
+\]</span></p>
+<p>From this it’s easy to see that</p>
+<p><span id="eq-BetaDistributionSq"><span class="math display">\[
+\frac{(\hat{\beta} - \beta)^T X^T X (\hat{\beta} - \beta)}{\sigma^2} \sim \chi^2_p.
+\tag{3.23}\]</span></span></p>
+<p>Since statistics <span class="math inline">\(\hat{\beta}\)</span> and <span class="math inline">\(\widehat{\sigma^2}\)</span> are independent,<a href="#fn5" class="footnote-ref" id="fnref5" role="doc-noteref"><sup>5</sup></a> the ratio of rescaled statistics from <a href="#eq-SigmaDistribution" class="quarto-xref">Equation&nbsp;<span>3.22</span></a> and <a href="#eq-BetaDistributionSq" class="quarto-xref">Equation&nbsp;<span>3.23</span></a> has a distribution independent of the value of parameter <span class="math inline">\(\sigma^2\)</span>, that is,</p>
+<div class="no-row-height column-margin column-container"><div id="fn5"><p><sup>5</sup>&nbsp;Why are they independent? This is clearly visible in <a href="#fig-projectionXbeta" class="quarto-xref">Figure&nbsp;<span>3.2</span></a> both are determined on orthogonal spaces, and since <span class="math inline">\(\varepsilon\)</span> is a vector of independent random variables, its orthogonal linear combinations are also independent.</p></div></div><p><span id="eq-BetaDistributionJoint"><span class="math display">\[
+\frac{\frac{(\hat{\beta} - \beta)^T X^T X (\hat{\beta} - \beta)}{\sigma^2}/p}{\frac{(n-p) \widehat{\sigma^2}}{\sigma^2}/(n-p)} = \frac{(\hat{\beta} - \beta)^T X^T X (\hat{\beta} - \beta)}{p \widehat{\sigma^2}} \sim F_{p,n-p}.
+\tag{3.24}\]</span></span></p>
+<p>Thus we have a distribution for estimator <span class="math inline">\(\hat{\beta}\)</span> when we don’t know <span class="math inline">\(\sigma^2\)</span>. This is an important result. We will use this distribution to test the significance of the set of coefficients using the F-test.</p>
+<p>We can also use this last equation to determine the marginal distribution for <span class="math inline">\(\hat{\beta}_i\)</span>. Repeating the above reasoning, we obtain<a href="#fn6" class="footnote-ref" id="fnref6" role="doc-noteref"><sup>6</sup></a></p>
+<div class="no-row-height column-margin column-container"><div id="fn6"><p><sup>6</sup>&nbsp;Distribution <span class="math inline">\(F_{1,k}\)</span> is the square of t-Student distribution <span class="math inline">\(t_k\)</span>!</p></div></div><p><span id="eq-marginalBeta"><span class="math display">\[
+(\hat{\beta}_i - \beta_i) \sqrt{(X^TX)_{ii} / \widehat{\sigma^2}} \sim t_{n-p}.
+\tag{3.25}\]</span></span></p>
+</section>
+<section id="sec-asymtoticDistEstML" class="level3 page-columns page-full" data-number="3.4.2">
+<h3 data-number="3.4.2" class="anchored" data-anchor-id="sec-asymtoticDistEstML"><span class="header-section-number">3.4.2</span> Asymptotic Distribution of Maximum Likelihood Estimators</h3>
+<p>Maximum likelihood estimators have a number of desirable properties. For example, in a regular model<a href="#fn7" class="footnote-ref" id="fnref7" role="doc-noteref"><sup>7</sup></a>, the asymptotic distribution of estimator <span class="math inline">\(\hat{\theta}_{ML}\)</span> is <span class="math inline">\(A\mathcal{N}(\theta, I^{-1}(\theta))\)</span>, where <span class="math inline">\(I(\theta)\)</span> is Fisher information about parameter <span class="math inline">\(\theta\)</span>.</p>
+<div class="no-row-height column-margin column-container"><div id="fn7"><p><sup>7</sup>&nbsp;We won’t go into definitions of what a regular model is here; the important thing is that the models we’ll be considering are regular</p></div></div><p>Using the form of the likelihood function <a href="#eq-logLikelihoodML" class="quarto-xref">Equation&nbsp;<span>3.10</span></a>, we can easily calculate Fisher information <span class="math inline">\(I(\theta) = E\left[\left(\frac{\delta}{\delta \theta} \ln f(x; \theta)\right)^2\right]\)</span>. In this way, we obtain asymptotic distributions for estimators obtained by the maximum likelihood method:</p>
+<p><span id="eq-DistributionEstBeta"><span class="math display">\[
+\hat{\beta}_{ML} \xrightarrow{n \to \infty} A\mathcal{N}\left(\beta, \sigma^2 (X^TX)^-\right)
+\tag{3.26}\]</span></span></p>
+<p>and</p>
+<p><span id="eq-DistributionEstVar"><span class="math display">\[
+\widehat{\sigma^2}_{ML} \xrightarrow{n \to \infty} A\mathcal{N}\left(\sigma^2, 2\sigma^4/n\right).
+\tag{3.27}\]</span></span></p>
+</section>
+</section>
+<section id="sec-introduction-tests" class="level2 page-columns page-full" data-number="3.5">
+<h2 data-number="3.5" class="anchored" data-anchor-id="sec-introduction-tests"><span class="header-section-number">3.5</span> Confidence Intervals and Tests</h2>
+<p>Let’s start with confidence intervals for coefficients <span class="math inline">\(\beta\)</span>. We can construct confidence intervals for a single coefficient or simultaneously for a set of several coefficients. For practical reasons, rectangular confidence intervals (that is, constructed independently for each coordinate, for each coefficient) are most often built, that is, independently for each <span class="math inline">\(\beta_i\)</span>, so we’ll start by presenting a confidence interval for a single <span class="math inline">\(\beta_i\)</span>.</p>
+<section id="confidence-interval-for-beta_i" class="level3" data-number="3.5.1">
+<h3 data-number="3.5.1" class="anchored" data-anchor-id="confidence-interval-for-beta_i"><span class="header-section-number">3.5.1</span> Confidence Interval for <span class="math inline">\(\beta_i\)</span></h3>
+<p>Using the marginal distribution of <span class="math inline">\(\hat{\beta}_i\)</span> (see <a href="#eq-marginalBeta" class="quarto-xref">Equation&nbsp;<span>3.25</span></a>), we can determine a confidence interval at level <span class="math inline">\(1-\alpha\)</span>. The shortest, in this case symmetric, confidence interval will be of the form</p>
+<p><span class="math display">\[
+CI_{1-\alpha} = [\hat{\beta} - c_\alpha, \hat{\beta} + c_\alpha],
+\]</span></p>
+<p>where <span class="math inline">\(c_\alpha = t^{\alpha/2}_{n-p} \sqrt{\widehat{\sigma^2_{OLS}} (X^TX)^{-}_{ii}}\)</span> and <span class="math inline">\(t^{\alpha/2}_{n-p}\)</span> is the <span class="math inline">\(\alpha/2\)</span> quantile of the t-Student distribution with <span class="math inline">\(n-p\)</span> degrees of freedom. The t-Student distribution is symmetric and converges to the normal distribution as the number of degrees of freedom increases, so, for large values of n, the normal distribution approximation can be used.</p>
+<p>We could also determine a confidence interval based on the asymptotic distribution <a href="#eq-DistributionEstBeta" class="quarto-xref">Equation&nbsp;<span>3.26</span></a>, but for small <span class="math inline">\(n\)</span> we would obtain an inaccurate confidence interval, and for large <span class="math inline">\(n\)</span> an interval close to the one determined above.</p>
+</section>
+<section id="sec-introduction-test-beta" class="level3" data-number="3.5.2">
+<h3 data-number="3.5.2" class="anchored" data-anchor-id="sec-introduction-test-beta"><span class="header-section-number">3.5.2</span> Test for a Marginal Hypothesis About <span class="math inline">\(\beta_i\)</span></h3>
+<p>Similarly to constructing a confidence interval, we can use distribution <a href="#eq-marginalBeta" class="quarto-xref">Equation&nbsp;<span>3.25</span></a> to construct a test for the null hypothesis</p>
+<p><span id="eq-betaHypothesisI"><span class="math display">\[
+H_0: \beta_i = 0.
+\tag{3.28}\]</span></span></p>
+<p>Below we will present a test for a two-sided alternative hypothesis in the full model, that is, in the presence of all other variables <span class="math inline">\(X\)</span>. This is a so-called Type III test.</p>
+<p>As the test statistic let’s choose <span class="math inline">\(T = \hat{\beta}_i \sqrt{(X^TX)_{ii} / \widehat{\sigma^2}}\)</span>. Since for a true null hypothesis it has a central t-Student distribution, the critical values will be appropriate quantiles of this distribution, chosen to control Type I error at level <span class="math inline">\(\alpha\)</span>.</p>
+<p>The test result is most often presented by giving p-values. For null hypothesis <a href="#eq-betaHypothesisI" class="quarto-xref">Equation&nbsp;<span>3.28</span></a> and a two-sided alternative, we can immediately write the formula for the p-value:</p>
+<p><span class="math display">\[
+p_{\beta_i} = 2(1 - F_{t_{n-p}}(|\hat{\beta}_i| \sqrt{(X^TX)_{ii}/\widehat{\sigma^2}})),
+\]</span></p>
+<p>where <span class="math inline">\(F_{t_{n-p}}(x)\)</span> is the value of the cumulative distribution function of the t-Student distribution with <span class="math inline">\(n-p\)</span> degrees of freedom at point <span class="math inline">\(x\)</span>.</p>
+<p>It’s equally easy to write the formula for the p-value for a one-sided alternative hypothesis. For example, for alternative <span class="math inline">\(\beta_i &gt; 0\)</span>, we determine the p-value as</p>
+<p><span class="math display">\[
+p_{\beta_i} = 1 - F_{t_{n-p}}(\hat{\beta}_i \sqrt{(X^TX)_{ii}/\widehat{\sigma^2}}).
+\]</span></p>
+<p>If <span class="math inline">\(p_{\beta_i}&lt;\alpha\)</span>, then at significance level <span class="math inline">\(\alpha\)</span> we have grounds to reject the null hypothesis. Obviously, both the significance level <span class="math inline">\(\alpha\)</span> and the form of the alternative (whether one-sided or two-sided) should be determined before beginning testing.</p>
+</section>
+<section id="confidence-intervals-for-a-set-of-coefficients-of-vector-beta" class="level3 page-columns page-full" data-number="3.5.3">
+<h3 data-number="3.5.3" class="anchored" data-anchor-id="confidence-intervals-for-a-set-of-coefficients-of-vector-beta"><span class="header-section-number">3.5.3</span> Confidence Intervals for a Set of Coefficients of Vector <span class="math inline">\(\beta\)</span></h3>
+<p>Joint confidence intervals for a set of coefficients of vector <span class="math inline">\(\beta\)</span> can be determined using knowledge of distribution <a href="#eq-BetaDistributionJoint" class="quarto-xref">Equation&nbsp;<span>3.24</span></a>. The sought confidence interval will be the interior of an ellipsoid whose boundary is the set of points <span class="math inline">\(\{z\}\)</span> defined by the equation</p>
+<p><span class="math display">\[
+(\hat{\beta} - z)^T X^T X (\hat{\beta} - z) = p \widehat{\sigma^2} q_{F_{p,n-p}(1-\alpha)},
+\]</span></p>
+<p>where <span class="math inline">\(q_{F_{p,n-p}}(1-\alpha)\)</span> is the <span class="math inline">\(1-\alpha\)</span> quantile of the <span class="math inline">\(F\)</span> distribution with <span class="math inline">\(p\)</span> and <span class="math inline">\(n-p\)</span> degrees of freedom. The justification follows directly from the form of the pivotal function for <span class="math inline">\(\beta\)</span> and looks similar whether we’re interested in a confidence interval for the entire vector <span class="math inline">\(\beta\)</span> or for a subset of elements of this vector. More about simultaneous intervals can be found in <span class="citation" data-cites="Faraway1">Faraway (<a href="#ref-Faraway1" role="doc-biblioref">2002</a>)</span>.</p>
+<p>In <a href="#fig-confidenceIntervals2D" class="quarto-xref">Figure&nbsp;<span>3.3</span></a>, we show an example of simultaneous and marginal confidence intervals for <span class="math inline">\(\beta=(\beta_1, \beta_2)\)</span> in the case when columns of matrix <span class="math inline">\(X\)</span> are orthogonal (on the left) and close to collinearity (on the right). In this example, the simultaneous interval has a smaller area than the product of marginal intervals. Moreover, the simultaneous interval controls at level <span class="math inline">\(1-\alpha\)</span> the probability that both unknown values <span class="math inline">\(\beta\)</span> are in it, while marginal intervals control this probability for each coordinate separately. The disadvantage of simultaneous intervals is the difficulty in presenting them, especially for a larger number of dimensions.</p>
+<div class="cell page-columns page-full">
+<div class="cell-output-display page-columns page-full">
+<div id="fig-confidenceIntervals2D" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-confidenceIntervals2D-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figure/przedzialyUfnosci2.png" class="img-fluid figure-img" style="width:100.0%">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-confidenceIntervals2D-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.3: Confidence intervals shown above for the case when columns of matrix <span class="math inline">\(X\)</span> are orthogonal (left) and when they are negatively correlated with correlation <span class="math inline">\(\rho=-0.8\)</span> (right). The dashed line marks marginal confidence intervals at level 0.95, the dotted line marks marginal confidence intervals at level 0.975 (i.e., simultaneous confidence intervals at level 0.95 determined using Bonferroni correction). The ellipse represents the joint confidence interval at level 0.95. In the left example, the area of the dotted confidence interval is 7% larger than the area of the ellipse. In the right example, the area of the dotted joint confidence interval is 79% larger than the area of the ellipse. The more correlated the variables, the more is lost by using marginal/rectangular confidence intervals instead of a joint elliptical confidence interval.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="sec-introduction-test-betas" class="level3 page-columns page-full" data-number="3.5.4">
+<h3 data-number="3.5.4" class="anchored" data-anchor-id="sec-introduction-test-betas"><span class="header-section-number">3.5.4</span> Test for a Hypothesis About a Subset of Coefficients <span class="math inline">\(\beta\)</span></h3>
+<p>Let’s construct a test for a set of coefficients. For simplicity, assume we’re testing the last <span class="math inline">\(q \leq p\)</span> coefficients. The null hypothesis is therefore</p>
+<p><span id="eq-betaHtpothesisSetI"><span class="math display">\[
+H_0: \beta_{p-q+1} = ... = \beta_p = 0.
+\tag{3.29}\]</span></span></p>
+<p>The alternative hypothesis is the statement that at least one <span class="math inline">\(\beta_i \neq 0\)</span> for <span class="math inline">\(i&gt;p-q\)</span>.</p>
+<p>Let’s introduce additional notation. Let <span class="math inline">\(W\)</span> be a matrix equal to the first <span class="math inline">\(p-q\)</span> columns of matrix <span class="math inline">\(X\)</span>. Obviously, the subspace spanned by columns of matrix <span class="math inline">\(W\)</span> is contained in the subspace spanned by columns of matrix <span class="math inline">\(X\)</span> (so <span class="math inline">\(\mathcal{R}(W) \subseteq \mathcal{R}(X)\)</span>). By <span class="math inline">\(\hat{\beta}_X\)</span> we denote the value of the estimator determined for matrix <span class="math inline">\(X\)</span>, and by <span class="math inline">\(\hat{\beta}_W\)</span> the value of the estimator determined for matrix <span class="math inline">\(W\)</span>.</p>
+<p>Let’s construct a test by the likelihood ratio method. Using <a href="#eq-fractionLRSS" class="quarto-xref">Equation&nbsp;<span>3.12</span></a>, we have</p>
+<p><span class="math display">\[
+\frac{L(\hat{\beta}_W, \hat{\sigma}_W|y)}{L(\hat{\beta}_X, \hat{\sigma}_X|y)} = \left(\frac{RSS_{W}}{RSS_{X}}\right)^{-n/2}.
+\]</span></p>
+<p>The likelihood ratio test can be based on the statistic</p>
+<p><span class="math display">\[
+T_1 = \frac{RSS_{W}}{RSS_{X}},
+\]</span></p>
+<p>whose large values speak against the null hypothesis. Equivalently, we can consider statistic <span class="math inline">\(T_2=T_1-1\)</span>, which will be easier for us to study:</p>
+<p><span id="eq-statisticsT2reglin"><span class="math display">\[
+T_2 = \frac{RSS_{W} - RSS_{X}}{RSS_{X}}.
+\tag{3.30}\]</span></span></p>
+<p>The question is what distribution does it have? We can derive this distribution formally, but it’s better to read it from <a href="#fig-testAB" class="quarto-xref">Figure&nbsp;<span>3.4</span></a>. <span class="math inline">\(RSS_{W}\)</span> is the square of the length of vector <span class="math inline">\(y - W\hat{\beta}_W\)</span>, <span class="math inline">\(RSS_{X}\)</span> is the square of the length of vector <span class="math inline">\(y - X\hat{\beta}_X\)</span>. So, by the Pythagorean theorem (see where the orthogonal projections are), <span class="math inline">\(RSS_{W} - RSS_{X}\)</span> is the square of the length of vector <span class="math inline">\(W\hat{\beta}_W - X\hat{\beta}_X\)</span>. Under the true null hypothesis, the distribution of the square of the length of this vector is a <span class="math inline">\(\chi^2_{p-q}\)</span> distribution scaled by variance <span class="math inline">\(\sigma^2\)</span>. The distribution of <span class="math inline">\(RSS_X\)</span>, that is, the square of the length of vector <span class="math inline">\(y - X\hat{\beta}_X\)</span>, is a <span class="math inline">\(\chi^2_{p}\)</span> distribution scaled by variance <span class="math inline">\(\sigma^2\)</span>. Both vectors are random variables on orthogonal spaces; vector <span class="math inline">\(\varepsilon\)</span> is a vector of independent variables, so the lengths <span class="math inline">\(RSS_X\)</span> and <span class="math inline">\(RSS_{W} - RSS_{X}\)</span> are independent variables.<a href="#fn8" class="footnote-ref" id="fnref8" role="doc-noteref"><sup>8</sup></a></p>
+<div class="no-row-height column-margin column-container"><div id="fn8"><p><sup>8</sup>&nbsp;Why? Compare with formula <a href="#eq-SigmaDistribution" class="quarto-xref">Equation&nbsp;<span>3.22</span></a>.</p></div></div><p>Summarizing,</p>
+<p><span class="math display">\[
+\frac{RSS_W - RSS_X}{\sigma^2} \sim \chi^2_{p-q},
+\]</span></p>
+<p><span class="math display">\[
+\frac{RSS_X}{\sigma^2} \sim \chi^2_{n-p}.
+\]</span></p>
+<p>The ratio of these two variables has distribution</p>
+<p><span class="math display">\[
+\frac{(RSS_W - RSS_X)/(p-q)}{RSS_X/(n-p)} \sim F_{p-q, n-p}.
+\]</span></p>
+<p>We can now write the formula for the p-value for the test verifying hypothesis <a href="#eq-betaHtpothesisSetI" class="quarto-xref">Equation&nbsp;<span>3.29</span></a>:</p>
+<p><span class="math display">\[
+p = 1 - F_{p-q, n-p}\left( \frac{(RSS_W - RSS_X)/(p-q)}{RSS_X/(n-p)} \right),
+\]</span></p>
+<p>where <span class="math inline">\(F_{p-q, n-p}(.)\)</span> denotes the cumulative distribution function of the F distribution with <span class="math inline">\(p-q, n-p\)</span> degrees of freedom.</p>
+<p>Let’s add that test statistic <a href="#eq-statisticsT2reglin" class="quarto-xref">Equation&nbsp;<span>3.30</span></a> has an intuitive interpretation presented in Figure <a href="#fig-testAB" class="quarto-xref">Figure&nbsp;<span>3.4</span></a>. The denominator, that is <span class="math inline">\(RSS_X = ||y - X \hat{\beta}_X||^2\)</span>, is the length of the vector corresponding to random disturbance from the <span class="math inline">\(n-p\)</span> dimensional space, while <span class="math inline">\(RSS_W - RSS_X = ||W\hat{\beta}_W - X\hat{\beta}_X||^2\)</span> is the length of the vector corresponding to the effect of variables <span class="math inline">\(X \backslash W\)</span>. To reject the hypothesis of insignificance of these variables, the length <span class="math inline">\(RSS_W - RSS_X\)</span> should be large compared to <span class="math inline">\(RSS_X\)</span>.</p>
+<div class="cell page-columns page-full">
+<div class="cell-output-display page-columns page-full">
+<div id="fig-testAB" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-testAB-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figure/projection_Xab.png" class="img-fluid figure-img" style="width:80.0%">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-testAB-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.4: Algebraic interpretation of the likelihood ratio test. Test statistic <span class="math inline">\(T_2\)</span> from equation TODO is the ratio of squares of the length of vector <span class="math inline">\(X\hat{\beta_X} - W\hat{\beta}_W\)</span> to vector <span class="math inline">\(y-X \hat{\beta}_X\)</span>. For a true null hypothesis, the mean value of vector <span class="math inline">\(y\)</span> lies in space <span class="math inline">\(\mathcal{R}(W)\)</span> and the random disturbance is independent on each coordinate, so the distribution of vector <span class="math inline">\(X\hat{\beta}_X - W\hat{\beta}_W\)</span> is independent of the distribution of <span class="math inline">\(y-X \hat{\beta}_X\)</span> because these vectors are defined on orthogonal spaces. Moreover, the distributions of these vectors have multivariate normal distributions with mean zero and covariance matrices <span class="math inline">\(I_{p-q}\)</span> and <span class="math inline">\(I_{n-p}\)</span> respectively. Thus the squares of the lengths of these vectors have independent <span class="math inline">\(\chi^2_{p-q}\)</span> and <span class="math inline">\(\chi^2_{n-p}\)</span> distributions respectively.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="confidence-interval-for-sigma2" class="level3 page-columns page-full" data-number="3.5.5">
+<h3 data-number="3.5.5" class="anchored" data-anchor-id="confidence-interval-for-sigma2"><span class="header-section-number">3.5.5</span> Confidence Interval for <span class="math inline">\(\sigma^2\)</span></h3>
+<p>Confidence intervals for <span class="math inline">\(\sigma^2\)</span> can be determined in two ways. If <span class="math inline">\(\sigma^2\)</span> is estimated by the maximum likelihood method, we can use the asymptotic distribution of the maximum likelihood estimator (see <a href="#eq-DistributionEstVar" class="quarto-xref">Equation&nbsp;<span>3.27</span></a>):</p>
+<p><span class="math display">\[
+\widehat{\sigma^2_{ML}} / \sigma^2 \sim A\mathcal{N}(1, 2/n)
+\]</span></p>
+<p>In this case, the asymptotic confidence interval at level <span class="math inline">\(1-\alpha\)</span> is</p>
+<p><span class="math display">\[
+CI_{1-\alpha} = \left[\widehat{\sigma^2}_{ML}\left(1 + q^{1-\alpha/2} \sqrt{2/n}\right)^{-1}, \widehat{\sigma^2_{ML}}\left(1 + q^{\alpha/2} \sqrt{2/n}\right)^{-1} \right].
+\]</span></p>
+<p>If we use OLS or REML estimators, we can determine confidence intervals directly from <a href="#eq-SigmaDistribution" class="quarto-xref">Equation&nbsp;<span>3.22</span></a>, which indicates a pivotal function for parameter <span class="math inline">\(\sigma^2\)</span>.<a href="#fn9" class="footnote-ref" id="fnref9" role="doc-noteref"><sup>9</sup></a></p>
+<div class="no-row-height column-margin column-container"><div id="fn9"><p><sup>9</sup>&nbsp;A pivotal function is a function of the sample and parameter whose distribution doesn’t depend on the parameter; it’s used to determine confidence intervals.</p></div></div><p>In this case, the exact confidence interval (the one presented above was asymptotic) has the form</p>
+<p><span class="math display">\[
+CI_{1-\alpha} = \left[\widehat{\sigma^2_{OLS}} \frac{n-p}{\chi^2_{1-\alpha_1,n-p}}, \widehat{\sigma^2_{OLS}} \frac{n-p}{\chi^2_{\alpha_2,n-p}}\right],
+\]</span></p>
+<p>where <span class="math inline">\(\alpha_1 + \alpha_2 = \alpha\)</span>, and <span class="math inline">\(\chi^2_{1-\alpha_1,n-p}\)</span> denotes the <span class="math inline">\(1-\alpha_1\)</span> quantile of the <span class="math inline">\(\chi^2\)</span> distribution with <span class="math inline">\(n-p\)</span> degrees of freedom. Since the <span class="math inline">\(\chi^2\)</span> distribution is not symmetric, to find the shortest confidence interval, one should choose <span class="math inline">\(\alpha_1\)</span> and <span class="math inline">\(\alpha_2\)</span> so that the densities of the <span class="math inline">\(\chi^2_{n-p}\)</span> distribution at points <span class="math inline">\(\alpha_1\)</span> and <span class="math inline">\(\alpha_2\)</span> are equal and simultaneously <span class="math inline">\(\alpha_1 + \alpha_2 = \alpha\)</span>. For large <span class="math inline">\(n-p\)</span>, the distribution becomes increasingly symmetric, so one can choose <span class="math inline">\(\alpha_1 = \alpha_2 = \alpha/2\)</span>.</p>
+</section>
+<section id="sec-introduction-test-y" class="level3" data-number="3.5.6">
+<h3 data-number="3.5.6" class="anchored" data-anchor-id="sec-introduction-test-y"><span class="header-section-number">3.5.6</span> Confidence Interval for <span class="math inline">\(y_i\)</span></h3>
+<p>If we want to use the linear model to determine an estimate <span class="math inline">\(\hat{y}\)</span> for new observations <span class="math inline">\(x_0\)</span>, we will often also be interested in confidence intervals for these predictions.</p>
+<p>If the linear model is adequate, then for a new observation, let’s denote it <span class="math inline">\(x_0\)</span>, the response variable is described by the equation <span class="math inline">\(y_0 = x_0 \beta + \varepsilon_0\)</span>, where <span class="math inline">\(\varepsilon_0 \sim \mathcal{N}(0,\sigma^2)\)</span>.</p>
+<p>We determine the point prediction for <span class="math inline">\(y_0\)</span> as <span class="math inline">\(\hat{y}_0 = x_0 \hat{\beta}\)</span>. When determining the confidence interval for <span class="math inline">\(y_0\)</span>, we must take into account that in the estimate <span class="math inline">\(\hat{y}_0\)</span>, uncertainty concerns two estimated parameters: vector <span class="math inline">\(\beta\)</span> and value <span class="math inline">\(\sigma^2\)</span>.</p>
+<p>We can easily handle the uncertainty regarding estimate <span class="math inline">\(\hat{\beta}\)</span>. Using the formula for the distribution of <span class="math inline">\(\hat{\beta}\)</span>, we have that <span class="math inline">\(x_0 \hat{\beta} / \sqrt{\widehat{\sigma^2} x_0^T (X^TX)^{-1} x_0}\)</span> has a noncentral t-Student distribution. Variables <span class="math inline">\(x_0 \hat{\beta}\)</span> and <span class="math inline">\(\varepsilon_0\)</span> are dependent, and their sum is a scaled t-Student distribution (if they were independent, it would be the sum of two t-Student distributions) scaled by <span class="math inline">\(\sqrt{\widehat{\sigma^2} (1+x_0^T (X^TX)^{-1} x_0)}\)</span>.</p>
+<p>So the confidence interval for <span class="math inline">\(y_i\)</span> is</p>
+<p><span class="math display">\[
+CI_{1-\alpha} = [x_0 \hat{\beta} - c_\alpha, x_0 \hat{\beta} + c_\alpha],
+\]</span></p>
+<p>where <span class="math inline">\(c_\alpha = t_{n-p}^{\alpha/2}\sqrt{\widehat{\sigma^2} (1 + x_0^T (X^TX)^{-1} x_0)}\)</span>.</p>
+</section>
+<section id="orthogonality-of-the-model-matrix" class="level3 page-columns page-full" data-number="3.5.7">
+<h3 data-number="3.5.7" class="anchored" data-anchor-id="orthogonality-of-the-model-matrix"><span class="header-section-number">3.5.7</span> Orthogonality of the Model Matrix</h3>
+<p>We consider a linear model with structure</p>
+<p><span class="math display">\[
+y = [X \; W \; Z] \begin{bmatrix}\beta_X\\ \beta_W\\ \beta_Z\end{bmatrix} + \varepsilon,
+\]</span></p>
+<p>where <span class="math inline">\(X\)</span>, <span class="math inline">\(W\)</span>, and <span class="math inline">\(Z\)</span> are matrices with <span class="math inline">\(p_1\)</span>, <span class="math inline">\(p_2\)</span>, and <span class="math inline">\(p_3\)</span> columns respectively. If we want to verify hypotheses about coefficients <span class="math inline">\(\beta_W\)</span>, <span class="math inline">\(\beta_Z\)</span>, we can consider the following null hypotheses:</p>
+<p><span class="math display">\[
+\begin{aligned}
+H_0^{I}:&amp; \beta_W = 0,\\
+H_0^{II}:&amp; \beta_Z = 0,\\
+H_0^{III}:&amp; \beta_Z = \beta_W = 0.
+\end{aligned}
+\]</span></p>
+<p>Let’s focus our attention on hypothesis <span class="math inline">\(H_0^{I}\)</span>. To verify it, we can use the F-test described in <a href="#sec-introduction-test-beta" class="quarto-xref"><span>Section 3.5.2</span></a>:</p>
+<ul>
+<li>Either in model <span class="math inline">\(y = [X \; W] \begin{bmatrix}\beta_X\\ \beta_W\end{bmatrix}\)</span> against <span class="math inline">\(y = X \beta_X\)</span>,</li>
+<li>Or in model <span class="math inline">\(y = [X \; W \; Z] \begin{bmatrix}\beta_X\\ \beta_W\\ \beta_Z\end{bmatrix}\)</span> against <span class="math inline">\(y = [X \; Z] \begin{bmatrix}\beta_X\\ \beta_Z\end{bmatrix}\)</span>.</li>
+</ul>
+<p>In the first case, the test statistic will be (using notation from <a href="#fig-testAB2" class="quarto-xref">Figure&nbsp;<span>3.5</span></a>)</p>
+<p><span class="math display">\[
+T_2' = \frac{|CA|^2}{|yC|^2} = \frac{|[X \; W]\widehat{\beta_{X W}} - X\hat{\beta}_{X}|^2}{|y - [X \; W]\widehat{\beta_{X W}}|^2},
+\]</span></p>
+<p>in the second case, the test statistic will be</p>
+<p><span class="math display">\[
+T_2'' = \frac{|BD|^2}{|yB|^2} = \frac{|[X \; W \; Z]\widehat{\beta_{X W Z}} - [X \; Z]\widehat{\beta_{X Z}}|^2}{|y - [X \; W \; Z]\widehat{\beta_{X W Z}}|^2}.
+\]</span></p>
+<p>Note that if columns of matrices <span class="math inline">\(X\)</span>, <span class="math inline">\(W\)</span>, and <span class="math inline">\(Z\)</span> are orthogonal to each other, then <span class="math inline">\(|BD|=|CA|\)</span>, <span class="math inline">\(|AB|^2 = |BC|^2+|CA|^2\)</span>, <span class="math inline">\(|yA|^2 = |yB|^2+|AB|^2\)</span>, and <span class="math inline">\(|yA|^2 = |yB|^2+|BC|^2+|CA|^2\)</span>, and statistic <span class="math inline">\(T_2''=\frac{|CA|^2}{|yC|+|CB|^2}\)</span> is equivalent to <span class="math inline">\(T_2'\)</span> because <span class="math inline">\(|CB|\)</span> and <span class="math inline">\(|CA|\)</span> are independent. This means that the test result using statistics <span class="math inline">\(T_2'\)</span> and <span class="math inline">\(T_2''\)</span> will be identical, regardless of whether <span class="math inline">\(Z\)</span> is in the model.</p>
+<p>However, if columns <span class="math inline">\(W\)</span> and <span class="math inline">\(Z\)</span> are not orthogonal, then the situation looks like in <a href="#fig-testAB3" class="quarto-xref">Figure&nbsp;<span>3.6</span></a>. Lengths <span class="math inline">\(|BD|\)</span> and <span class="math inline">\(|CA|\)</span> can be different, and thus we can obtain different test results using test <span class="math inline">\(T_2'\)</span> versus using <span class="math inline">\(T_2''\)</span>.</p>
+<p>For hypothesis <span class="math inline">\(H_0^{III}\)</span>, the test statistic has the form</p>
+<p><span class="math display">\[
+T_2''' = \frac{|BA|^2}{|yB|^2}.
+\]</span></p>
+<p>For orthogonal <span class="math inline">\(W\)</span> and <span class="math inline">\(Z\)</span>, we have <span class="math inline">\(|BA|^2 = |BC|^2+|BD|^2 = |CA|^2+|DA|^2\)</span>, so if the effect of either variable is significant, regardless of whether in the presence of the other variable or not, we will reject hypothesis <span class="math inline">\(H_0^{III}\)</span>.</p>
+<p>However, if <span class="math inline">\(W\)</span> and <span class="math inline">\(Z\)</span> are dependent, for example as in <a href="#fig-testAB3" class="quarto-xref">Figure&nbsp;<span>3.6</span></a>, then based on test results for columns separately <span class="math inline">\(W\)</span> or <span class="math inline">\(Z\)</span>, we cannot draw conclusions about hypothesis <span class="math inline">\(H_0^{III}\)</span>.</p>
+<p>The above example illustrates how many benefits are obtained if <span class="math inline">\(Z\)</span> and <span class="math inline">\(W\)</span> are orthogonal. If we have control over explanatory variables, it’s worth ensuring orthogonality of columns of the model matrix. This orthogonality can be achieved in several ways, including:</p>
+<ul>
+<li>If submatrices <span class="math inline">\(Z\)</span> and <span class="math inline">\(W\)</span> correspond to dummy variables encoding categorical features, then by choosing appropriate encoding, that is, so-called contrasts, we can obtain orthogonal columns (see <a href="31-anova-one.html#sec-one-way-contrasts" class="quarto-xref"><span>Section 5.5</span></a>).</li>
+<li>If we can control dependent variables, we can apply a so-called experimental design, that is, select (not randomly!) from the population observations with such values of dependent variables that columns <span class="math inline">\(W\)</span> and <span class="math inline">\(Z\)</span> will be orthogonal. In particular, a balanced design, that is, one in which each group of factors is represented by an equal number of observations (so-called balanced design), allows encoding matrices <span class="math inline">\(W\)</span> and <span class="math inline">\(Z\)</span> in an orthogonal way.</li>
+</ul>
+<div class="cell page-columns page-full">
+<div class="cell-output-display page-columns page-full">
+<div id="fig-testAB2" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-testAB2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figure/testAB2.png" class="img-fluid figure-img" style="width:80.0%">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-testAB2-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.5: Projections of vector <span class="math inline">\(y\)</span> onto subspaces spanned by columns of matrices <span class="math inline">\(X\)</span>, <span class="math inline">\(W\)</span>, and <span class="math inline">\(Z\)</span>. To increase readability, the following notation was adopted: <span class="math inline">\(OA = X \hat{\beta_X}\)</span>, <span class="math inline">\(OC = [X \; W] \hat{\beta}_{[X, W]}\)</span>, <span class="math inline">\(OD = [X \; Z] \hat{\beta}_{[X, Z]}\)</span>, <span class="math inline">\(OB = [X \; W \; Z] \hat{\beta}_{[X, W, Z]}\)</span>. Space <span class="math inline">\(W\)</span> is orthogonal to <span class="math inline">\(X\)</span>, whereby lengths of vectors <span class="math inline">\(|AC|=|BD|\)</span>, <span class="math inline">\(|BC|=|AD|\)</span>, and <span class="math inline">\(|AB|^2=|AC|^2+|CD|^2 = |AD|^2+|DB|^2\)</span>. This enables independent testing of effects of variables <span class="math inline">\(\beta_X\)</span>, <span class="math inline">\(\beta_W\)</span>, and <span class="math inline">\(\beta_Z\)</span>.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<div class="cell page-columns page-full">
+<div class="cell-output-display page-columns page-full">
+<div id="fig-testAB3" class="quarto-float quarto-figure quarto-figure-center anchored page-columns page-full">
+<figure class="quarto-float quarto-float-fig figure page-columns page-full">
+<div aria-describedby="fig-testAB3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+<img src="figure/testAB3.png" class="img-fluid figure-img" style="width:80.0%">
+</div>
+<figcaption class="quarto-float-caption-margin quarto-float-caption quarto-float-fig margin-caption" id="fig-testAB3-caption-0ceaefa1-69ba-4598-a22c-09a6ac19f8ca">
+Figure&nbsp;3.6: Projections of vector <span class="math inline">\(y\)</span> onto subspaces spanned by columns of matrices <span class="math inline">\(X\)</span>, <span class="math inline">\(W\)</span>, and <span class="math inline">\(Z\)</span>. Spaces <span class="math inline">\(W\)</span> and <span class="math inline">\(X\)</span> are not orthogonal, so <span class="math inline">\(|AC| \neq |BD|\)</span> and <span class="math inline">\(|BC| \neq |AD|\)</span>. In such a case, the order of testing can matter.
+</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="armed-lets-see-how-it-works-in-practice" class="level3" data-number="3.5.8">
+<h3 data-number="3.5.8" class="anchored" data-anchor-id="armed-lets-see-how-it-works-in-practice"><span class="header-section-number">3.5.8</span> Armed? Let’s see how it works in practice</h3>
+<p>The theory developed in this chapter, distributions of estimators, hypothesis tests, confidence and prediction intervals, forms the backbone of everything that follows. The next chapters put these tools to work on datasets from the WaszKrak world, and many of the abstract results introduced here will become considerably more intuitive once they are attached to a concrete question and a scatter plot. If some of the derivations still feel opaque, that is entirely expected: statistical theory tends to clarify in retrospect, not in advance. Return to this chapter after working through a few examples and you will likely find that the pieces fall into place on their own.</p>
+
+
+<div id="refs" class="references csl-bib-body hanging-indent" data-entry-spacing="0" data-line-spacing="2" role="list">
+<div id="ref-bricken2023" class="csl-entry" role="listitem">
+Bricken, T., Templeton, A., Batson, J., Chen, B., Jermyn, A., Conerly, T., Turner, N., et al. (2023). <em>Towards monosemanticity: Decomposing language models with dictionary learning</em>. Transformer Circuits Thread. <a href="https://transformer-circuits.pub/2023/
+                  monosemantic-features/index.html">https://transformer-circuits.pub/2023/ monosemantic-features/index.html</a>
+</div>
+<div id="ref-draper1998" class="csl-entry" role="listitem">
+Draper, N. R., &amp; Smith, H. (1998). <em>Applied regression analysis</em> (3rd ed.). Wiley.
+</div>
+<div id="ref-Efron" class="csl-entry" role="listitem">
+Efron, B., Hastie, T., Johnstone, I., &amp; Tibshirani, R. (2004). Least angle regression. <em>Annals of Statistics</em>, <em>32</em>(2), 409–499.
+</div>
+<div id="ref-Faraway1" class="csl-entry" role="listitem">
+Faraway, J. (2002). <em>Practical regression and anova using r</em>. <a href="http://cran.r-project.org/doc/contrib/Faraway-PRA.pdf">http://cran.r-project.org/doc/contrib/Faraway-PRA.pdf</a>
+</div>
+<div id="ref-galton1886" class="csl-entry" role="listitem">
+Galton, F. (1886). Regression towards mediocrity in hereditary stature. <em>The Journal of the Anthropological Institute of Great Britain and Ireland</em>, <em>15</em>, 246–263. <a href="https://doi.org/10.2307/2841583">https://doi.org/10.2307/2841583</a>
+</div>
+<div id="ref-gauss1809" class="csl-entry" role="listitem">
+Gauss, C. F. (1809). <em>Theoria motus corporum coelestium in sectionibus conicis solem ambientium</em>. Frid.&nbsp;Perthes et I.&nbsp;H.&nbsp;Besser.
+</div>
+<div id="ref-harrell2015" class="csl-entry" role="listitem">
+Harrell, F. E. (2015). <em>Regression modeling strategies: With applications to linear models, logistic and ordinal regression, and survival analysis</em>. Springer. <a href="https://doi.org/10.1007/978-3-319-19425-7">https://doi.org/10.1007/978-3-319-19425-7</a>
+</div>
+<div id="ref-hastie2009" class="csl-entry" role="listitem">
+Hastie, T., Tibshirani, R., &amp; Friedman, J. (2009). <em>The elements of statistical learning: Data mining, inference, and prediction</em> (2nd ed.). Springer. <a href="https://doi.org/10.1007/978-0-387-84858-7">https://doi.org/10.1007/978-0-387-84858-7</a>
+</div>
+<div id="ref-henderson1975" class="csl-entry" role="listitem">
+Henderson, C. R. (1975). Best linear unbiased estimation and prediction under a selection model. <em>Biometrics</em>, <em>31</em>(2), 423–447. <a href="https://doi.org/10.2307/2529430">https://doi.org/10.2307/2529430</a>
+</div>
+<div id="ref-hoerl1970" class="csl-entry" role="listitem">
+Hoerl, A. E., &amp; Kennard, R. W. (1970). Ridge regression: Biased estimation for nonorthogonal problems. <em>Technometrics</em>, <em>12</em>(1), 55–67. <a href="https://doi.org/10.1080/00401706.1970.10488634">https://doi.org/10.1080/00401706.1970.10488634</a>
+</div>
+<div id="ref-legendre1805" class="csl-entry" role="listitem">
+Legendre, A.-M. (1805). <em>Nouvelles m<span>é</span>thodes pour la d<span>é</span>termination des orbites des com<span>è</span>tes</em>. Courcier.
+</div>
+<div id="ref-gauss1" class="csl-entry" role="listitem">
+Sneynin, O. B. (1979). C. F. Gauss and the theory of errors. <em>History of Exact Sciences</em>, <em>20</em>(1), 21–72. <a href="http://www.springerlink.com/index/U076K6T656NVL068.pdf">http://www.springerlink.com/index/U076K6T656NVL068.pdf</a>
+</div>
+<div id="ref-gauss2" class="csl-entry" role="listitem">
+Stigler, S. M. (1981). Gauss and the invention of least squares. <em>The Annals of Statistics</em>, <em>9</em>(3), 465–474. <a href="http://www.jstor.org/stable/2240811">http://www.jstor.org/stable/2240811</a>
+</div>
+<div id="ref-tibshirani1996" class="csl-entry" role="listitem">
+Tibshirani, R. (1996). Regression shrinkage and selection via the lasso. <em>Journal of the Royal Statistical Society, Series B</em>, <em>58</em>(1), 267–288. <a href="https://doi.org/10.1111/j.2517-6161.1996.tb02080.x">https://doi.org/10.1111/j.2517-6161.1996.tb02080.x</a>
+</div>
+<div id="ref-wood2017" class="csl-entry" role="listitem">
+Wood, S. N. (2017). <em>Generalized additive models: An introduction with <span>R</span></em>. Chapman; Hall/CRC. <a href="https://doi.org/10.1201/9781315370279">https://doi.org/10.1201/9781315370279</a>
+</div>
+<div id="ref-Zou" class="csl-entry" role="listitem">
+Zou, H., &amp; Hastie, T. (2005). Regularization and variable selection via the elastic net. <em>Journal of the Royal Statistical Society, Series B</em>, <em>67</em>, 301–320.
+</div>
+</div>
+</section>
+</section>
+
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="./00-Preface.html" class="pagination-link" aria-label="Introduction">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Introduction</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="./21-simple-regression.html" class="pagination-link" aria-label="Simple Regression and the MedScore story">
+        <span class="nav-page-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Simple Regression and the MedScore story</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+<footer class="footer"><div class="nav-footer"><div class="nav-footer-center"><div class="toc-actions d-sm-block d-md-none"><ul><li><a href="https://github.com/BetaAndBit/RogueGuide2LinearModels/edit/main/11-Introduction.qmd" class="toc-action"><i class="bi bi-github"></i>Edit this page</a></li><li><a href="https://github.com/BetaAndBit/RogueGuide2LinearModels/issues/new" class="toc-action"><i class="bi empty"></i>Report an issue</a></li></ul></div></div></div></footer></body></html>
